@@ -1,0 +1,45 @@
+﻿Specific Issues:
+ *fix this appFile, executable, directory nonsense in GameData class
+* Make sure JoyToKey is acutally working...
+* Test/fix when files/folders are missing/named incorrectly
+* Test/fix when json misformed
+* Refactor into something smarter... (Unity Events?)
+* Study the processing sketch, and figure out how it's different from this one.
+* Videos
+* Checking if a game has stalled???
+https://stackoverflow.com/questions/3500634/how-to-check-if-process-is-not-responding
+https://github.com/HeliosInteractive/OpenRoC
+
+what separation makes sense???
+
+GameCatalog {List of gameDatas, able to populate self}s
+GameData {paths, images, metadata}
+BGKeyListening{Just that}
+FGInput {Foreground Input, for controlling the menu}
+ProcessManagement{Windows, processes, cmd stuff, maybe some JoyToKey stuff hardcoded in for now}
+UI{}
+
+
+Goals:
+Should be super easy to re-skin,
+Should be super easy to change menu controls
+Should be easy to add new data, and files to games
+Should also work for non-games (just videos)
+Probably would also like an extended image gallery / longer description in some cases
+
+
+Killing the app... starting the app...
+
+Something default
+Something custom
+
+"app type" : 
+"unity"
+"processing"
+"gamemaker"
+"other"
+
+"custom stop script" 
+
+App killing strategies:
+record all processes before a launch, and kill ALL processes aside from those.

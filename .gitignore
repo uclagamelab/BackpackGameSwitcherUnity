@@ -34,3 +34,5 @@ sysinfo.txt
 *.unitypackage
 *.DS_Store
 UnityProject/.vs/
+UnityProject/Library/
+UnityProject/Temp/
