@@ -33,7 +33,6 @@ public class Menu : MonoBehaviour
 	{
 		processRunner = gameObject.GetComponent<ProcessRunner>();
 		findGames = gameObject.GetComponent<FindGames>();
-		textFiles = findGames.gameDataList;
 
 		selectGame = GameObject.Find ("SelectGame").GetComponent<TextMesh>();
 		descriptionText = GameObject.Find ("Description").GetComponent<TextMesh>();

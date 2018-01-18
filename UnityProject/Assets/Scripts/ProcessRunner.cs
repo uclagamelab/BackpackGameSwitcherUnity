@@ -1,4 +1,13 @@
-﻿using UnityEngine;
+﻿/*
+
+This class, (aspirationally) is contains functions for...
+- changing focus,
+- Starting new exes/bat files etc...
+- stopping existing processings
+
+ */
+
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -59,23 +68,14 @@ public class ProcessRunner : MonoBehaviour
     [DllImport("user32.dll")]
 	static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
 
-	// Polls the given Virtual Keycode to check it's state
-	[DllImport("user32.dll")]
-	private static extern short GetAsyncKeyState(int vlc);
-	//const short PRESSED_MASK = -(1 << 15);
+
+
 
 	Process _thisProcess = Process.GetCurrentProcess(); //The application switcher process?
 	Process _runningProcess = null; //the currently running game process
 	Process _joy2KeyProcess = null;
 
-	//List<IntPtr> _thisWindowHandles = new List<IntPtr>();
-	//List<IntPtr> _runningWindowHandles = new List<IntPtr>();
-	//List<IntPtr> _joy2KeyWindowHandles = new List<IntPtr>();
-
-	//IntPtr _thisPrimaryWindow = IntPtr.Zero;
-
-
-    //IntPtr _runningPrimaryWindow = IntPtr.Zero; //the game's window handle
+	
     IntPtr _thisPrimaryWindow = IntPtr.Zero;
     IntPtr thisPrimaryWindow
     {
@@ -117,7 +117,7 @@ public class ProcessRunner : MonoBehaviour
 
     IntPtr _joy2KeyPrimaryWindow = IntPtr.Zero;
 
-	bool _keyComboPressed = false;
+
 	FindGames findGames;
 
 	// Pressing the button opens up the game.
@@ -128,34 +128,7 @@ public class ProcessRunner : MonoBehaviour
         _instance = this;
     }
 
-	void OnGUI()
-	{
-		/*
-		if(GUI.Button(new Rect(10,10,100,100),"Run Thing"))
-		{
-			//OpenProcess("C:\\Users\\Nick\\Desktop", "RunRunRun.exe", "-popupwindow -screen-width 1920 -screen-height 1080");
-			//OpenProcess(@"C:\Program Files (x86)\Notepad++", "notepad++.exe", "");//-popupwindow -screen-width 1920 -screen-height 1080");
-			//C:\Users\Garrett\Desktop\abots.exe
-			OpenProcess("C:\\Users\\Nick\\Desktop", "RUNRUNRUN_4Player.exe", "-popupwindow -screen-width 1920 -screen-height 1080");
-		}
 
-		if( GUI.Button(new Rect(10,120,100,100), "Close thing") )
-		{
-			CloseGame();
-		}
-
-		if( GUI.Button(new Rect(120,120,100,100), "Thing to front") )
-		{
-			BringRunningToForeground();
-		}
-
-
-		if(_runningProcess != null)
-		{
-			GUI.Label(new Rect(10,230,1000,50),"rPro: " + _runningProcess.ToString() );// + " thisHandles: " + _thisWindowHandles.Count + " rHandles : " + _runningWindowHandles.Count + " : " + _thisPrimaryWindow + " : " + _runningPrimaryWindow);
-		}
-		*/
-	}
 	void Start()
 	{
         findGames = gameObject.GetComponent<FindGames>();
@@ -163,18 +136,11 @@ public class ProcessRunner : MonoBehaviour
 
         setJoyToKeyConfig("menuselect.cfg");
 
+        //Not sure if delay is actually necessary
         this.delayedFunction(() =>
         {
             recordSafeProcesses();
         }, 2);
-
-
-
-
-
-
-        //print("Joy2Key : " + @findGames.joyToKeyData.directory + " ... " + startInfo.FileName + " -> " + startInfo.Arguments);
-
 
     }
 
@@ -182,26 +148,7 @@ public class ProcessRunner : MonoBehaviour
 
 	void Update()
 	{
-        bool altShiftBheld = GetAsyncKeyState(0x10) != 0 && GetAsyncKeyState(0x12) != 0 && GetAsyncKeyState(0x42) != 0;
-        //bool ctrlCHeld = GetAsyncKeyState(0x11) != 0 && GetAsyncKeyState(0x43) != 0;
-        // virtual key codes for "ctrl" and "c"
-        //if(GetAsyncKeyState(0x11)!=0 && GetAsyncKeyState(0x43)!=0)
-        if (altShiftBheld)
-		{
 
-			if( !_keyComboPressed )
-			{
-				_keyComboPressed = true;
-                CloseGame ();
-                BringThisToForeground();
-                //setJoyToKeyConfig("menuselect.cfg");
-            }
-		}
-		else
-		{
-
-			_keyComboPressed = false;
-		}
 
 
 		// Check if the process has Exitted
@@ -417,8 +364,14 @@ public class ProcessRunner : MonoBehaviour
         //ForceBringToForeground(thisPrimaryWindow);
         sendKeysBatchFile(Application.productName);
     }
+
+    public void quitCurrentGame()
+    {
+        CloseGame();
+        BringThisToForeground();
+    }
 	
-public void BringRunningToForeground()
+    public void BringRunningToForeground()
     {
 
         string windowTitle =_runningProcess.MainWindowTitle;

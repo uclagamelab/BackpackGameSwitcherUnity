@@ -221,8 +221,19 @@ public class GameData
     {
 
         string textureURI = texturePath;
+        //HttpUtility hp;
+        textureURI = textureURI.Replace("\\", "/");
+        if (textureURI.Contains(" "))
+        {
+            Debug.Log(textureURI);
+            //textureURI = WWW.EscapeURL(texturePath);
+            textureURI = textureURI.Replace(" ", "^ ");
+            Debug.Log(textureURI);
 
-        WWW textureReq = new WWW(@textureURI);
+            //Debug.Break();
+        }
+
+        WWW textureReq = new WWW(textureURI);
 
         yield return textureReq;
 
