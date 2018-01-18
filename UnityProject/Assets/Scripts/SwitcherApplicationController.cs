@@ -8,7 +8,11 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     // Use this for initialization
     void Awake () {
         gameMenu = this.GetComponent<MenuVisualsGeneric>();
+    }
 
+    void Start()
+    {
+        BackgroundKeyboardInput.Instance.addListener(this);
     }
 	
 	// Update is called once per frame
@@ -33,6 +37,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     public void onBackgroundKeyCombo()
     {
+        Debug.Log("!!!!!!!!!!!!");
         ProcessRunner.instance.quitCurrentGame();
     }
 }

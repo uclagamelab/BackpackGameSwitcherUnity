@@ -64,9 +64,10 @@ public class MenuVisualsGeneric : MonoBehaviour
 
 
                         flipped = true;
-                        updateInfoDisplay(currentlySelectedGame);
                         this.gameIdx = (gameIdx + selectionDirection + FindGames.Instance.gameCount) % FindGames.Instance.gameCount;
                         //animating = false;
+
+                        updateInfoDisplay(currentlySelectedGame);
                     }
 
                     if (rt == 1)

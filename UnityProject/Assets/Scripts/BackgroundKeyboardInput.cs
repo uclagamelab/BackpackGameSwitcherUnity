@@ -40,6 +40,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     void Awake ()
     {
         _instance = this;
+        listeners = new List<Listener>();
 	}
 	
 	// Update is called once per frame
