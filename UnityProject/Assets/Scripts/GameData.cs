@@ -1,4 +1,8 @@
-﻿using System.Collections;
+﻿/*
+ This class also seems a little heavy...
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -102,7 +106,6 @@ public class GameData
         if (previewImageFolderContents.Count > 0)
         {
             string previewImgPath = previewImageFolderContents[0];
-            //this.previewImgPath = previewImageFolderContents[0];
 
             Camera.main.GetComponent<MonoBehaviour>().StartCoroutine(getImage(previewImgPath));
         }
@@ -239,12 +242,6 @@ public class GameData
 
 
         this.previewImg = textureReq.texture;
-        /*
-        WWW imgLoader = new WWW(@"file:///" + @directory +"/"+ @image);
-yield return imgLoader;
-imgTexture = new Texture2D(1024,1024);
-imgTexture = imgLoader.texture;
-*/
     }
 
 

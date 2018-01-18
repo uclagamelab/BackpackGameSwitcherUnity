@@ -18,6 +18,14 @@ using System.IO;
 
 public class ProcessRunner : MonoBehaviour
 {
+
+    bool _gameProcessIsRunning = false;
+    public bool gameProcessIsRunning
+    {
+        get { return _gameProcessIsRunning; }//!(this._runningProcess == null || this._runningProcess.HasExited); }
+        set { _gameProcessIsRunning = value; }
+    }
+
     static ProcessRunner _instance;
     public static ProcessRunner instance
     {
@@ -118,7 +126,7 @@ public class ProcessRunner : MonoBehaviour
     IntPtr _joy2KeyPrimaryWindow = IntPtr.Zero;
 
 
-	FindGames findGames;
+	GameCatalog findGames;
 
 	// Pressing the button opens up the game.
 	// Pressing CTRL - C brings this game to the foreground
@@ -131,7 +139,7 @@ public class ProcessRunner : MonoBehaviour
 
 	void Start()
 	{
-        findGames = gameObject.GetComponent<FindGames>();
+        findGames = gameObject.GetComponent<GameCatalog>();
         //this.killAllPrevProcesses();
 
         setJoyToKeyConfig("menuselect.cfg");
@@ -166,9 +174,11 @@ public class ProcessRunner : MonoBehaviour
                 // Clear window associations
                 //_runningWindowHandles.Clear();
                 //_runningPrimaryWindow = IntPtr.Zero;
+
             }
             else
             {
+                
                 //OK to do so frequently???
                 if (Time.time > lastAttemptTime + .5f)
                 {
@@ -207,9 +217,9 @@ public class ProcessRunner : MonoBehaviour
     // Opens the given process
     // Returns true if it worked, otherwise returns false if there was already a process running
     public bool OpenProcess(string directory, string exe, string cmdArgs, string joyToKeyArgs)
-	{
+    {
 
-		/*if( _runningProcess != null )
+        /*if( _runningProcess != null )
 		{
 			return false;
 		}*/
@@ -223,19 +233,19 @@ public class ProcessRunner : MonoBehaviour
 
         ProcessStartInfo startInfo = new ProcessStartInfo();
 
-		if(cmdArgs.Length == 0 && false){
-			UnityEngine.Debug.Log("no unity");
-			startInfo.UseShellExecute = true;
-		}
-		else{
-			startInfo.CreateNoWindow = false;
-			//startInfo.UseShellExecute = false;
-			startInfo.WindowStyle = ProcessWindowStyle.Normal;
-		}
+        if (cmdArgs.Length == 0 && false) {
+            UnityEngine.Debug.Log("no unity");
+            startInfo.UseShellExecute = true;
+        }
+        else {
+            startInfo.CreateNoWindow = false;
+            //startInfo.UseShellExecute = false;
+            startInfo.WindowStyle = ProcessWindowStyle.Normal;
+        }
 
-		startInfo.WorkingDirectory = directory;	//"C:\\Users\\Garrett Johnson\\Desktop";
-		startInfo.FileName = exe;				//"angryBots.exe";
-		startInfo.Arguments = cmdArgs; 			//"-popupwindow -screen-width 1920 -screen-height 1080";
+        startInfo.WorkingDirectory = directory; //"C:\\Users\\Garrett Johnson\\Desktop";
+        startInfo.FileName = exe;               //"angryBots.exe";
+        startInfo.Arguments = cmdArgs; 			//"-popupwindow -screen-width 1920 -screen-height 1080";
         /*startInfo.CreateNoWindow = false;
         startInfo.WindowStyle = ProcessWindowStyle.Maximized;
         startInfo.UseShellExecute = false;*/
@@ -244,7 +254,9 @@ public class ProcessRunner : MonoBehaviour
         okToQuitTime = Time.time + 5;
 
         //new -----------
-        BringRunningToForeground();
+        //this.delayedFunction(() => {
+            BringRunningToForeground();
+        //}, 2);
         return true;
 	}
 
@@ -373,7 +385,6 @@ public class ProcessRunner : MonoBehaviour
 	
     public void BringRunningToForeground()
     {
-
         string windowTitle =_runningProcess.MainWindowTitle;
         UnityEngine.Debug.Log("!!!!!************trying to bring game to fg" + windowTitle);
         bool useOldWay = true;
@@ -523,7 +534,10 @@ public class ProcessRunner : MonoBehaviour
 		// Finally, termine the process itself:
 		TerminateProcess((uint)hProcess, exitCode);
 	}
-	/////////////////
+    /////////////////
 
-	
+    void OnApplicationFocus(bool hasFocus)
+    {
+        this.gameProcessIsRunning = !hasFocus;
+    }
 }

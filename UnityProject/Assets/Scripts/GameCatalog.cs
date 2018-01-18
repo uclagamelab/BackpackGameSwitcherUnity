@@ -12,7 +12,7 @@ using Debug = UnityEngine.Debug;
  * 
 */
 
-public class FindGames : MonoBehaviour
+public class GameCatalog : MonoBehaviour
 {
 	public GameData joyToKeyData;
     List<GameData> allGames;
@@ -28,8 +28,8 @@ public class FindGames : MonoBehaviour
     }
     
 
-    static FindGames _instance;
-    public static FindGames Instance
+    static GameCatalog _instance;
+    public static GameCatalog Instance
     {
         get
         {
@@ -49,19 +49,6 @@ public class FindGames : MonoBehaviour
 	}
 	
    
-	// Update is called once per frame
-	void Update ()
-    {         
-
-   
-	}
-
-    void startGameExe()
-    {
-        
-    }
-
-
     void populateGameList()
     {
         allGames = new List<GameData>();
@@ -95,7 +82,7 @@ public class FindGames : MonoBehaviour
         this.joyToKeyData.executable = Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
         this.joyToKeyData.commandLineArguments = ""; //does it actually need some???
         
-        //this.joyToKeyData.directory = (Application.streamingAssetsPath + "\\JoyToKey");
+
 
 
     }

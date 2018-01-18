@@ -17,7 +17,7 @@ public class Menu : MonoBehaviour
 	public float menuBoxSpacing = 1.2f;
 
 	ProcessRunner processRunner;
-	FindGames findGames;
+	GameCatalog findGames;
 	ArrayList textFiles;	//references the data collected by findGames
 	ArrayList menuItems;
 
@@ -32,7 +32,7 @@ public class Menu : MonoBehaviour
 	void Start()
 	{
 		processRunner = gameObject.GetComponent<ProcessRunner>();
-		findGames = gameObject.GetComponent<FindGames>();
+		findGames = gameObject.GetComponent<GameCatalog>();
 
 		selectGame = GameObject.Find ("SelectGame").GetComponent<TextMesh>();
 		descriptionText = GameObject.Find ("Description").GetComponent<TextMesh>();

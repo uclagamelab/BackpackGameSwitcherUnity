@@ -5,6 +5,8 @@ using UnityEngine;
 public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardInput.Listener {
     MenuVisualsGeneric gameMenu;
 
+    
+
     // Use this for initialization
     void Awake () {
         gameMenu = this.GetComponent<MenuVisualsGeneric>();
@@ -29,9 +31,14 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            GameData currentGameData = gameMenu.currentlySelectedGame;//this.allGames[gameIdx];
-            //print("________________________" + currentGameData.appFile);
-            ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, "-popupwindow -screen-width 1920 -screen-height 1080", currentGameData.joyToKeyConfigFile);
+            this.gameMenu.onStartGame();
+            this.delayedFunction(() =>
+            {
+                GameData currentGameData = gameMenu.currentlySelectedGame;//this.allGames[gameIdx];
+                                                                          //print("________________________" + currentGameData.appFile);
+                ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, "-popupwindow -screen-width 1920 -screen-height 1080", currentGameData.joyToKeyConfigFile);
+            }, .2f);
+
         }
     }
 
@@ -39,5 +46,6 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     {
         Debug.Log("!!!!!!!!!!!!");
         ProcessRunner.instance.quitCurrentGame();
+        this.gameMenu.onQuitGame();
     }
 }

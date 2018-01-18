@@ -13,12 +13,16 @@ using UnityEngine;
 public class MenuVisualsGeneric : MonoBehaviour
 {
 
-    public int gameIdx = 0;
+    public GameObject loadingScreen;
+    int gameIdx = 0;
 
     GameInfoUI gameInfoUI;
     bool animating = false;
 
-    FindGames model;
+    GameCatalog model;
+
+    enum State { CHOOSING, PLAYING_GAME}
+    State state = State.CHOOSING;
 
 	// Use this for initialization
 	void Start () {
@@ -27,14 +31,38 @@ public class MenuVisualsGeneric : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update () {
-		
+        if (ProcessRunner.instance.gameProcessIsRunning)
+        {
+            state = State.PLAYING_GAME;
+        }
+        else
+        {
+            state = State.CHOOSING;
+        }
+
+		/*if (state == State.PLAYING_GAME)
+        {
+            if (!this.loadingScreen.activeSelf)
+            {
+                this.loadingScreen.SetActive(true);
+                this.gameInfoUI.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            if (this.loadingScreen.activeSelf)
+            {
+                this.loadingScreen.SetActive(false);
+                this.gameInfoUI.gameObject.SetActive(true);
+            }
+        }*/
 	}
 
     public GameData currentlySelectedGame
     {
         get
         {
-            return FindGames.Instance.games[gameIdx];
+            return GameCatalog.Instance.games[gameIdx];
         }
     }
 
@@ -64,7 +92,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
 
                         flipped = true;
-                        this.gameIdx = (gameIdx + selectionDirection + FindGames.Instance.gameCount) % FindGames.Instance.gameCount;
+                        this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
                         //animating = false;
 
                         updateInfoDisplay(currentlySelectedGame);
@@ -100,5 +128,25 @@ public class MenuVisualsGeneric : MonoBehaviour
     {
         return !animating;
     }
+
+    public void onStartGame()
+    {
+        //this.state = State.PLAYING_GAME;
+        this.varyWithT((float t) => {
+            float cale = 1 - .1f * (Mathf.PingPong(2 * t, 1));
+            if (t == 1)
+            {
+                cale = 1;
+            }
+            this.gameInfoUI.transform.localScale = Vector3.one * cale;
+            }, .1f);
+    }
+
+    public void onQuitGame()
+    {
+      //  this.state = State.CHOOSING;
+    }
+
+
 
 }
