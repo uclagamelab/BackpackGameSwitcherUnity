@@ -38,6 +38,13 @@ public class BackgroundDisplay : MonoBehaviour {
             set
             {
                 videoPlayer.targetCameraAlpha = value;
+
+                if (alpha == 0)
+                {
+                    this.videoPlayer.Stop();
+                    //this.videoPlayer.url = "";
+                    //this.videoPlayer.clip = null;
+                }
             }
         }
     }
@@ -115,8 +122,7 @@ public class BackgroundDisplay : MonoBehaviour {
         /*System.Array.Sort<Fadeable>(allThings, (Fadeable a, Fadeable b) => {
             return a == thingToShow ? 0 : 1;
         });*/
-        if (thingToShow != null)
-        {
+   
             foreach (Fadeable f in allThings)
             {
                 if (f == thingToShow)
@@ -133,7 +139,7 @@ public class BackgroundDisplay : MonoBehaviour {
                     prevThingToShow.alpha = 1 - thingToShow.alpha;
                 }
             }
-        }
+        
     
         //videoPlayer1.alpha = thingToShow == videoPlayer1 ? 1 : 0;
         //image1.alpha = thingToShow == image1 ? 1 : 0;
@@ -144,12 +150,30 @@ public class BackgroundDisplay : MonoBehaviour {
 
         FadeableVideo targVideoPlayer = thingToShow == videoPlayer1 ? videoPlayer2 : videoPlayer1;
 
+        FadeableVideo outgoingVideo = null;
+        if (thingToShow == videoPlayer1)
+        {
+            outgoingVideo = videoPlayer1;
+        }
+        else if (thingToShow == videoPlayer2)
+        {
+            outgoingVideo = videoPlayer2;
+        }
+
+ 
+
 
         targVideoPlayer.videoPlayer.url = videoUrl;
         targVideoPlayer.videoPlayer.Play();
+        targVideoPlayer.videoPlayer.renderMode = VideoRenderMode.CameraNearPlane;
 
         prevThingToShow = thingToShow;
-        thingToShow = videoPlayer1;
+        thingToShow = targVideoPlayer;
+
+        if (outgoingVideo != null)
+        {
+            outgoingVideo.videoPlayer.renderMode = VideoRenderMode.CameraFarPlane;
+        }
     }
 
     public void setImage(Texture img)

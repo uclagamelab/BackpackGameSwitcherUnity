@@ -1,16 +1,19 @@
 ﻿#### #### TODO #### #### #### #### #### #### 
-* Add support for Video previews (full screen background?)
+* Think about an attract mode.
+* Write a list of things to do in an audit..
+* look into better ways of handling shortcuts?
+* Ken Burns effect on images?
 * Add support for non-playable games just as videos
 * Auto generate joyToKey app associations file
-* Create a 'Wizard' / Admin / Audit
-* Test with a lot more games
 * Add support for if a game crashes... if the switcher crashes
 * Investigate how to make it start automatically on restart
 * Make some kind of installer
 * Make a couple different 'skins'
 
 #### #### Specific Issues #### #### #### #### #### #### 
- *fix this appFile, executable, directory nonsense in GameData class
+* Videos not appearing on think pad??? switched render modes, maybe fixed, need to check
+* Burn and Turn didn't get focus one time... see if that happens, do things still work? (maybe kill all processes before starting a game too??)
+* fix this appFile, executable, directory nonsense in GameData class
 * Make sure JoyToKey is acutally working...
 * Test/fix when files/folders are missing/named incorrectly
 * Test/fix when json misformed
@@ -54,6 +57,17 @@ Should be super easy to change menu controls
 Should be easy to add new data, and files to games
 Should also work for non-games (just videos)
 Probably would also like an extended image gallery / longer description in some cases
+
+### ### Audit? #### #### #### #### #### ####
+- check JSON validity
+- check Exes, check if shortcuts valid
+- check for missing image/video
+- check for spaces in folder names.
+- check that valid joytoKeyFiles are specified in JSON
+- check general folder structure
+- check validity of joyToKeyFiles (all have exit button mapped)
+
+bulk edit joyToKeyFiles? (too hard?)
 
 #### #### Focus notes #### #### #### #### #### ####
 https://github.com/electron/electron/issues/2867
