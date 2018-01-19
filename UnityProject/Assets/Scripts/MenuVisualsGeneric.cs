@@ -71,43 +71,71 @@ public class MenuVisualsGeneric : MonoBehaviour
         if (!animating)
         {
                 animating = true;
-
-                bool flipped = false;
-                this.varyWithT((float rt) =>
+            
+            this.varyWithT((float t) => 
+            {
+                this.gameInfoUI.GetComponent<CanvasGroup>().alpha = 1 - t;
+                if (t == 1)
                 {
-                    float t = EasingFunctions.Calc(rt, EasingFunctions.QuadEaseInOut);
-
-                    //gameInfoUI.GetComponent<CanvasGroup>().alpha = 1 - Mathf.PingPong(2 * t, 1);
-                    gameInfoUI.transform.localScale = new Vector3(
-                        1 - Mathf.PingPong(2 * t, 1),
-                        1 - Mathf.PingPong(2 * t, 1),
-                        1);
-
-                    float t2 = rt;//Mathf.PingPong(2*rt, 1);//
-
-                    gameInfoUI.transform.eulerAngles = Vector3.forward * 1080 * t2;//;
-
-                    if (t >= .5f && !flipped)
+                    this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
+                    this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx]);
+                    this.varyWithT((float t2) =>
                     {
+                        this.gameInfoUI.GetComponent<CanvasGroup>().alpha = t2;
+                        if (t2 == 1)
+                        {
+                            animating = false;
+                        }
+                    }, .45f);
+                }
+            }, .25f);
 
-
-                        flipped = true;
-                        this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
-                        //animating = false;
-
-                        updateInfoDisplay(currentlySelectedGame);
-                    }
-
-                    if (rt == 1)
-                    {
-                        animating = false;
-                    }
-
-                }, 0.75f);
-            
-            
         }
       
+    }
+
+    public void cycleToNextGameOld(int selectionDirection)
+    {
+        if (!animating)
+        {
+            animating = true;
+
+            bool flipped = false;
+            this.varyWithT((float rt) =>
+            {
+                float t = EasingFunctions.Calc(rt, EasingFunctions.QuadEaseInOut);
+
+                //gameInfoUI.GetComponent<CanvasGroup>().alpha = 1 - Mathf.PingPong(2 * t, 1);
+                gameInfoUI.transform.localScale = new Vector3(
+                    1 - Mathf.PingPong(2 * t, 1),
+                    1 - Mathf.PingPong(2 * t, 1),
+                    1);
+
+                float t2 = rt;//Mathf.PingPong(2*rt, 1);//
+
+                gameInfoUI.transform.eulerAngles = Vector3.forward * 1080 * t2;//;
+
+                if (t >= .5f && !flipped)
+                {
+
+
+                    flipped = true;
+                    this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
+                    //animating = false;
+
+                    updateInfoDisplay(currentlySelectedGame);
+                }
+
+                if (rt == 1)
+                {
+                    animating = false;
+                }
+
+            }, 0.75f);
+
+
+        }
+
     }
 
     void updateInfoDisplay(GameData currentGameData)
@@ -120,7 +148,15 @@ public class MenuVisualsGeneric : MonoBehaviour
             + "\n\n"
             + currentGameData.description;
 
-        gameInfoUI.previewImage.texture = currentGameData.previewImg;
+        //gameInfoUI.previewImage.texture = currentGameData.previewImg;
+        if (currentGameData.videoUrl != null)
+        {
+            BackgroundDisplay.Instance.setVideo(currentGameData.videoUrl);
+        }
+        else
+        {
+            BackgroundDisplay.Instance.setImage(currentGameData.previewImg);
+        }
     }
 
  

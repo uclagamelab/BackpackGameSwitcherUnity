@@ -1,4 +1,15 @@
-﻿Specific Issues:
+﻿#### #### TODO #### #### #### #### #### #### 
+* Add support for Video previews (full screen background?)
+* Add support for non-playable games just as videos
+* Auto generate joyToKey app associations file
+* Create a 'Wizard' / Admin / Audit
+* Test with a lot more games
+* Add support for if a game crashes... if the switcher crashes
+* Investigate how to make it start automatically on restart
+* Make some kind of installer
+* Make a couple different 'skins'
+
+#### #### Specific Issues #### #### #### #### #### #### 
  *fix this appFile, executable, directory nonsense in GameData class
 * Make sure JoyToKey is acutally working...
 * Test/fix when files/folders are missing/named incorrectly
@@ -10,16 +21,33 @@
 https://stackoverflow.com/questions/3500634/how-to-check-if-process-is-not-responding
 https://github.com/HeliosInteractive/OpenRoC
 
-what separation makes sense???
+#### #### Architecture Notes #### #### #### #### #### ####
 
 GameCatalog {List of gameDatas, able to populate self}s
-GameData {paths, images, metadata}
-BGKeyListening{Just that}
-FGInput {Foreground Input, for controlling the menu}
-ProcessManagement{Windows, processes, cmd stuff, maybe some JoyToKey stuff hardcoded in for now}
-UI{}
+	GameData {
+		paths, images, metadata
+	}
 
+BGKeyListening { 
+	Listening for the quit game key-combo
+}
 
+FGInput 
+{ 
+	Foreground Input, for controlling the menu 
+}
+
+ProcessManagement
+{
+	Windows, processes, cmd stuff, maybe some JoyToKey stuff hardcoded in for now
+}
+
+Front End Menu
+{
+	has access to the game catalog,
+}
+
+#### #### Other Notes #### #### #### #### #### ####
 Goals:
 Should be super easy to re-skin,
 Should be super easy to change menu controls
@@ -27,19 +55,8 @@ Should be easy to add new data, and files to games
 Should also work for non-games (just videos)
 Probably would also like an extended image gallery / longer description in some cases
 
-
-Killing the app... starting the app...
-
-Something default
-Something custom
-
-"app type" : 
-"unity"
-"processing"
-"gamemaker"
-"other"
-
-"custom stop script" 
-
-App killing strategies:
-record all processes before a launch, and kill ALL processes aside from those.
+#### #### Focus notes #### #### #### #### #### ####
+https://github.com/electron/electron/issues/2867
+https://technet.microsoft.com/en-us/library/cc957208.aspx
+http://www.thewindowsclub.com/disable-flashing-taskbar-buttons-windows
+https://social.msdn.microsoft.com/Forums/windows/en-US/f21726d7-f3dd-4724-8333-5ce935d194cd/focus-stealing-guidance?forum=winforms

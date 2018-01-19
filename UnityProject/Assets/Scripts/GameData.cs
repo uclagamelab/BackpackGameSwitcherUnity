@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Video;
 public class GameData
 {
     public string title;
@@ -17,6 +18,7 @@ public class GameData
 
     string _joyToKeyConfigFile = null;
 
+    public string videoUrl = null;
 
     public GameData(FileInfo gameFolder)
 {
@@ -57,10 +59,33 @@ public class GameData
         // --- Find the preview images ------------------------
         setUpImages(gameFolder);
 
-    // --- Find the instructions ------------------------
+        // --- Find the instructions ------------------------
+
+        //--- set up video ---------------
+        setUpVideo(gameFolder);
     //TODO
 }
 
+    void setUpVideo(FileInfo gameFolder)
+    {
+
+        string videoFolder = gameFolder.FullName + "/video";
+        if (Directory.Exists(videoFolder))
+        {
+            //try to find a .lnk
+            //TODO : figure out valid video types...
+            List<string> videosInDirectory = GetFilesMultipleSearchPattern(videoFolder, new string[] { "*.mp4", "*.mov", "*.ogv", "*.flv" });
+            foreach (string v in videosInDirectory)
+            {
+                //Debug.Log(v + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            }
+            if (videosInDirectory.Count > 0)
+            {
+                this.videoUrl = videosInDirectory[0];
+            }
+        }
+
+    }
     void setUpExe(FileInfo gameFolder)
     {
         string platform = "windows";
@@ -224,17 +249,6 @@ public class GameData
     {
 
         string textureURI = texturePath;
-        //HttpUtility hp;
-        textureURI = textureURI.Replace("\\", "/");
-        if (textureURI.Contains(" "))
-        {
-            Debug.Log(textureURI);
-            //textureURI = WWW.EscapeURL(texturePath);
-            textureURI = textureURI.Replace(" ", "^ ");
-            Debug.Log(textureURI);
-
-            //Debug.Break();
-        }
 
         WWW textureReq = new WWW(textureURI);
 
