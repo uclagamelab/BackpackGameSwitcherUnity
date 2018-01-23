@@ -23,7 +23,41 @@ public class BackgroundDisplay : MonoBehaviour {
     public class FadeableVideo : Fadeable
     {
         public VideoPlayer videoPlayer;
+        public RawImage img;
+        
         public FadeableVideo(VideoPlayer videoPlayer)
+        {
+            this.videoPlayer = videoPlayer;
+            this.img = videoPlayer.GetComponent<RawImage>();
+        }
+
+        public float alpha
+        {
+            get
+            {
+                return img.color.a;
+            }
+
+            set
+            {
+                Color newColor = img.color;
+                newColor.a = value;
+                img.color = newColor;
+
+                if (alpha == 0)
+                {
+                    this.videoPlayer.Stop();
+                    //this.videoPlayer.url = "";
+                    //this.videoPlayer.clip = null;
+                }
+            }
+        }
+    }
+
+    public class FadeableVideoV1 : Fadeable
+    {
+        public VideoPlayer videoPlayer;
+        public FadeableVideoV1(VideoPlayer videoPlayer)
         {
             this.videoPlayer = videoPlayer;
         }
@@ -87,6 +121,19 @@ public class BackgroundDisplay : MonoBehaviour {
     Fadeable prevThingToShow = null;
     Fadeable thingToShow = null;
 
+    [SerializeField]
+    RawImage img1;
+    [SerializeField]
+    RawImage img2;
+
+    [SerializeField]
+    VideoPlayer vid1;
+
+    [SerializeField]
+    VideoPlayer vid2;
+
+
+
     //Showable video;
     //Showable image;
 
@@ -105,14 +152,16 @@ public class BackgroundDisplay : MonoBehaviour {
 
         //Two of each for cross fading
 
-        VideoPlayer[] vids = this.GetComponentsInChildren<VideoPlayer>();
-        RawImage[] imgs = this.GetComponentsInChildren<RawImage>();
+        //VideoPlayer[] vids = this.GetComponentsInChildren<VideoPlayer>();
+        //RawImage[] imgs = this.GetComponentsInChildren<RawImage>();
 
-        this.videoPlayer1 = new FadeableVideo(vids[0]);
-        this.videoPlayer2 = new FadeableVideo(vids[1]);
 
-        this.image1 = new FadeableRawImage(imgs[0]);
-        this.image2 = new FadeableRawImage(imgs[1]);
+
+        this.image1 = new FadeableRawImage(img1);
+        this.image2 = new FadeableRawImage(img2);
+
+        this.videoPlayer1 = new FadeableVideo(vid1);
+        this.videoPlayer2 = new FadeableVideo(vid2);
     }
 	
 	// Update is called once per frame
@@ -128,6 +177,10 @@ public class BackgroundDisplay : MonoBehaviour {
                 if (f == thingToShow)
                 {
                     f.alpha = Mathf.MoveTowards(f.alpha, 1, Time.deltaTime * 2);
+                    if (f.alpha == 1)
+                    {
+                        prevThingToShow = null;
+                    }
                 }
                 else if (f != prevThingToShow)
                 {
@@ -136,7 +189,7 @@ public class BackgroundDisplay : MonoBehaviour {
 
                 if (prevThingToShow != null)
                 {
-                    prevThingToShow.alpha = 1 - thingToShow.alpha;
+                prevThingToShow.alpha = 1;// - thingToShow.alpha;
                 }
             }
         
@@ -165,15 +218,17 @@ public class BackgroundDisplay : MonoBehaviour {
 
         targVideoPlayer.videoPlayer.url = videoUrl;
         targVideoPlayer.videoPlayer.Play();
-        targVideoPlayer.videoPlayer.renderMode = VideoRenderMode.CameraNearPlane;
+        //targVideoPlayer.videoPlayer.renderMode = VideoRenderMode.CameraNearPlane;
 
         prevThingToShow = thingToShow;
         thingToShow = targVideoPlayer;
 
-        if (outgoingVideo != null)
+        targVideoPlayer.img.transform.SetAsLastSibling();
+
+        /*if (outgoingVideo != null)
         {
             outgoingVideo.videoPlayer.renderMode = VideoRenderMode.CameraFarPlane;
-        }
+        }*/
     }
 
     public void setImage(Texture img)
@@ -183,6 +238,9 @@ public class BackgroundDisplay : MonoBehaviour {
 
         prevThingToShow = thingToShow;
         thingToShow = targImg;
+        targImg.image.transform.SetAsLastSibling();
+
+
     }
 
     public void hide()

@@ -24,14 +24,51 @@ public class MenuVisualsGeneric : MonoBehaviour
     enum State { CHOOSING, PLAYING_GAME}
     State state = State.CHOOSING;
 
+
+
+    float attractTimeOut = 60;
+    float timeOfLastInput = float.NegativeInfinity;
+
+
 	// Use this for initialization
 	void Start () {
         gameInfoUI = this.GetComponentInChildren<GameInfoUI>();
+        setAttractMode(true);
     }
 	
+    void setAttractMode(bool attract)
+    {
+        AttractMode.Instance.running = attract;
+        this.gameInfoUI.gameObject.SetActive(!attract);
+        BackgroundDisplay.Instance.gameObject.SetActive(!attract);
+    }
+
 	// Update is called once per frame
 	void Update () {
-        if (ProcessRunner.instance.gameProcessIsRunning)
+
+        bool playingGame = ProcessRunner.instance.gameProcessIsRunning;
+
+        if (Input.anyKeyDown && !playingGame)
+        {
+            timeOfLastInput = Time.unscaledTime;
+        }
+
+        if (AttractMode.Instance.running)
+        {
+            if (Input.anyKeyDown)
+            {
+                setAttractMode(false);
+            }
+            return;
+        }
+
+        if (Time.unscaledTime > timeOfLastInput + attractTimeOut)
+        {
+            setAttractMode(true);
+        }
+
+
+        if (playingGame)
         {
             state = State.PLAYING_GAME;
         }
@@ -143,10 +180,12 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         //TODO : should move into GameInfoUi
         gameInfoUI.titleText.text = currentGameData.title;
-        gameInfoUI.descriptionText.text =
-            "Made By: " + currentGameData.author
-            + "\n\n"
-            + currentGameData.description;
+        gameInfoUI.descriptionText.text = ""
+
+
+            // + currentGameData.description
+            + ""
+            + "<i>by " + currentGameData.author + "</i>";
 
         //gameInfoUI.previewImage.texture = currentGameData.previewImg;
         if (currentGameData.videoUrl != null)
@@ -165,7 +204,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         return !animating;
     }
 
-    public void onStartGame()
+    public void onStartGameButtonPress()
     {
         //this.state = State.PLAYING_GAME;
         this.varyWithT((float t) => {
@@ -180,7 +219,8 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void onQuitGame()
     {
-      //  this.state = State.CHOOSING;
+        //  this.state = State.CHOOSING;
+        setAttractMode(true);
     }
 
 

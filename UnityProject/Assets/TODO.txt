@@ -1,7 +1,5 @@
 ﻿#### #### TODO #### #### #### #### #### #### 
-* Think about an attract mode.
 * Write a list of things to do in an audit..
-* look into better ways of handling shortcuts?
 * Ken Burns effect on images?
 * Add support for non-playable games just as videos
 * Auto generate joyToKey app associations file
@@ -9,6 +7,8 @@
 * Investigate how to make it start automatically on restart
 * Make some kind of installer
 * Make a couple different 'skins'
+* Make the menu retake focus if nothing is running
+* prevent starting new processes while a game is running.
 
 #### #### Specific Issues #### #### #### #### #### #### 
 * Videos not appearing on think pad??? switched render modes, maybe fixed, need to check

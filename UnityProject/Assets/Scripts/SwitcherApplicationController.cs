@@ -31,14 +31,16 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            this.gameMenu.onStartGame();
-            this.delayedFunction(() =>
+            if(!ProcessRunner.instance.IsGameRunning())
             {
-                GameData currentGameData = gameMenu.currentlySelectedGame;//this.allGames[gameIdx];
-                                                                          //print("________________________" + currentGameData.appFile);
-                ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, "-popupwindow -screen-width 1920 -screen-height 1080", currentGameData.joyToKeyConfigFile);
-            }, .2f);
-
+                this.gameMenu.onStartGameButtonPress();
+                this.delayedFunction(() =>
+                {
+                    GameData currentGameData = gameMenu.currentlySelectedGame;//this.allGames[gameIdx];
+                                                                              //print("________________________" + currentGameData.appFile);
+                    ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, "-popupwindow -screen-width 1920 -screen-height 1080", currentGameData.joyToKeyConfigFile);
+                }, .2f);
+            }
         }
     }
 
