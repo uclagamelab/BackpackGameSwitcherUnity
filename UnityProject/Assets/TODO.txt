@@ -9,6 +9,7 @@
 * Make a couple different 'skins'
 * Make the menu retake focus if nothing is running
 * prevent starting new processes while a game is running.
+* Temporarily disallow input when switching back to game-selection
 
 #### #### Specific Issues #### #### #### #### #### #### 
 * Videos not appearing on think pad??? switched render modes, maybe fixed, need to check
