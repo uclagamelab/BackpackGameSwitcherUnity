@@ -1,16 +1,27 @@
 ﻿#### #### TODO #### #### #### #### #### #### 
-* Temporarily disallow input when switching back to game-selection
+* finish system for standardized controls
+* Put in a gamemaker game.
+* Put in some other games from.... http://games.ucla.edu/gamesBackup/games/
+* put in darkgame
+* Look at some other multi-arcade machines (OpenEmu, NeoGeo, thos multi consoles?)
 * Write a list of things to do in an audit..
 * Ken Burns effect on images?
-* Add support for non-playable games just as videos
 * Auto generate joyToKey app associations file
 * Add support for if a game crashes... if the switcher crashes
 * Investigate how to make it start automatically on restart
 * Make some kind of installer
 * Make a couple different 'skins'
 * Make the menu retake focus if nothing is running
-* prevent starting new processes while a game is running.
+* Support for 2 players
+* Test on Lenovo computer
+* Get feedback
+* When specifyin an external game folder, also use Joy2Key there.
+* Hide cursor in switcher app... think about what to do for other games (auto reposition to upper right on staring a game?)
 
+#### #### Bugs ##################
+- Rotato chipz would occasionally get the switchers music
+- Ocasionally, focus would not return to the switcher ("also throw in a send keys on the time out?")
+- Music not playing sometimes in attract mode. (something is happening on time-out)
 
 #### #### Specific Issues #### #### #### #### #### #### 
 * Videos not appearing on think pad??? switched render modes, maybe fixed, need to check
