@@ -20,6 +20,12 @@ public class BackgroundDisplay : MonoBehaviour {
         }
     }
 
+    public void stopAllVideos()
+    {
+        this.vid1.Stop();
+        this.vid2.Stop();
+    }
+
     public class FadeableVideo : Fadeable
     {
         public VideoPlayer videoPlayer;

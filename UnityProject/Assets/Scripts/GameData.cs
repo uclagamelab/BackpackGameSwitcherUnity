@@ -109,6 +109,7 @@ public class GameData
             if (exeFolderContents.Length == 0)
             {
                 Debug.Log("couldn't find an exe");
+                this.executable = "";
             }
             else if (exeFolderContents.Length > 1)
             {

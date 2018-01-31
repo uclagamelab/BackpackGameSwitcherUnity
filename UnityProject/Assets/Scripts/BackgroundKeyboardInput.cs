@@ -30,11 +30,22 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         get { return _instance; }
     }
 
+    float _timeOfLastInput = float.PositiveInfinity;
+    public float timeOfLastInput
+    {
+        get
+        {
+            return _timeOfLastInput;
+        }
+    }
+
     // Polls the given Virtual Keycode to check it's state
     [DllImport("user32.dll")]
     private static extern short GetAsyncKeyState(int vlc);
 
     bool _keyComboPressed = false;
+
+   
 
     // Use this for initialization
     void Awake ()
@@ -45,6 +56,17 @@ public class BackgroundKeyboardInput : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+        //OK????
+        for (int i = 0; i < 0xFE; i++)
+        {
+            if (GetAsyncKeyState(i) != 0)
+            {
+                //print("gotSOmethning : " + i.ToString("0x00"));
+                _timeOfLastInput = Time.time;
+            }
+        }
+
         bool altShiftBheld = GetAsyncKeyState(0x10) != 0 && GetAsyncKeyState(0x12) != 0 && GetAsyncKeyState(0x42) != 0;
         //bool ctrlCHeld = GetAsyncKeyState(0x11) != 0 && GetAsyncKeyState(0x43) != 0;
         // virtual key codes for "ctrl" and "c"

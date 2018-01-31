@@ -9,91 +9,83 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MenuVisualsGeneric : MonoBehaviour
 {
 
+    float attemptedLaunchTime = float.NegativeInfinity;
+    bool inProcessOfLaunching
+    {
+        get { return Time.time < attemptedLaunchTime + 3; }
+    }
+
+    
+
+    List<Listener> listners;
     public GameObject loadingScreen;
     int gameIdx = 0;
 
     GameInfoUI gameInfoUI;
     bool animating = false;
 
-    GameCatalog model;
+    public Text errorText;
 
-    enum State { CHOOSING, PLAYING_GAME}
-    State state = State.CHOOSING;
-
+    //bool ignoreInputTemporarily = false;
 
 
-    float attractTimeOut = 60;
-    float timeOfLastInput = float.NegativeInfinity;
 
 
-	// Use this for initialization
-	void Start () {
+    private void Awake()
+    {
+        this.listners = new List<Listener>();
+    }
+
+    public void addListener(Listener l)
+    {
+        this.listners.Add(l);
+    }
+
+    // Use this for initialization
+    void Start () {
         gameInfoUI = this.GetComponentInChildren<GameInfoUI>();
         setAttractMode(true);
+        updateInfoDisplay(currentlySelectedGame);
     }
 	
-    void setAttractMode(bool attract)
+    public void setAttractMode(bool attract)
     {
         AttractMode.Instance.running = attract;
         this.gameInfoUI.gameObject.SetActive(!attract);
         BackgroundDisplay.Instance.gameObject.SetActive(!attract);
+
+        if (attract)
+        {
+            foreach (Listener l in this.listners)
+            {
+                l.onEnterAttract();
+            }
+        }
+        else
+        {
+            foreach (Listener l in this.listners)
+            {
+                l.onLeaveAttract();
+            }
+        }
+    
     }
 
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
 
-        bool playingGame = ProcessRunner.instance.gameProcessIsRunning;
-
-        if (Input.anyKeyDown && !playingGame)
-        {
-            timeOfLastInput = Time.unscaledTime;
-        }
-
-        if (AttractMode.Instance.running)
-        {
-            if (Input.anyKeyDown)
-            {
-                setAttractMode(false);
-            }
-            return;
-        }
-
-        if (Time.unscaledTime > timeOfLastInput + attractTimeOut)
-        {
-            setAttractMode(true);
-        }
+    //TODO need to separate concerns...
+    //Reverting to state, if no input for one.
+    //Actually, input should probably go into controller??
 
 
-        if (playingGame)
-        {
-            state = State.PLAYING_GAME;
-        }
-        else
-        {
-            state = State.CHOOSING;
-        }
 
-		/*if (state == State.PLAYING_GAME)
-        {
-            if (!this.loadingScreen.activeSelf)
-            {
-                this.loadingScreen.SetActive(true);
-                this.gameInfoUI.gameObject.SetActive(false);
-            }
-        }
-        else
-        {
-            if (this.loadingScreen.activeSelf)
-            {
-                this.loadingScreen.SetActive(false);
-                this.gameInfoUI.gameObject.SetActive(true);
-            }
-        }*/
-	}
+
+
 
     public GameData currentlySelectedGame
     {
@@ -105,9 +97,17 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void cycleToNextGame(int selectionDirection)
     {
-        if (!animating)
+        if (AttractMode.Instance.running || animating)
         {
-                animating = true;
+            return;
+        }
+
+
+            foreach (Listener l in this.listners)
+            {
+                l.onCycleGame();
+            }
+            animating = true;
             
             this.varyWithT((float t) => 
             {
@@ -127,52 +127,8 @@ public class MenuVisualsGeneric : MonoBehaviour
                 }
             }, .25f);
 
-        }
+        
       
-    }
-
-    public void cycleToNextGameOld(int selectionDirection)
-    {
-        if (!animating)
-        {
-            animating = true;
-
-            bool flipped = false;
-            this.varyWithT((float rt) =>
-            {
-                float t = EasingFunctions.Calc(rt, EasingFunctions.QuadEaseInOut);
-
-                //gameInfoUI.GetComponent<CanvasGroup>().alpha = 1 - Mathf.PingPong(2 * t, 1);
-                gameInfoUI.transform.localScale = new Vector3(
-                    1 - Mathf.PingPong(2 * t, 1),
-                    1 - Mathf.PingPong(2 * t, 1),
-                    1);
-
-                float t2 = rt;//Mathf.PingPong(2*rt, 1);//
-
-                gameInfoUI.transform.eulerAngles = Vector3.forward * 1080 * t2;//;
-
-                if (t >= .5f && !flipped)
-                {
-
-
-                    flipped = true;
-                    this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
-                    //animating = false;
-
-                    updateInfoDisplay(currentlySelectedGame);
-                }
-
-                if (rt == 1)
-                {
-                    animating = false;
-                }
-
-            }, 0.75f);
-
-
-        }
-
     }
 
     void updateInfoDisplay(GameData currentGameData)
@@ -198,14 +154,30 @@ public class MenuVisualsGeneric : MonoBehaviour
         }
     }
 
- 
-    public bool acceptingInput()
-    {
-        return !animating;
-    }
+
 
     public void onStartGameButtonPress()
     {
+        bool gameHasExe = currentlySelectedGame.executable != "";
+
+        if (inProcessOfLaunching || !gameHasExe)// || AttractMode.Instance.running)
+        {
+
+            if (!gameHasExe)
+            {
+                this.showErrorText(currentlySelectedGame.title + " is video only.");
+            }
+
+            return;
+        }
+
+        attemptedLaunchTime = Time.time;
+
+        foreach (Listener l in this.listners)
+        {
+            l.onStartGame();
+        }
+
         //this.state = State.PLAYING_GAME;
         this.varyWithT((float t) => {
             float cale = 1 - .1f * (Mathf.PingPong(2 * t, 1));
@@ -214,15 +186,64 @@ public class MenuVisualsGeneric : MonoBehaviour
                 cale = 1;
             }
             this.gameInfoUI.transform.localScale = Vector3.one * cale;
+
+            if (t == 1)
+            {
+                GameData currentGameData = currentlySelectedGame;//this.allGames[gameIdx];
+                                                                 //print("________________________" + currentGameData.appFile);
+                ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, "-popupwindow -screen-width 1920 -screen-height 1080", currentGameData.joyToKeyConfigFile);
+                BackgroundDisplay.Instance.stopAllVideos();
+            }
+
             }, .1f);
+
+
+    }
+
+    void showErrorText(string error)
+    {
+        this.varyWithT((float t) => {
+
+            errorText.text = error;
+
+            errorText.enabled = true;// (t * 8) % 1 > .3f;
+            if (t == 1)
+            {
+                errorText.enabled = false;
+            }
+        }, 3);
     }
 
     public void onQuitGame()
     {
+        
+
+
+
+        //bool playingGame = ProcessRunner.instance.gameProcessIsRunning;
+
+
+        foreach (Listener l in this.listners)
+            {
+                l.onQuitGame();
+            }
+        
+
         //  this.state = State.CHOOSING;
-        setAttractMode(true);
+        //setAttractMode(true);
+     
     }
 
+    public interface Listener
+    {
+        void onLeaveAttract();
+        void onEnterAttract();
+        void onCycleGame();
+        void onStartGame();
+        void onQuitGame();
+
+
+    }
 
 
 }

@@ -19,11 +19,15 @@ using System.IO;
 public class ProcessRunner : MonoBehaviour
 {
 
+    bool switcherHasFocus = false;
     bool _gameProcessIsRunning = false;
     public bool gameProcessIsRunning
     {
-        get { return _gameProcessIsRunning; }//!(this._runningProcess == null || this._runningProcess.HasExited); }
-        set { _gameProcessIsRunning = value; }
+        get {
+            //return _gameProcessIsRunning;
+            return (this._runningProcess != null && !this._runningProcess.HasExited);
+        }
+        //set { _gameProcessIsRunning = value; }
     }
 
     static ProcessRunner _instance;
@@ -348,6 +352,13 @@ public class ProcessRunner : MonoBehaviour
 	void ForceBringToForeground(IntPtr hWnd)
 	{
 		IntPtr fgWnd = GetForegroundWindow();
+
+        if (hWnd == fgWnd)
+        {
+            print("OK ALREADY!!!!!!!!!!!!");
+            return;
+        }
+
         /*if( _thisWindowHandles.Contains( fgWnd ) )
 		{
 			SetForegroundWindow(hWnd);
@@ -370,7 +381,7 @@ public class ProcessRunner : MonoBehaviour
         //AttachThreadInput( _thisThreadID, _targetThreadID, false);
     }
 
-	public bool IsGameRunning(){ return _runningProcess != null; }
+	public bool IsGameRunning(){ return _runningProcess != null && !_runningProcess.HasExited; }
 	public void BringThisToForeground()
     {
         //ForceBringToForeground(thisPrimaryWindow);
@@ -385,8 +396,11 @@ public class ProcessRunner : MonoBehaviour
 	
     public void BringRunningToForeground()
     {
-        string windowTitle =_runningProcess.MainWindowTitle;
-        UnityEngine.Debug.Log("!!!!!************trying to bring game to fg" + windowTitle);
+        //string windowTitle =_runningProcess.MainWindowTitle; //doesn't work...
+
+
+
+        //UnityEngine.Debug.Log("!!!!!************trying to bring game to fg : '" + _runningPrimaryWindow + "'");
         bool useOldWay = true;
         if (useOldWay)
         {
@@ -396,6 +410,8 @@ public class ProcessRunner : MonoBehaviour
         }
         else
         {
+            string windowTitle = "???";
+            UnityEngine.Debug.LogError("this way doesn't work! (can't get window title?)");
             //string windowTitle = "";
             /// Alt way <<<<<<<<<<<<<<<<
             sendKeysBatchFile(windowTitle);
@@ -536,8 +552,10 @@ public class ProcessRunner : MonoBehaviour
 	}
     /////////////////
 
+        //Was this a good way???
     void OnApplicationFocus(bool hasFocus)
     {
-        this.gameProcessIsRunning = !hasFocus;
+        //this.gameProcessIsRunning = !hasFocus;
+        switcherHasFocus = hasFocus;
     }
 }

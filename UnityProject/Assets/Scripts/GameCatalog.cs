@@ -17,6 +17,8 @@ public class GameCatalog : MonoBehaviour
 	public GameData joyToKeyData;
     List<GameData> allGames;
 
+    string gamesFolderPath = "";
+
     public IList<GameData> games
     {
         get { return allGames.AsReadOnly(); }
@@ -44,9 +46,15 @@ public class GameCatalog : MonoBehaviour
 
     void Start () 
 	{
+        gamesFolderPath = Application.streamingAssetsPath + "/~Special" + "/games";
+        setCustomGamesFolderIfInCommandlineArgs();
+
+
         populateGameList();
         //populateGameListOrig(); 
 	}
+
+
 	
    
     void populateGameList()
@@ -57,7 +65,7 @@ public class GameCatalog : MonoBehaviour
 
         //string[] files = Directory.GetFiles(Application.streamingAssetsPath + "/games");
 
-        string[] gameFolders = Directory.GetDirectories(Application.streamingAssetsPath + "/~Special" + "/games");
+        string[] gameFolders = Directory.GetDirectories(gamesFolderPath);
 
 
         foreach (string gameFolderPathString in gameFolders)
@@ -81,10 +89,19 @@ public class GameCatalog : MonoBehaviour
         // directory = (Application.streamingAssetsPath + "\\JoyToKey"),
         this.joyToKeyData.executable = Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
         this.joyToKeyData.commandLineArguments = ""; //does it actually need some???
-        
+    }
 
+    void setCustomGamesFolderIfInCommandlineArgs()
+    {
+        string[] args = System.Environment.GetCommandLineArgs();
 
-
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i] == "-games-folder")
+            {
+                this.gamesFolderPath = args[i + 1];
+            }
+        }
     }
 }
 
