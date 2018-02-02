@@ -17,7 +17,9 @@ public class GameCatalog : MonoBehaviour
 	public GameData joyToKeyData;
     List<GameData> allGames;
 
+    string dataFolderPath = "";
     string gamesFolderPath = "";
+    string joyToKeyFolderPath = "";
 
     public IList<GameData> games
     {
@@ -46,7 +48,9 @@ public class GameCatalog : MonoBehaviour
 
     void Start () 
 	{
+
         gamesFolderPath = Application.streamingAssetsPath + "/~Special" + "/games";
+        joyToKeyFolderPath = Application.streamingAssetsPath + "/~Special" + "/JoyToKey";
         setCustomGamesFolderIfInCommandlineArgs();
 
 
@@ -87,7 +91,7 @@ public class GameCatalog : MonoBehaviour
         this.joyToKeyData = new GameData();
 
         // directory = (Application.streamingAssetsPath + "\\JoyToKey"),
-        this.joyToKeyData.executable = Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
+        this.joyToKeyData.executable = joyToKeyFolderPath + "/JoyToKey.exe";//Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
         this.joyToKeyData.commandLineArguments = ""; //does it actually need some???
     }
 
@@ -100,6 +104,11 @@ public class GameCatalog : MonoBehaviour
             if (args[i] == "-games-folder")
             {
                 this.gamesFolderPath = args[i + 1];
+            }
+
+            if (args[i] == "-joytokey-folder")
+            {
+                this.joyToKeyFolderPath = args[i + 1];
             }
         }
     }

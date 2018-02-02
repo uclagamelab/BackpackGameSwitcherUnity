@@ -136,12 +136,9 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         //TODO : should move into GameInfoUi
         gameInfoUI.titleText.text = currentGameData.title;
-        gameInfoUI.descriptionText.text = ""
-
-
-            // + currentGameData.description
-            + ""
-            + "<i>by " + currentGameData.author + "</i>";
+        gameInfoUI.descriptionText.text = currentGameData.description;
+            
+            gameInfoUI.creditText.text = "by " + currentGameData.author + "";
 
         //gameInfoUI.previewImage.texture = currentGameData.previewImg;
         if (currentGameData.videoUrl != null)
@@ -152,6 +149,35 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             BackgroundDisplay.Instance.setImage(currentGameData.previewImg);
         }
+
+        //update the displayed controls
+
+        if (currentGameData.joystickLabel == null)
+        {
+            gameInfoUI.joystickLabel.SetActive(false);
+        }
+        else
+        {
+            gameInfoUI.joystickLabel.SetActive(true);
+            gameInfoUI.joystickLabel.GetComponentInChildren<Text>().text = currentGameData.joystickLabel;
+        }
+
+        
+        for (int i = 1; i <= 6; i++)
+        {
+            GameObject buttonLabel = gameInfoUI.buttonLabels[i - 1];
+
+            if (currentGameData.getButtonLabel(i) == null)
+            {
+                buttonLabel.SetActive(false);
+            }
+            else
+            {
+                buttonLabel.SetActive(true);
+                buttonLabel.GetComponentInChildren<Text>().text = currentGameData.getButtonLabel(i);
+            }
+        }
+
     }
 
 

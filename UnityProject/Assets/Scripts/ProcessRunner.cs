@@ -207,7 +207,6 @@ public class ProcessRunner : MonoBehaviour
     {
         ProcessStartInfo startInfo = new ProcessStartInfo();
 
-
         startInfo.WorkingDirectory = @findGames.joyToKeyData.directory; //"C:\\Users\\Garrett Johnson\\Desktop";
         startInfo.FileName = @findGames.joyToKeyData.executable;
         startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);

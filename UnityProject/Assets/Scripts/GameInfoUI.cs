@@ -7,11 +7,14 @@ public class GameInfoUI : MonoBehaviour {
 
 
     public Text titleText;
+    public Text creditText;
     public Text descriptionText;
-    public RawImage previewImage;
 
-	// Use this for initialization
-	void Start () {
+    public GameObject[] buttonLabels;
+    public GameObject joystickLabel;
+
+    // Use this for initialization
+    void Start () {
 		
 	}
 	

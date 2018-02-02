@@ -1,6 +1,5 @@
 ﻿#### #### TODO #### #### #### #### #### #### 
 * finish system for standardized controls
-* Put in a gamemaker game.
 * Put in some other games from.... http://games.ucla.edu/gamesBackup/games/
 * put in darkgame
 * Look at some other multi-arcade machines (OpenEmu, NeoGeo, thos multi consoles?)
@@ -17,25 +16,32 @@
 * Get feedback
 * When specifyin an external game folder, also use Joy2Key there.
 * Hide cursor in switcher app... think about what to do for other games (auto reposition to upper right on staring a game?)
+* try with a browser game, a flashgame, others???
 
-#### #### Bugs ##################
-- Rotato chipz would occasionally get the switchers music
-- Ocasionally, focus would not return to the switcher ("also throw in a send keys on the time out?")
-- Music not playing sometimes in attract mode. (something is happening on time-out)
-
-#### #### Specific Issues #### #### #### #### #### #### 
-* Videos not appearing on think pad??? switched render modes, maybe fixed, need to check
-* Burn and Turn didn't get focus one time... see if that happens, do things still work? (maybe kill all processes before starting a game too??)
-* fix this appFile, executable, directory nonsense in GameData class
-* Make sure JoyToKey is acutally working...
 * Test/fix when files/folders are missing/named incorrectly
 * Test/fix when json misformed
 * Refactor into something smarter... (Unity Events?)
 * Study the processing sketch, and figure out how it's different from this one.
-* Videos
 * Checking if a game has stalled???
-https://stackoverflow.com/questions/3500634/how-to-check-if-process-is-not-responding
-https://github.com/HeliosInteractive/OpenRoC
+	https://stackoverflow.com/questions/3500634/how-to-check-if-process-is-not-responding
+	https://github.com/HeliosInteractive/OpenRoC
+
+* Attract mode should play random bits of videos from other games too, have big game lab logo
+
+#### #### What should exist for a game??? #### #### 
+An image gallery? (just cycle through nearly full screen images, light box style?)
+A preview video (just 1 for now?, just make part of image gallery?)
+A game description (keep in JSON for now)
+game controls (standardized? custom image? Either or?)
+game credits (defer until later.)
+
+
+#### #### Bugs ##################
+- Rotato chipz would occasionally get the switchers music.  Switch to a more active form of focus checking?
+- Ocasionally, focus would not return to the switcher ("also throw in a send keys on the time out?")
+- Music not playing sometimes in attract mode. (something is happening on time-out)
+
+
 
 #### #### Architecture Notes #### #### #### #### #### ####
 

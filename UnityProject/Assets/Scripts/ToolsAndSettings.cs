@@ -13,10 +13,23 @@ public class ToolsAndSettings : MonoBehaviour {
         string[] args = System.Environment.GetCommandLineArgs();
         if (System.Array.Find<string>(args, (string s)=> { return s.Equals("--setup"); }) != null)
         {
-            this.allMenu.gameObject.SetActive(true);
+            showSetup(true);
         }
     }
-	
+
+    public void showSetup(bool show)
+    {
+        this.allMenu.gameObject.SetActive(show);
+    }
+
+    void Update()
+    {
+        if ( (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.K))
+        {
+            this.showSetup(!this.allMenu.gameObject.activeSelf);
+        }
+    }
+
     public void Audit()
     {
         resultMessage.text = "No problems found...\nbut didn't actually check.";

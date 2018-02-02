@@ -20,11 +20,30 @@ public class GameData
 
     public string videoUrl = null;
 
+    // Dictionary<string, string> controllerLabels;
+    string[] controlLabels; // convention is '0' is joystick, 1-6 are buttons
+    public string joystickLabel
+    {
+        get { return controlLabels[0]; }
+    }
+
+    public string getButtonLabel(int buttonIdx)
+    {
+        return controlLabels[buttonIdx];
+    }
+
+
     public GameData(FileInfo gameFolder)
 {
 
+        controlLabels = new string[7];
+        for (int i = 0; i < controlLabels.Length; i++)
+        {
+            controlLabels[i] = null;
+        }
+
     // --- Find the JSON info file ---------
-    string[] jsonFiles = Directory.GetFiles(gameFolder.FullName, "*.json");
+        string[] jsonFiles = Directory.GetFiles(gameFolder.FullName, "*.json");
 
     if (jsonFiles.Length == 0)
     {
@@ -50,6 +69,21 @@ public class GameData
         {
             windowTitle = jsonObject["window title"].ToString();
         }
+
+        if (jsonObject.HasField("controls"))
+        {
+
+               for (int i = 0; i <= 6; i++)
+                {
+                    string controlName = i == 0 ? "joystick" : "button_" + i;
+                    if (jsonObject["controls"].HasField(controlName))
+                    {
+                        this.controlLabels[i] = jsonObject["controls"][controlName].str;
+                    }
+                }
+                // Debug.Log(jsonObject["controls"]["button_1"]);
+        }
+
         //Debug.Log(this.title + ", " + this.author + ", " + this.commandLineArguments);
     }
 
@@ -165,10 +199,6 @@ public class GameData
             FileInfo fi = new FileInfo(executable);
             return fi.Directory.FullName;
         }
-        set
-        {
-
-        }
     }
 
     public string appFile
@@ -202,7 +232,6 @@ public class GameData
         executable = "";
         author = "";
         description = "";
-        directory = "";
         isUnityApp = true;
 
     }
