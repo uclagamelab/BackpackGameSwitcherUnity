@@ -40,6 +40,8 @@ public class ProcessRunner : MonoBehaviour
     }
     // DLL Imports
 
+    float okToQuitTime = float.PositiveInfinity;
+
     List<Process> safeProcesses;
 
 	// sets the given window to the foreground window
@@ -130,7 +132,7 @@ public class ProcessRunner : MonoBehaviour
     IntPtr _joy2KeyPrimaryWindow = IntPtr.Zero;
 
 
-	GameCatalog findGames;
+	
 
 	// Pressing the button opens up the game.
 	// Pressing CTRL - C brings this game to the foreground
@@ -143,7 +145,7 @@ public class ProcessRunner : MonoBehaviour
 
 	void Start()
 	{
-        findGames = gameObject.GetComponent<GameCatalog>();
+
         //this.killAllPrevProcesses();
 
         setJoyToKeyConfig("menuselect.cfg");
@@ -166,57 +168,48 @@ public class ProcessRunner : MonoBehaviour
 		// Check if the process has Exitted
 		if( _runningProcess != null)
 		{
+
+
             if (_runningProcess.HasExited && Time.time > okToQuitTime)
             {
-                /*print("Lost it");
-
-                BringThisToForeground(); //original only called on the combo...
-                this.setJoyToKeyConfig("menuselect.cfg");
-
-                _runningProcess = null; */
-
-                // Clear window associations
-                //_runningWindowHandles.Clear();
-                //_runningPrimaryWindow = IntPtr.Zero;
 
             }
             else
             {
                 
                 //OK to do so frequently???
-                if (Time.time > lastAttemptTime + .5f)
+                if (Time.time > lastFocusSwitchAttemptTime + .5f)
                 {
-                    lastAttemptTime = Time.time;
-                    BringRunningToForeground();
+                    lastFocusSwitchAttemptTime = Time.time;
+                    BringRunningToForeground(); //this function should be robust to repeated calls
                 }
             }
 		}
         else
         {
-            if (Time.time > lastAttemptTime + .5f)
+            if (Time.time > lastFocusSwitchAttemptTime + 2)
             {
-                lastAttemptTime = Time.time;
-                //BringThisToForeground();
+                lastFocusSwitchAttemptTime = Time.time;
+                //BringThisToForeground(); //why did I comment this out?
             }
         }
 	}
 
-    float lastAttemptTime = float.NegativeInfinity;
+    float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
+    //Not really used anymore, since joytokey does a good job on its own.
     void setJoyToKeyConfig(string configFile)
     {
         ProcessStartInfo startInfo = new ProcessStartInfo();
 
-        startInfo.WorkingDirectory = @findGames.joyToKeyData.directory; //"C:\\Users\\Garrett Johnson\\Desktop";
-        startInfo.FileName = @findGames.joyToKeyData.executable;
+        startInfo.WorkingDirectory = @GameCatalog.Instance.joyToKeyData.directory; //"C:\\Users\\Garrett Johnson\\Desktop";
+        startInfo.FileName = @GameCatalog.Instance.joyToKeyData.executable;
         startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
 
-        //print("Joy2Key : " + @findGames.joyToKeyData.directory + " ... " + startInfo.FileName + " -> " + startInfo.Arguments);
 
         _joy2KeyProcess = Process.Start(startInfo);
-
     }
-    float okToQuitTime = float.PositiveInfinity;
+
     // Opens the given process
     // Returns true if it worked, otherwise returns false if there was already a process running
     public bool OpenProcess(string directory, string exe, string cmdArgs, string joyToKeyArgs)
