@@ -1,20 +1,15 @@
 ﻿#### #### TODO #### #### #### #### #### #### 
-* finish system for standardized controls
 * Put in some other games from.... http://games.ucla.edu/gamesBackup/games/
 * put in darkgame
-* Look at some other multi-arcade machines (OpenEmu, NeoGeo, thos multi consoles?)
 * Write a list of things to do in an audit..
 * Ken Burns effect on images?
 * Auto generate joyToKey app associations file
 * Add support for if a game crashes... if the switcher crashes
 * Investigate how to make it start automatically on restart
-* Make some kind of installer
 * Make a couple different 'skins'
-* Make the menu retake focus if nothing is running
+* Make the menu retake focus if nothing is running (!!!!)
 * Support for 2 players
 * Test on Lenovo computer
-* Get feedback
-* When specifyin an external game folder, also use Joy2Key there.
 * Hide cursor in switcher app... think about what to do for other games (auto reposition to upper right on staring a game?)
 * try with a browser game, a flashgame, others???
 
