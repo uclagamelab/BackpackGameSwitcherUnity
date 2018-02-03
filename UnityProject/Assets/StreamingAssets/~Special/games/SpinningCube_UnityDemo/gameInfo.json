@@ -1,9 +1,0 @@
-{
-	"title": "Spinning Cube",
-	"designers": "UCLA GameLab",
-	"description": "a spinning cube!",
-	"command arguments":"-popupwindow -screen-width 1920 -screen-height 1080",
-	"window title" : "Spinning Cube",
-	"app type" : "unity"
-
-}

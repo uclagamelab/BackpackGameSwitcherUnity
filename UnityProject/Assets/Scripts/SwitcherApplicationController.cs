@@ -1,11 +1,22 @@
-﻿using System.Collections;
+﻿/*
+ 
+Collects input from gamepads, keyboard etc... and controls the menu
+ 
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardInput.Listener {
     MenuVisualsGeneric gameMenu;
 
+    bool gotAnExitCombo = false; //consumable event
+
     float attractTimeOut = 60;
+
+    bool gameProcessWentNullOrExitedLastUpdate = true;
+
 
     float timeOfLastQuit = float.NegativeInfinity;
     bool didntQuitRecently
@@ -32,8 +43,30 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     {
 
         checkIfIdleAndReturnToAttractUpdate();
-
         bool aGameIsRunning = ProcessRunner.instance.IsGameRunning();
+        //--------------------------------------------------------------------
+        bool processWentNullOrExitedThisUpdate = !aGameIsRunning;
+        if (processWentNullOrExitedThisUpdate && !gameProcessWentNullOrExitedLastUpdate)
+        {
+            if (gotAnExitCombo)
+            {
+                print("game exited with combo!");
+            }
+            else
+            {
+                print("game exited some other way");
+                this.gameMenu.onQuitGame();
+
+            }
+
+            gotAnExitCombo = false;
+        }
+
+        gameProcessWentNullOrExitedLastUpdate = processWentNullOrExitedThisUpdate;
+        //------------------------------------------------------------------
+
+
+        
 
         if (!aGameIsRunning)
         {
@@ -116,6 +149,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     public void onBackgroundKeyCombo()
     {
         timeOfLastQuit = Time.time;
+        gotAnExitCombo = true;
         Debug.Log("!!!!!!!!!!!!");
         ProcessRunner.instance.quitCurrentGame();
         this.gameMenu.onQuitGame();

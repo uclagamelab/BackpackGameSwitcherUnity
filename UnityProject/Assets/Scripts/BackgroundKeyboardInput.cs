@@ -24,6 +24,14 @@ public class BackgroundKeyboardInput : MonoBehaviour {
 
     List<Listener> listeners;
 
+    float _timeOfLastExitComboHit = float.NegativeInfinity;
+    public float timeOfLastExitComboHit
+    {
+        get { return _timeOfLastExitComboHit; }
+        protected set { _timeOfLastExitComboHit = value; }
+    }
+
+
     static BackgroundKeyboardInput _instance;
     public static BackgroundKeyboardInput Instance
     {
@@ -77,8 +85,8 @@ public class BackgroundKeyboardInput : MonoBehaviour {
             if (!_keyComboPressed)
             {
                 _keyComboPressed = true;
-
-                foreach(Listener l in listeners)
+                timeOfLastExitComboHit = Time.time;
+                foreach (Listener l in listeners)
                 {
                     l.onBackgroundKeyCombo();
                 }

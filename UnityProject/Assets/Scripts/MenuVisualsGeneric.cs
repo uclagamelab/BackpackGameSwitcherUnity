@@ -14,24 +14,38 @@ using UnityEngine.UI;
 public class MenuVisualsGeneric : MonoBehaviour
 {
 
-    float attemptedLaunchTime = float.NegativeInfinity;
-    bool inProcessOfLaunching
-    {
-        get { return Time.time < attemptedLaunchTime + 3; }
-    }
 
-    
-
+    #region FIELDS
     List<Listener> listners;
-    public GameObject loadingScreen;
     int gameIdx = 0;
 
     GameInfoUI gameInfoUI;
     bool animating = false;
 
     public Text errorText;
+    float attemptedLaunchTime = float.NegativeInfinity;
+    #endregion
 
-    //bool ignoreInputTemporarily = false;
+    #region PROPERTIES
+    bool inProcessOfLaunching
+    {
+        get { return Time.time < attemptedLaunchTime + 3; }
+    }
+
+    public GameData currentlySelectedGame
+    {
+        get
+        {
+            if (gameIdx >= GameCatalog.Instance.gameCount)
+            {
+                return null;
+            }
+            return GameCatalog.Instance.games[gameIdx];
+        }
+    }
+
+    #endregion
+
 
 
 
@@ -41,20 +55,19 @@ public class MenuVisualsGeneric : MonoBehaviour
         this.listners = new List<Listener>();
     }
 
-    public void addListener(Listener l)
-    {
-        this.listners.Add(l);
-    }
+
 
     // Use this for initialization
     void Start () {
         gameInfoUI = this.GetComponentInChildren<GameInfoUI>();
         setAttractMode(true);
         updateInfoDisplay(currentlySelectedGame);
+        
     }
 	
     public void setAttractMode(bool attract)
     {
+        this.showLoadingScreen(false);
         AttractMode.Instance.running = attract;
         this.gameInfoUI.gameObject.SetActive(!attract);
         BackgroundDisplay.Instance.gameObject.SetActive(!attract);
@@ -76,28 +89,12 @@ public class MenuVisualsGeneric : MonoBehaviour
     
     }
 
-    // Update is called once per frame
-
-    //TODO need to separate concerns...
-    //Reverting to state, if no input for one.
-    //Actually, input should probably go into controller??
-
-
-
-
-
-
-    public GameData currentlySelectedGame
-    {
-        get
-        {
-            return GameCatalog.Instance.games[gameIdx];
-        }
-    }
 
     public void cycleToNextGame(int selectionDirection)
     {
-        if (AttractMode.Instance.running || animating)
+        
+
+        if (AttractMode.Instance.running || animating || GameCatalog.Instance.gameCount == 0)
         {
             return;
         }
@@ -133,6 +130,10 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     void updateInfoDisplay(GameData currentGameData)
     {
+        if (currentGameData == null)
+        {
+            return;
+        }
 
         //TODO : should move into GameInfoUi
         gameInfoUI.titleText.text = currentGameData.title;
@@ -180,10 +181,24 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     }
 
-
+    public void showLoadingScreen(bool show)
+    {
+        BackgroundDisplay.Instance.gameObject.SetActive(!show);
+        this.gameInfoUI.gameObject.SetActive(!show);
+        LoadingScreen.instance.on = show;
+    }
 
     public void onStartGameButtonPress()
     {
+        if (currentlySelectedGame == null)
+        {
+            return;
+        }
+
+
+        
+
+
         bool gameHasExe = currentlySelectedGame.executable != "";
 
         if (inProcessOfLaunching || !gameHasExe)// || AttractMode.Instance.running)
@@ -197,6 +212,7 @@ public class MenuVisualsGeneric : MonoBehaviour
             return;
         }
 
+        showLoadingScreen(true);
         attemptedLaunchTime = Time.time;
 
         foreach (Listener l in this.listners)
@@ -242,22 +258,13 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void onQuitGame()
     {
-        
 
-
-
-        //bool playingGame = ProcessRunner.instance.gameProcessIsRunning;
-
+        this.showLoadingScreen(false);
 
         foreach (Listener l in this.listners)
             {
                 l.onQuitGame();
-            }
-        
-
-        //  this.state = State.CHOOSING;
-        //setAttractMode(true);
-     
+            }     
     }
 
     public interface Listener
@@ -267,9 +274,10 @@ public class MenuVisualsGeneric : MonoBehaviour
         void onCycleGame();
         void onStartGame();
         void onQuitGame();
-
-
     }
-
+    public void addListener(Listener l)
+    {
+        this.listners.Add(l);
+    }
 
 }

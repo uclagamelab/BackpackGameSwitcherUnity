@@ -1,9 +1,0 @@
-{
-	"title": "Excite Shape",
-	"designers": "Yuko Horseradish",
-	"description": "Weird keys, does it work tho?",
-	"command arguments":"-popupwindow -screen-fullscreen 0 -screen-width 1920 -screen-height 1080",
-	"joytokey cfg" : "ExciteCube.cfg",
-	"app type" : "unity"
-	
-}

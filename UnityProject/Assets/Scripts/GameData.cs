@@ -6,9 +6,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.Video;
+
+
+
 public class GameData
 {
+
+    //[DllImport("shell32.dll")]
+
     public string title;
     public string executable;
     public string author;
@@ -33,8 +38,10 @@ public class GameData
     }
 
 
-    public GameData(FileInfo gameFolder)
-{
+    public GameData(string gameFolderPath)
+    {
+
+        FileInfo gameFolder = new FileInfo(gameFolderPath);
 
         controlLabels = new string[7];
         for (int i = 0; i < controlLabels.Length; i++)
@@ -58,7 +65,11 @@ public class GameData
 
         this.title = jsonObject["title"].str;
         this.author = jsonObject["designers"].str;
-        this.commandLineArguments = jsonObject["command arguments"].str;
+        if (jsonObject.HasField("command arguments"))
+        {
+                this.commandLineArguments = jsonObject["command arguments"].str;
+        }
+        
         this.description = jsonObject["description"].str;
         if (jsonObject.HasField("joytokey cfg"))
         {
@@ -133,6 +144,12 @@ public class GameData
             //TODO : need to think of something smarter... 
             //optionally specify start file???
             this.executable = shortcutsInGameDirectory[0];
+
+            //verify existence of link...
+            checkShortcutValidity(this.executable);
+
+
+
 
         }
         else //try to find an exe...
@@ -288,5 +305,25 @@ public class GameData
         this.previewImg = textureReq.texture;
     }
 
+    void checkShortcutValidity(string shortcutPath)
+    {
+        //UnityEngine.Debug.Log(LnkToFile(shortcutPath));
+        //nityEngine.Debug.Break();
+
+    }
+
+    private static string LnkToFile(string fileLink)
+    {
+        string link = File.ReadAllText(fileLink);
+        int i1 = link.IndexOf("DATA\0");
+        if (i1 < 0)
+            return null;
+        i1 += 5;
+        int i2 = link.IndexOf("\0", i1);
+        if (i2 < 0)
+            return link.Substring(i1);
+        else
+            return link.Substring(i1, i2 - i1);
+    }
 
 }

@@ -37,7 +37,7 @@ public class SwitcherMusic : MonoBehaviour, MenuVisualsGeneric.Listener {
 	void Update () {
         if (ProcessRunner.instance.gameProcessIsRunning || !hasFocus)
         {
-            print("something is runnig!");
+            //print("something is runnig!");
             source1.volume = Mathf.MoveTowards(source1.volume, 0, Time.deltaTime);
             //Could stop the sound???? TODO
         }

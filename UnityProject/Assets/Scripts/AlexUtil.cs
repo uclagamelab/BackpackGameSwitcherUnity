@@ -82,6 +82,24 @@ public static class Alextensions
         return ret;
     }
 
+    public static float ezPerlin(this MonoBehaviour thiss, float t, int seedo)
+    {
+        int seed = Mathf.Abs(seedo) + 1;
+        int sign1 = (seed % 1) == 0 ? 1 : -1;
+        int sign2 = (seed % 4) < 3 ? 1 : -1;
+
+        float t1 = t * sign1;
+        float t2 = t * sign2;
+
+        //turn into a decimal <= .05
+        float coeff1 = 1.0f + Mathf.Pow((1.0f * seed) / Mathf.NextPowerOfTwo(seed), 2);
+        float coeff2 = 1 + (Mathf.Log(seed + 10) % 1);
+
+
+        float offset = (1.0f / (seed + 1));
+        return Mathf.PerlinNoise(t1 * coeff1 + offset, t2 * coeff2 - offset);
+    }
+
     public static void delayedFunction(this MonoBehaviour thiss, NoArgNoRetFunction func, float delay)
     {
         thiss.StartCoroutine(delayedFunctionRoutine(func, delay));

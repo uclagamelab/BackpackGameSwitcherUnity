@@ -71,10 +71,24 @@ public class GameCatalog : MonoBehaviour
 
         foreach (string gameFolderPathString in gameFolders)
         {
-            FileInfo gameFolder = new FileInfo(gameFolderPathString);
-            GameData gameData = new GameData(gameFolder);
+            
 
-            allGames.Add(gameData);
+            try
+            {
+                bool shouldSkip = new FileInfo(gameFolderPathString).Name.StartsWith("~");
+                if (shouldSkip)
+                {
+                    Debug.Log("Starts with '~', so IGNORING : " + gameFolderPathString);
+                    continue;
+                }
+
+                GameData gameData = new GameData(gameFolderPathString);
+                allGames.Add(gameData);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Problem loading game at : '" + gameFolderPathString + "'\n\t reason: " + e);
+            }
         }
 
         this.joyToKeyData = new GameData();

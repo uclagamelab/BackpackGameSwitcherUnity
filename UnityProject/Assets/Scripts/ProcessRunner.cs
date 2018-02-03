@@ -19,8 +19,12 @@ using System.IO;
 public class ProcessRunner : MonoBehaviour
 {
 
+    //Process.GetCurrentProcess().MainModule.FileName
+
     bool switcherHasFocus = false;
-    bool _gameProcessIsRunning = false;
+
+    public string processStateHelper;
+
     public bool gameProcessIsRunning
     {
         get {
@@ -40,7 +44,16 @@ public class ProcessRunner : MonoBehaviour
     }
     // DLL Imports
 
-    float okToQuitTime = float.PositiveInfinity;
+
+    float currentProcessStartTime = float.PositiveInfinity;
+
+    float okToQuitTime
+    {
+        get
+        {
+            return currentProcessStartTime + 5;
+        }
+    }
 
     List<Process> safeProcesses;
 
@@ -150,6 +163,7 @@ public class ProcessRunner : MonoBehaviour
 
         setJoyToKeyConfig("menuselect.cfg");
 
+
         //Not sure if delay is actually necessary
         this.delayedFunction(() =>
         {
@@ -159,41 +173,60 @@ public class ProcessRunner : MonoBehaviour
     }
 
 
-
 	void Update()
 	{
 
+        /*processStateHelper = "";
+
+        checkForChildProcesses();
+
+        if (this._runningProcess != null)
+        {
+            
+            //processStateHelper += this._runningProcess.Threads.Count;
+            //processStateHelper += " " + this._runningProcess.HasExited;
+            //processStateHelper += " " + this._runningProcess.Modules.Count;
+            //processStateHelper += " " + this._runningProcess.MainModule + "!"; // the exe name!
+            //processStateHelper += " " + this._runningProcess.MainModule.GetLifetimeService()
+            processStateHelper += nChildrenOfCurrentRunningProcess  + "~~~~~~~~";
+            
+        }*/
+           
+
+        // Check if the process has Exitted
+        if (_runningProcess != null)
+        {
+
+            //bool shouldShowLoadingScreen = Time.time < currentProcessStartTime + 4;
 
 
-		// Check if the process has Exitted
-		if( _runningProcess != null)
-		{
-
-
-            if (_runningProcess.HasExited && Time.time > okToQuitTime)
+            if (!_runningProcess.HasExited)// && Time.time < currentProcessStartTime + 5)
             {
 
-            }
-            else
-            {
-                
                 //OK to do so frequently???
                 if (Time.time > lastFocusSwitchAttemptTime + .5f)
                 {
+                    print("give it a try");
                     lastFocusSwitchAttemptTime = Time.time;
                     BringRunningToForeground(); //this function should be robust to repeated calls
                 }
             }
-		}
+        }
         else
         {
+      
+
             if (Time.time > lastFocusSwitchAttemptTime + 2)
             {
                 lastFocusSwitchAttemptTime = Time.time;
                 //BringThisToForeground(); //why did I comment this out?
             }
         }
-	}
+
+        //
+        
+
+    }
 
     float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
@@ -229,30 +262,37 @@ public class ProcessRunner : MonoBehaviour
 
         ProcessStartInfo startInfo = new ProcessStartInfo();
 
-        if (cmdArgs.Length == 0 && false) {
+        // --- the working settings -----------------
+        startInfo.CreateNoWindow = false;
+        startInfo.WindowStyle = ProcessWindowStyle.Normal;
+        //-------------------------------------------------
+
+
+        /*
+        //In the old code.... before else branch containing above "working settings"
+        if (cmdArgs != null && cmdArgs.Length == 0) {
             UnityEngine.Debug.Log("no unity");
             startInfo.UseShellExecute = true;
-        }
-        else {
-            startInfo.CreateNoWindow = false;
-            //startInfo.UseShellExecute = false;
-            startInfo.WindowStyle = ProcessWindowStyle.Normal;
-        }
+        }*/
+
 
         startInfo.WorkingDirectory = directory; //"C:\\Users\\Garrett Johnson\\Desktop";
         startInfo.FileName = exe;               //"angryBots.exe";
-        startInfo.Arguments = cmdArgs; 			//"-popupwindow -screen-width 1920 -screen-height 1080";
-        /*startInfo.CreateNoWindow = false;
-        startInfo.WindowStyle = ProcessWindowStyle.Maximized;
-        startInfo.UseShellExecute = false;*/
+        if (cmdArgs != null)
+        {
+            startInfo.Arguments = cmdArgs; 			//"-popupwindow -screen-width 1920 -screen-height 1080";
+        }
+       
+        
 
         _runningProcess = Process.Start(startInfo);
-        okToQuitTime = Time.time + 5;
+        //checkForChildProcesses();
+        currentProcessStartTime = Time.time;
 
-        //new -----------
-        //this.delayedFunction(() => {
-            BringRunningToForeground();
-        //}, 2);
+
+        //show loading screen for a bit
+        //BringRunningToForeground();
+
         return true;
 	}
 
@@ -347,7 +387,7 @@ public class ProcessRunner : MonoBehaviour
 
         if (hWnd == fgWnd)
         {
-            print("OK ALREADY!!!!!!!!!!!!");
+            //print("window already in foreground");
             return;
         }
 
@@ -549,5 +589,53 @@ public class ProcessRunner : MonoBehaviour
     {
         //this.gameProcessIsRunning = !hasFocus;
         switcherHasFocus = hasFocus;
+    }
+
+    int nChildrenOfCurrentRunningProcess = 0;
+    void checkForChildProcesses()
+    {
+        nChildrenOfCurrentRunningProcess = 0;
+        foreach (Process p in Process.GetProcesses())
+        {
+            if (p.HasExited)
+            {
+                continue;
+            }
+
+            var performanceCounter = new PerformanceCounter("Process", "Creating Process ID", p.ProcessName);
+            MyProcInfo parent = GetProcessIdIfStillRunning((int)performanceCounter.RawValue);
+            
+            if (parent.ProcessName == _runningProcess.ProcessName)
+            {
+                nChildrenOfCurrentRunningProcess++;
+                UnityEngine.Debug.Break();
+            }
+
+              Console.WriteLine(
+                " Process {0}(pid {1} was started by Process {2}(Pid {3})", 
+                p.ProcessName, 
+                p.Id, 
+                parent.ProcessName, 
+                parent.ProcessId);
+        }
+    }
+
+    struct MyProcInfo
+    {
+        public int ProcessId;
+        public string ProcessName;
+    }
+
+    static MyProcInfo GetProcessIdIfStillRunning(int pid)
+    {
+        try
+        {
+            var p = Process.GetProcessById(pid);
+            return new MyProcInfo() { ProcessId = p.Id, ProcessName = p.ProcessName };
+        }
+        catch (ArgumentException)
+        {
+            return new MyProcInfo() { ProcessId = -1, ProcessName = "No-longer existant process" };
+        }
     }
 }

@@ -37,6 +37,12 @@ public class ToolsAndSettings : MonoBehaviour {
         if (show)
         {
             loadValuesFromSettings();
+
+            bool noGames = GameCatalog.Instance.gameCount == 0;
+            if (noGames)
+            {
+                this.resultMessage.text = "Couldn't load any games!";
+            }
         }
         
     }
