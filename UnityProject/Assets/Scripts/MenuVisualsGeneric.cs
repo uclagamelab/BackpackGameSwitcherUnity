@@ -47,19 +47,26 @@ public class MenuVisualsGeneric : MonoBehaviour
     #endregion
 
 
+    public void selectRandomGame()
+    {
+        gameIdx = Random.Range(0, GameCatalog.Instance.games.Count);
+        this.updateInfoDisplay(this.currentlySelectedGame);
+    }
+
 
 
 
     private void Awake()
     {
         this.listners = new List<Listener>();
+        gameInfoUI = this.GetComponentInChildren<GameInfoUI>();
     }
 
 
 
     // Use this for initialization
     void Start () {
-        gameInfoUI = this.GetComponentInChildren<GameInfoUI>();
+        
         setAttractMode(true);
         updateInfoDisplay(currentlySelectedGame);
         
@@ -70,7 +77,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         this.showLoadingScreen(false);
         AttractMode.Instance.running = attract;
         this.gameInfoUI.gameObject.SetActive(!attract);
-        BackgroundDisplay.Instance.gameObject.SetActive(!attract);
+        
 
         if (attract)
         {
@@ -90,11 +97,11 @@ public class MenuVisualsGeneric : MonoBehaviour
     }
 
 
-    public void cycleToNextGame(int selectionDirection)
+    public void cycleToNextGame(int selectionDirection, bool forceDuringAttractNoAnimation =false)
     {
         
 
-        if (AttractMode.Instance.running || animating || GameCatalog.Instance.gameCount == 0)
+        if (( AttractMode.Instance.running && !forceDuringAttractNoAnimation) || animating || GameCatalog.Instance.gameCount == 0)
         {
             return;
         }
@@ -104,9 +111,12 @@ public class MenuVisualsGeneric : MonoBehaviour
             {
                 l.onCycleGame();
             }
+
+            if (!forceDuringAttractNoAnimation)
+            {
             animating = true;
-            
-            this.varyWithT((float t) => 
+
+            this.varyWithT((float t) =>
             {
                 this.gameInfoUI.GetComponent<CanvasGroup>().alpha = 1 - t;
                 if (t == 1)
@@ -123,6 +133,14 @@ public class MenuVisualsGeneric : MonoBehaviour
                     }, .45f);
                 }
             }, .25f);
+        }
+            else
+        {
+            this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
+            this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx]);
+        }
+
+           
 
         
       

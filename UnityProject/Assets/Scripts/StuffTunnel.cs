@@ -20,6 +20,7 @@ public class StuffTunnel : MonoBehaviour {
         for (int i = 0; i < nDebris; i++)
         {
             GameObject newDrifty = new GameObject();
+            newDrifty.transform.parent = this.transform.parent;
             newDrifty.AddComponent<SpriteRenderer>();
             newDrifty.GetComponent<SpriteRenderer>().sprite = baseSprites[i % baseSprites.Length];
             newDrifty.AddComponent<Drifter>();

@@ -81,8 +81,12 @@ public class SwitcherMusic : MonoBehaviour, MenuVisualsGeneric.Listener {
 
     public void onCycleGame()
     {
-        oneShotter.pitch = 1;
-        this.oneShotter.PlayOneShot(cycleSound);
+        if (AttractMode.Instance == null || !AttractMode.Instance.running)
+        {
+            oneShotter.pitch = 1;
+            this.oneShotter.PlayOneShot(cycleSound);
+        }
+  
     }
 
     public void onStartGame()

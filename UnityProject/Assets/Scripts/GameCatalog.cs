@@ -40,11 +40,12 @@ public class GameCatalog : MonoBehaviour
     private void Awake()
     {
         _instance = this;
+        repopulateCatalog(SwitcherSettings.GamesFolder);
     }
 
     void Start () 
 	{
-        repopulateCatalog(SwitcherSettings.GamesFolder);
+        
 	}
 
 

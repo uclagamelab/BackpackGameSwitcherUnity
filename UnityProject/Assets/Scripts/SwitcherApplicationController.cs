@@ -19,6 +19,8 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
+    bool generatedSimulatedKeypressForFocusSwitchToSwitcherApp = false;
+
     float timeOfLastQuit = float.NegativeInfinity;
     bool didntQuitRecently
     {
@@ -68,6 +70,25 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
 
 
+        //Make Switcher Retake focus, if necessary
+        if (Time.time > lastFocusSwitchAttemptTime + .5f)
+        {
+            lastFocusSwitchAttemptTime = Time.time;
+            if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.
+            {
+                //print("bring switcher to the frongt!");
+                ProcessRunner.instance.BringThisToForeground();
+
+            }
+            else if (ProcessRunner.instance.gameProcessIsRunning) // have the game try to retake focus, if one is running.
+            {
+                //print("give it a try");
+                generatedSimulatedKeypressForFocusSwitchToSwitcherApp = true;
+                ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls
+            }
+        }
+
+
 
         if (!aGameIsRunning)
         {
@@ -87,33 +108,20 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         }
 
 
-        //Make Switcher Retake focus, if necessary
-        if (Time.time > lastFocusSwitchAttemptTime + .5f)
-        {
-            lastFocusSwitchAttemptTime = Time.time;
-            if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.
-            { 
-                //print("bring switcher to the frongt!");
-                ProcessRunner.instance.BringThisToForeground();
-
-            }
-            else if (ProcessRunner.instance.gameProcessIsRunning) // have the game try to retake focus, if one is running.
-            {
-                //print("give it a try");
-                ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls
-            }
-        }
-
+ 
      
 
     }
 
     void AttractUpdate()
     {
-        if (Input.anyKeyDown && didntQuitRecently)
+        if (Input.anyKeyDown && didntQuitRecently && !generatedSimulatedKeypressForFocusSwitchToSwitcherApp)
         {
             gameMenu.setAttractMode(false);
         }
+
+        //consume the event
+        generatedSimulatedKeypressForFocusSwitchToSwitcherApp = false;
     }
 
     void selectingGameUpdate()

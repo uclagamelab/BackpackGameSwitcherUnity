@@ -18,13 +18,21 @@ public class BackgroundDisplay : MonoBehaviour {
             get;
             set;
         }
+
+         Transform transform
+        {
+            get;
+        }
+
     }
 
     public void stopAllVideos()
     {
-        this.vid1.Stop();
-        this.vid2.Stop();
+        //this.vid1.Stop();
+        //this.vid2.Stop();
     }
+
+
 
     public class FadeableVideo : Fadeable
     {
@@ -35,6 +43,12 @@ public class BackgroundDisplay : MonoBehaviour {
         {
             this.videoPlayer = videoPlayer;
             this.img = videoPlayer.GetComponent<RawImage>();
+            
+        }
+
+        public Transform transform
+        {
+            get { return img.transform; }
         }
 
         public float alpha
@@ -49,45 +63,12 @@ public class BackgroundDisplay : MonoBehaviour {
                 Color newColor = img.color;
                 newColor.a = value;
                 img.color = newColor;
-
-                if (alpha == 0)
-                {
-                    this.videoPlayer.Stop();
-                    //this.videoPlayer.url = "";
-                    //this.videoPlayer.clip = null;
-                }
             }
         }
+
+
     }
 
-    public class FadeableVideoV1 : Fadeable
-    {
-        public VideoPlayer videoPlayer;
-        public FadeableVideoV1(VideoPlayer videoPlayer)
-        {
-            this.videoPlayer = videoPlayer;
-        }
-
-        public float alpha
-        {
-            get
-            {
-                return videoPlayer.targetCameraAlpha;
-            }
-
-            set
-            {
-                videoPlayer.targetCameraAlpha = value;
-
-                if (alpha == 0)
-                {
-                    this.videoPlayer.Stop();
-                    //this.videoPlayer.url = "";
-                    //this.videoPlayer.clip = null;
-                }
-            }
-        }
-    }
 
     public class FadeableRawImage : Fadeable
     {
@@ -96,6 +77,12 @@ public class BackgroundDisplay : MonoBehaviour {
         {
             this.image = image;
         }
+
+        public Transform transform
+        {
+            get { return image.transform; }
+        }
+
 
         public float alpha
         {
@@ -170,6 +157,7 @@ public class BackgroundDisplay : MonoBehaviour {
         this.videoPlayer2 = new FadeableVideo(vid2);
     }
 	
+
 	// Update is called once per frame
 	void Update ()
     {
@@ -177,12 +165,51 @@ public class BackgroundDisplay : MonoBehaviour {
         /*System.Array.Sort<Fadeable>(allThings, (Fadeable a, Fadeable b) => {
             return a == thingToShow ? 0 : 1;
         });*/
+
+
+
+        
    
-            foreach (Fadeable f in allThings)
+        if (thingToShow == videoPlayer1 || thingToShow == videoPlayer2)
+        {
+            
+            //wait for the video player to be ready?
+            FadeableVideo vidToShow = ((FadeableVideo)thingToShow);
+            if (!vidToShow.videoPlayer.isPrepared)
+            {
+
+                return;
+                
+            }
+            else
+            { 
+                if (!vidToShow.videoPlayer.isPlaying)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
+                {
+                    vidToShow.alpha = 0;
+
+
+                    
+
+                    vidToShow.videoPlayer.transform.SetAsLastSibling();
+
+
+                    vidToShow.videoPlayer.Play();
+
+                    //vidToShow.videoPlayer.time = (double)Random.Range(0, 200f);
+                }
+    
+            }
+       
+            
+
+                //
+        }
+
+        foreach (Fadeable f in allThings)
             {
                 if (f == thingToShow)
                 {
-                    f.alpha = Mathf.MoveTowards(f.alpha, 1, Time.deltaTime * 2);
+                f.alpha =  Mathf.MoveTowards(f.alpha, 1, Time.deltaTime * 2);
                     if (f.alpha == 1)
                     {
                         prevThingToShow = null;
@@ -195,7 +222,7 @@ public class BackgroundDisplay : MonoBehaviour {
 
                 if (prevThingToShow != null)
                 {
-                prevThingToShow.alpha = 1;// - thingToShow.alpha;
+                    prevThingToShow.alpha = 1;// - thingToShow.alpha;
                 }
             }
         
@@ -203,6 +230,23 @@ public class BackgroundDisplay : MonoBehaviour {
         //videoPlayer1.alpha = thingToShow == videoPlayer1 ? 1 : 0;
         //image1.alpha = thingToShow == image1 ? 1 : 0;
 	}
+
+    public bool visible
+    {
+        get
+        {
+            return this.image1.image.enabled ||  this.image2.image.enabled  || this.videoPlayer1.img.enabled || this.videoPlayer2.img.enabled;
+        }
+
+        set
+        {
+            this.image1.image.enabled = value;
+            this.image2.image.enabled = value;
+            this.videoPlayer1.img.enabled = value;
+            this.videoPlayer2.img.enabled = value;
+
+        }
+    }
 
     public void setVideo(string videoUrl)
     {
@@ -219,22 +263,20 @@ public class BackgroundDisplay : MonoBehaviour {
             outgoingVideo = videoPlayer2;
         }
 
- 
 
 
+        targVideoPlayer.videoPlayer.Stop();
         targVideoPlayer.videoPlayer.url = videoUrl;
-        targVideoPlayer.videoPlayer.Play();
-        //targVideoPlayer.videoPlayer.renderMode = VideoRenderMode.CameraNearPlane;
+
+       
+        targVideoPlayer.videoPlayer.Prepare();
+
+        
 
         prevThingToShow = thingToShow;
         thingToShow = targVideoPlayer;
+       
 
-        targVideoPlayer.img.transform.SetAsLastSibling();
-
-        /*if (outgoingVideo != null)
-        {
-            outgoingVideo.videoPlayer.renderMode = VideoRenderMode.CameraFarPlane;
-        }*/
     }
 
     public void setImage(Texture img)
