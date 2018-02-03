@@ -1,8 +1,9 @@
 ﻿#### #### TODO #### #### #### #### #### #### 
 * Put in some other games from.... http://games.ucla.edu/gamesBackup/games/
-* put in darkgame
 * Write a list of things to do in an audit..
 * Ken Burns effect on images?
+* Fix UI of folder selection
+* Be able to create games from within Tools menu
 * Auto generate joyToKey app associations file
 * Add support for if a game crashes... if the switcher crashes
 * Investigate how to make it start automatically on restart

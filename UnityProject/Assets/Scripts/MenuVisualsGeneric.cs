@@ -188,11 +188,12 @@ public class MenuVisualsGeneric : MonoBehaviour
         LoadingScreen.instance.on = show;
     }
 
-    public void onStartGameButtonPress()
+    //returns if accepted press
+    public bool onStartGameButtonPress()
     {
         if (currentlySelectedGame == null)
         {
-            return;
+            return false;
         }
 
 
@@ -209,7 +210,7 @@ public class MenuVisualsGeneric : MonoBehaviour
                 this.showErrorText(currentlySelectedGame.title + " is video only.");
             }
 
-            return;
+            return false;
         }
 
         showLoadingScreen(true);
@@ -239,7 +240,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
             }, .1f);
 
-
+        return true;
     }
 
     void showErrorText(string error)

@@ -17,6 +17,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     bool gameProcessWentNullOrExitedLastUpdate = true;
 
+    float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
     float timeOfLastQuit = float.NegativeInfinity;
     bool didntQuitRecently
@@ -84,6 +85,18 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         {
             gameRunningUpdate();
         }
+
+
+        //Retake focus, if necessary
+        if (_lastActionWasQuit)
+        {
+            if (Time.time > lastFocusSwitchAttemptTime + 1)
+            {
+                lastFocusSwitchAttemptTime = Time.time;
+                print("bring switcher to the frongt!");
+                ProcessRunner.instance.BringThisToForeground();
+            }
+        }
     }
 
     void AttractUpdate()
@@ -114,7 +127,11 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
 
-            this.gameMenu.onStartGameButtonPress();
+            bool accepted = this.gameMenu.onStartGameButtonPress();
+            //if (accepted)
+            //{
+                _lastActionWasQuit = false;
+            //}
 
 
         }
@@ -146,8 +163,15 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     }
 
+    bool _lastActionWasQuit = true;
+    bool lastActionWasQuit()
+    {
+        return _lastActionWasQuit;
+    }
+
     public void onBackgroundKeyCombo()
     {
+        _lastActionWasQuit = true;
         timeOfLastQuit = Time.time;
         gotAnExitCombo = true;
         Debug.Log("!!!!!!!!!!!!");

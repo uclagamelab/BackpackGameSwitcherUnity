@@ -113,11 +113,14 @@ public class ProcessRunner : MonoBehaviour
 
             if (menuWindowHandles.Count > 0)
             {
+                
+
                 //print("got it!");
                 _thisPrimaryWindow = menuWindowHandles[0];
             }
             //return IntPtr.Zero;
             return _thisPrimaryWindow;
+            
         }
     }
 
@@ -296,6 +299,7 @@ public class ProcessRunner : MonoBehaviour
         return true;
 	}
 
+
 	// Closes the process if one is running
 	void CloseProcess()
 	{
@@ -416,8 +420,10 @@ public class ProcessRunner : MonoBehaviour
 	public bool IsGameRunning(){ return _runningProcess != null && !_runningProcess.HasExited; }
 	public void BringThisToForeground()
     {
+
         //ForceBringToForeground(thisPrimaryWindow);
-        sendKeysBatchFile(Application.productName);
+        string switcherWindowName = Application.productName;
+        sendKeysBatchFile(switcherWindowName);
     }
 
     public void quitCurrentGame()
@@ -455,7 +461,7 @@ public class ProcessRunner : MonoBehaviour
 
     public void sendKeysBatchFile(string windowTitle)
     {
-        string cmdText = "call " + Application.streamingAssetsPath + Application.streamingAssetsPath + "\\~Special" + "\\sendKeys.bat \"" + windowTitle + "\" \"\"";
+        string cmdText = "call \"" +  Application.streamingAssetsPath + "\\~Special" + "\\sendKeys.bat\" \"" + windowTitle + "\" \"\"";
 
         System.Diagnostics.Process process = new System.Diagnostics.Process();
         System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
