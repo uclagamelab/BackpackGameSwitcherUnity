@@ -1,5 +1,8 @@
 ﻿#### #### TODO #### #### #### #### #### #### 
+* Create warning dialog if no games
 * Put in some other games from.... http://games.ucla.edu/gamesBackup/games/
+* Figure out issue with itermittently tiny windows... (maybe fixed, but ok to have command line args for non-unity apps/shortcuts?)
+* Fix scroll window of messages in tools menu
 * Write a list of things to do in an audit..
 * Ken Burns effect on images?
 * Fix UI of folder selection
@@ -87,5 +90,5 @@ bulk edit joyToKeyFiles? (too hard?)
 #### #### Focus notes #### #### #### #### #### ####
 https://github.com/electron/electron/issues/2867
 https://technet.microsoft.com/en-us/library/cc957208.aspx
-http://www.thewindowsclub.com/disable-flashing-taskbar-buttons-windows
+http://www.thewindowsclub.com/disable-flashing-taskbar-buttons-windows (<- this one! toward the bottom of the article)
 https://social.msdn.microsoft.com/Forums/windows/en-US/f21726d7-f3dd-4724-8333-5ce935d194cd/focus-stealing-guidance?forum=winforms

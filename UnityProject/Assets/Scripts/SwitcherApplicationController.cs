@@ -39,8 +39,8 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         BackgroundKeyboardInput.Instance.addListener(this);
     }
 
-	// Update is called once per frame
-	void Update ()
+    // Update is called once per frame
+    void Update()
     {
 
         checkIfIdleAndReturnToAttractUpdate();
@@ -67,7 +67,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         //------------------------------------------------------------------
 
 
-        
+
 
         if (!aGameIsRunning)
         {
@@ -87,16 +87,25 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         }
 
 
-        //Retake focus, if necessary
-        if (_lastActionWasQuit)
+        //Make Switcher Retake focus, if necessary
+        if (Time.time > lastFocusSwitchAttemptTime + .5f)
         {
-            if (Time.time > lastFocusSwitchAttemptTime + 1)
-            {
-                lastFocusSwitchAttemptTime = Time.time;
-                print("bring switcher to the frongt!");
+            lastFocusSwitchAttemptTime = Time.time;
+            if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.
+            { 
+                //print("bring switcher to the frongt!");
                 ProcessRunner.instance.BringThisToForeground();
+
+            }
+            else if (ProcessRunner.instance.gameProcessIsRunning) // have the game try to retake focus, if one is running.
+            {
+                //print("give it a try");
+                ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls
             }
         }
+
+     
+
     }
 
     void AttractUpdate()

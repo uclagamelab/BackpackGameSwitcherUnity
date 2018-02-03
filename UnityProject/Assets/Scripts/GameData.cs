@@ -146,7 +146,6 @@ public class GameData
             this.executable = shortcutsInGameDirectory[0];
 
             //verify existence of link...
-            checkShortcutValidity(this.executable);
 
 
 
@@ -303,27 +302,6 @@ public class GameData
 
 
         this.previewImg = textureReq.texture;
-    }
-
-    void checkShortcutValidity(string shortcutPath)
-    {
-        //UnityEngine.Debug.Log(LnkToFile(shortcutPath));
-        //nityEngine.Debug.Break();
-
-    }
-
-    private static string LnkToFile(string fileLink)
-    {
-        string link = File.ReadAllText(fileLink);
-        int i1 = link.IndexOf("DATA\0");
-        if (i1 < 0)
-            return null;
-        i1 += 5;
-        int i2 = link.IndexOf("\0", i1);
-        if (i2 < 0)
-            return link.Substring(i1);
-        else
-            return link.Substring(i1, i2 - i1);
     }
 
 }

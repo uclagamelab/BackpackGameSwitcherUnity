@@ -196,35 +196,7 @@ public class ProcessRunner : MonoBehaviour
         }*/
            
 
-        // Check if the process has Exitted
-        if (_runningProcess != null)
-        {
 
-            //bool shouldShowLoadingScreen = Time.time < currentProcessStartTime + 4;
-
-
-            if (!_runningProcess.HasExited)// && Time.time < currentProcessStartTime + 5)
-            {
-
-                //OK to do so frequently???
-                if (Time.time > lastFocusSwitchAttemptTime + .5f)
-                {
-                    print("give it a try");
-                    lastFocusSwitchAttemptTime = Time.time;
-                    BringRunningToForeground(); //this function should be robust to repeated calls
-                }
-            }
-        }
-        else
-        {
-      
-
-            if (Time.time > lastFocusSwitchAttemptTime + 2)
-            {
-                lastFocusSwitchAttemptTime = Time.time;
-                //BringThisToForeground(); //why did I comment this out?
-            }
-        }
 
         //
         
@@ -250,11 +222,8 @@ public class ProcessRunner : MonoBehaviour
     // Returns true if it worked, otherwise returns false if there was already a process running
     public bool OpenProcess(string directory, string exe, string cmdArgs, string joyToKeyArgs)
     {
+        //print(">>>>>>>>>>>>>>>>>>>>" + cmdArgs);
 
-        /*if( _runningProcess != null )
-		{
-			return false;
-		}*/
 
         ////////////////////
         //Open Joy2Key with appropriate config file
@@ -268,9 +237,12 @@ public class ProcessRunner : MonoBehaviour
         // --- the working settings -----------------
         startInfo.CreateNoWindow = false;
         startInfo.WindowStyle = ProcessWindowStyle.Normal;
+
         //-------------------------------------------------
-
-
+        if (cmdArgs != null)
+        { 
+            startInfo.UseShellExecute = true;
+        }
         /*
         //In the old code.... before else branch containing above "working settings"
         if (cmdArgs != null && cmdArgs.Length == 0) {
