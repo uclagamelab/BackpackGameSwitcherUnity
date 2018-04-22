@@ -153,6 +153,8 @@ public class MenuVisualsGeneric : MonoBehaviour
             return;
         }
 
+        BackgroundDisplay.Instance.visible = true;
+
         //TODO : should move into GameInfoUi
         gameInfoUI.titleText.text = currentGameData.title;
         gameInfoUI.descriptionText.text = currentGameData.description;

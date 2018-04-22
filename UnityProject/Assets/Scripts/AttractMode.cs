@@ -72,7 +72,7 @@ public class AttractMode : MonoBehaviour {
 	
     void scheduleAttractTypeTransition()
     {
-        float duration = state == AttractState.IconBlizzard ? Random.Range(8, 30) : Random.Range(8, 30.0f);
+        float duration = state == AttractState.IconBlizzard ? Random.Range(8, 9) : Random.Range(8, 30.0f);
         attractStateChangeTime = Time.time + duration;
     }
 
@@ -82,15 +82,13 @@ public class AttractMode : MonoBehaviour {
         if (blizzardOn)
         {
             this.iconBlizzardContainer.SetActive(true);
-            BackgroundDisplay.Instance.visible = false;
         }
         else //if (!blizzardOn && this.iconBlizzardContainer.activeSelf)
         {
-            BackgroundDisplay.Instance.visible = true;
-            this.iconBlizzardContainer.SetActive(false);         
+            this.iconBlizzardContainer.SetActive(false); BackgroundDisplay.Instance.visible = true;
         }
-       
-        
+        BackgroundDisplay.Instance.visible = this.state != AttractState.IconBlizzard;
+
 
 
     }
@@ -99,7 +97,8 @@ public class AttractMode : MonoBehaviour {
 	void Update () {
         if (running)
         {
-            if(Time.time > attractStateChangeTime)
+            
+            if (Time.time > attractStateChangeTime)
             {
 
                 state =

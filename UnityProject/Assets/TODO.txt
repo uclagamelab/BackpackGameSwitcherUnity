@@ -1,4 +1,6 @@
 ﻿#### #### TODO #### #### #### #### #### #### 
+* gray bg when coming out of attract
+* need foreground lock applied to windows 7 too (don't check != 7 in tools/settings menu)
 * Create warning dialog if no games
 * Focus switching to switcher takes you out of attract mode
 * Put in some other games from.... http://games.ucla.edu/gamesBackup/games/
