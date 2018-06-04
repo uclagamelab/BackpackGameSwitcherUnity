@@ -191,7 +191,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         _lastActionWasQuit = true;
         timeOfLastQuit = Time.time;
         gotAnExitCombo = true;
-        Debug.Log("!!!!!!!!!!!!");
+        
         ProcessRunner.instance.quitCurrentGame();
         this.gameMenu.onQuitGame();
 

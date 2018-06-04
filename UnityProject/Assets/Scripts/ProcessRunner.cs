@@ -7,6 +7,9 @@ This class, (aspirationally) is contains functions for...
 
  */
 
+//https://msdn.microsoft.com/en-us/library/windows/desktop/ms632668(v=vs.85).aspx
+
+
 using UnityEngine;
 using System;
 using System.Collections;
@@ -239,10 +242,10 @@ public class ProcessRunner : MonoBehaviour
         startInfo.WindowStyle = ProcessWindowStyle.Normal;
 
         //-------------------------------------------------
-        if (cmdArgs != null)
+        /*if (cmdArgs != null)
         { 
             startInfo.UseShellExecute = true;
-        }
+        }*/
         /*
         //In the old code.... before else branch containing above "working settings"
         if (cmdArgs != null && cmdArgs.Length == 0) {
@@ -351,9 +354,13 @@ public class ProcessRunner : MonoBehaviour
         GetWindowThreadProcessId(hWnd, out uwinProcId);
         //winProcId = uwinProcId.ToString();
 
-     
+     bool matched = uwinProcId.ToString().Equals(processId.ToString());
+        if(matched)
+        {
+            UnityEngine.Debug.Log(uwinProcId + "'''''" + processId.ToString());
+        }
         //return winProcId == processId;
-        return uwinProcId.ToString().Equals(processId.ToString());
+        return matched;
     }
 
 	// Forces the given window to show in the foreground
@@ -411,6 +418,8 @@ public class ProcessRunner : MonoBehaviour
 
 
         //UnityEngine.Debug.Log("!!!!!************trying to bring game to fg : '" + _runningPrimaryWindow + "'");
+
+        
         bool useOldWay = true;
         if (useOldWay)
         {

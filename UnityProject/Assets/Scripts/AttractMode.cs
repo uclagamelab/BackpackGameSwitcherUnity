@@ -85,7 +85,8 @@ public class AttractMode : MonoBehaviour {
         }
         else //if (!blizzardOn && this.iconBlizzardContainer.activeSelf)
         {
-            this.iconBlizzardContainer.SetActive(false); BackgroundDisplay.Instance.visible = true;
+            this.iconBlizzardContainer.SetActive(false);
+            BackgroundDisplay.Instance.visible = true;
         }
         BackgroundDisplay.Instance.visible = this.state != AttractState.IconBlizzard;
 
