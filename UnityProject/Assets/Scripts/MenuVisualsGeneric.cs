@@ -20,6 +20,8 @@ public class MenuVisualsGeneric : MonoBehaviour
     int gameIdx = 0;
 
     GameInfoUI gameInfoUI;
+    BlurredOverlay gameInfoV2;
+
     bool animating = false;
 
     public Text errorText;
@@ -54,9 +56,21 @@ public class MenuVisualsGeneric : MonoBehaviour
     }
 
 
+    public void onCycleButtonPressed(int selectionDirection)
+    {
+        if (gameInfoV2.open)
+        {
+            gameInfoV2.TakeDirectionInput(selectionDirection);
+        }
+        else
+        {
+            cycleToNextGame(selectionDirection);
+        }
 
+  
+    }
 
-    private void Awake()
+        private void Awake()
     {
         this.listners = new List<Listener>();
         gameInfoUI = this.GetComponentInChildren<GameInfoUI>();
@@ -69,7 +83,9 @@ public class MenuVisualsGeneric : MonoBehaviour
         
         setAttractMode(true);
         updateInfoDisplay(currentlySelectedGame, 0);
-        
+        gameInfoV2 = this.GetComponentInChildren<BlurredOverlay>(true);
+
+
     }
 	
     public void setAttractMode(bool attract)
@@ -201,16 +217,28 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     }
 
-    public void showLoadingScreen(bool show)
-    {
-        BackgroundDisplay.Instance.gameObject.SetActive(!show);
-        this.gameInfoUI.gameObject.SetActive(!show);
-        LoadingScreen.instance.on = show;
-    }
+
 
     //returns if accepted press
     public bool onStartGameButtonPress()
     {
+
+        if (!this.gameInfoV2.open)
+        {
+            this.gameInfoV2.AnimateOpen(true);
+            return false;
+        }
+        else
+        {
+            if (this.gameInfoV2.backButtonHighighted)
+            {
+                this.gameInfoV2.AnimateOpen(false);
+                return false;
+            }
+        }
+
+     
+
         if (currentlySelectedGame == null)
         {
             return false;
@@ -261,6 +289,13 @@ public class MenuVisualsGeneric : MonoBehaviour
             }, .1f);
 
         return true;
+    }
+
+    public void showLoadingScreen(bool show)
+    {
+        BackgroundDisplay.Instance.gameObject.SetActive(!show);
+        this.gameInfoUI.gameObject.SetActive(!show);
+        LoadingScreen.instance.on = show;
     }
 
     void showErrorText(string error)

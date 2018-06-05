@@ -26,7 +26,11 @@ public class BlurredOverlay : MonoBehaviour {
     [SerializeField]
     RectTransform _playButton;
 
-    bool animatedIn = false;
+    public bool open
+    {
+        get;
+        private set;
+    }
 
     CanvasGroup _canvasGroup;
 
@@ -47,21 +51,21 @@ public class BlurredOverlay : MonoBehaviour {
         if (Input.GetKeyDown("y"))
         {
 
-            animateIn(!animatedIn);
+            AnimateOpen(!open);
         }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            TakeInput(-1);
+            TakeDirectionInput(-1);
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            TakeInput(1);
+            TakeDirectionInput(1);
         }
     }
 
-    void TakeInput(int direction)
+    public void TakeDirectionInput(int direction)
     {
         if (getHighlighted() == _backButton && direction == 1)
         {
@@ -91,6 +95,22 @@ public class BlurredOverlay : MonoBehaviour {
         }
     }
 
+    public bool startButtonHighighted
+    {
+        get
+        {
+            return getHighlighted() == _playButton;
+        }
+    }
+
+    public bool backButtonHighighted
+    {
+        get
+        {
+            return getHighlighted() == _backButton;
+        }
+    }
+
     RectTransform getHighlighted()
     {
         if (_highlightImg.color.a < .9f)
@@ -110,9 +130,9 @@ public class BlurredOverlay : MonoBehaviour {
 
     }
 
-    void animateIn(bool forward)
+    public void AnimateOpen(bool forward)
     {
-        animatedIn = forward;
+        open = forward;
         _rawImg.enabled = true;
         bgBlurrer.enabled = true;
         _dimmer.enabled = true;

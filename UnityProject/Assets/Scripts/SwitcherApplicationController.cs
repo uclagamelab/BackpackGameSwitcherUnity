@@ -137,7 +137,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         selectionDirection = Input.GetKeyDown(KeyCode.W) ? 1 : Input.GetKeyDown(KeyCode.S) ? -1 : 0;
         if (selectionDirection != 0)
         {
-            gameMenu.cycleToNextGame(selectionDirection);
+            gameMenu.onCycleButtonPressed(selectionDirection);
         }
 
 
