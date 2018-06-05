@@ -8,8 +8,9 @@ namespace UnityStandardAssets.ImageEffects
     [AddComponentMenu ("Image Effects/Blur/Blur (Optimized)")]
     public class BlurOptimized : PostEffectsBase
     {
+        public Material mixBlurMat;
 
-        [Range(0, 2)]
+        [Range(0.0f, 2)]
         public int downsample = 1;
 
         public enum BlurType {
@@ -66,11 +67,14 @@ namespace UnityStandardAssets.ImageEffects
 
             var passOffs= blurType == BlurType.StandardGauss ? 0 : 2;
 
+            float zeroFactor = Mathf.InverseLerp(0, .25f, blurSize);
             for(int i = 0; i < blurIterations; i++) {
                 float iterationOffs = (i*1.0f);
-                blurMaterial.SetVector ("_Parameter", new Vector4 (blurSize * widthMod + iterationOffs, -blurSize * widthMod - iterationOffs, 0.0f, 0.0f));
+                blurMaterial.SetVector ("_Parameter", zeroFactor * new Vector4 (blurSize * widthMod + iterationOffs, -blurSize * widthMod - iterationOffs, 0.0f, 0.0f));
 
                 // vertical blur
+                RenderTextureDescriptor rd = new RenderTextureDescriptor();
+
                 RenderTexture rt2 = RenderTexture.GetTemporary (rtW, rtH, 0, source.format);
                 rt2.filterMode = FilterMode.Bilinear;
                 Graphics.Blit (rt, rt2, blurMaterial, 1 + passOffs);
@@ -85,7 +89,7 @@ namespace UnityStandardAssets.ImageEffects
                 rt = rt2;
             }
 
-            Graphics.Blit (rt, destination);
+            Graphics.Blit (rt, destination, mixBlurMat);
 
             RenderTexture.ReleaseTemporary (rt);
         }

@@ -19,7 +19,10 @@ Shader "Hidden/FastBlur" {
 
 		uniform half4 _Parameter;
 
-		
+		float zeroFactor()
+		{
+			return saturate(_Parameter.x);
+		}
 
 		struct v2f_tap
 		{
@@ -33,12 +36,12 @@ Shader "Hidden/FastBlur" {
 		v2f_tap vert4Tap ( appdata_img v )
 		{
 			v2f_tap o;
-
+			half zerod = zeroFactor();//saturate(_Parameter.x);
 			o.pos = UnityObjectToClipPos(v.vertex);
-        	o.uv20 = UnityStereoScreenSpaceUVAdjust(v.texcoord + _MainTex_TexelSize.xy, _MainTex_ST);
-			o.uv21 = UnityStereoScreenSpaceUVAdjust(v.texcoord + _MainTex_TexelSize.xy * half2(-0.5h,-0.5h), _MainTex_ST);
-			o.uv22 = UnityStereoScreenSpaceUVAdjust(v.texcoord + _MainTex_TexelSize.xy * half2(0.5h,-0.5h), _MainTex_ST);
-			o.uv23 = UnityStereoScreenSpaceUVAdjust(v.texcoord + _MainTex_TexelSize.xy * half2(-0.5h,0.5h), _MainTex_ST);
+        	o.uv20 = UnityStereoScreenSpaceUVAdjust(v.texcoord + zerod * _MainTex_TexelSize.xy, _MainTex_ST);
+			o.uv21 = UnityStereoScreenSpaceUVAdjust(v.texcoord + zerod * _MainTex_TexelSize.xy * half2(-0.5h,-0.5h), _MainTex_ST);
+			o.uv22 = UnityStereoScreenSpaceUVAdjust(v.texcoord +  zerod * _MainTex_TexelSize.xy * half2(0.5h,-0.5h), _MainTex_ST);
+			o.uv23 = UnityStereoScreenSpaceUVAdjust(v.texcoord + zerod * _MainTex_TexelSize.xy * half2(-0.5h,0.5h), _MainTex_ST);
 
 			return o; 
 		}					
@@ -75,22 +78,24 @@ Shader "Hidden/FastBlur" {
 
 		v2f_withBlurCoords8 vertBlurHorizontal (appdata_img v)
 		{
+		half zerod = zeroFactor();
 			v2f_withBlurCoords8 o;
 			o.pos = UnityObjectToClipPos(v.vertex);
 			
 			o.uv = half4(v.texcoord.xy,1,1);
-			o.offs = _MainTex_TexelSize.xy * half2(1.0, 0.0) * _Parameter.x;
+			o.offs = zerod * _MainTex_TexelSize.xy * half2(1.0, 0.0) * _Parameter.x;
 
 			return o; 
 		}
 		
 		v2f_withBlurCoords8 vertBlurVertical (appdata_img v)
 		{
+		half zerod = zeroFactor();
 			v2f_withBlurCoords8 o;
 			o.pos = UnityObjectToClipPos(v.vertex);
 			
 			o.uv = half4(v.texcoord.xy,1,1);
-			o.offs = _MainTex_TexelSize.xy * half2(0.0, 1.0) * _Parameter.x;
+			o.offs = zerod*_MainTex_TexelSize.xy * half2(0.0, 1.0) * _Parameter.x;
 			 
 			return o; 
 		}	
