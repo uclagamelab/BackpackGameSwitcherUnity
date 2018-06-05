@@ -28,6 +28,8 @@ public class BlurredOverlay : MonoBehaviour {
 
     bool animatedIn = false;
 
+    CanvasGroup _canvasGroup;
+
 	// Use this for initialization
 	void Start () {
         //_rawImg = this.GetComponent<RawImage>();
@@ -35,6 +37,8 @@ public class BlurredOverlay : MonoBehaviour {
         _dimmer.enabled = false;
         _dimmerFullColor = _dimmer.color;
         _highlightImg = _buttonHighlight.GetComponentInChildren<Image>();
+
+        _canvasGroup = this.GetComponent<CanvasGroup>();
     }
 
     // Update is called once per frame
@@ -119,6 +123,8 @@ public class BlurredOverlay : MonoBehaviour {
        this.varyWithT((rawT) =>
         {
             float t = forward ? rawT : 1 - rawT;
+
+            _canvasGroup.alpha = Mathf.InverseLerp(0, .75f, t);
             Color color = Color.white;
             color.a = Mathf.InverseLerp(0, .75f, t);
             float elastT = EasingFunctions.Calc(t, EasingFunctions.ExpoEaseOut);

@@ -6,7 +6,7 @@ using UnityEngine.Video;
 
 public class RawImageFitter : MonoBehaviour {
 
-
+    public Vector2 offset;
 
 
     public enum Mode
@@ -85,7 +85,7 @@ public class RawImageFitter : MonoBehaviour {
                 rt.anchoredPosition = Vector2.zero;
                 rt.sizeDelta = new Vector2(containerSize.x, matchWidthHeight);
             }
-
+            rt.anchoredPosition += offset;
 
             /*if (horiz)//!fitHorizontally)
             { 

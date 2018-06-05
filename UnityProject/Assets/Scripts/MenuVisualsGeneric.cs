@@ -50,7 +50,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     public void selectRandomGame()
     {
         gameIdx = Random.Range(0, GameCatalog.Instance.games.Count);
-        this.updateInfoDisplay(this.currentlySelectedGame);
+        this.updateInfoDisplay(this.currentlySelectedGame, 0);
     }
 
 
@@ -68,7 +68,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     void Start () {
         
         setAttractMode(true);
-        updateInfoDisplay(currentlySelectedGame);
+        updateInfoDisplay(currentlySelectedGame, 0);
         
     }
 	
@@ -122,7 +122,7 @@ public class MenuVisualsGeneric : MonoBehaviour
                 if (t == 1)
                 {
                     this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
-                    this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx]);
+                    this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx], selectionDirection);
                     this.varyWithT((float t2) =>
                     {
                         this.gameInfoUI.GetComponent<CanvasGroup>().alpha = t2;
@@ -137,7 +137,7 @@ public class MenuVisualsGeneric : MonoBehaviour
             else
         {
             this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
-            this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx]);
+            this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx], selectionDirection);
         }
 
            
@@ -146,7 +146,7 @@ public class MenuVisualsGeneric : MonoBehaviour
       
     }
 
-    void updateInfoDisplay(GameData currentGameData)
+    void updateInfoDisplay(GameData currentGameData, int updateDirection)
     {
         if (currentGameData == null)
         {
@@ -164,11 +164,11 @@ public class MenuVisualsGeneric : MonoBehaviour
         //gameInfoUI.previewImage.texture = currentGameData.previewImg;
         if (currentGameData.videoUrl != null)
         {
-            BackgroundDisplay.Instance.setVideo(currentGameData.videoUrl);
+            BackgroundDisplay.Instance.setVideo(currentGameData.videoUrl, updateDirection);
         }
         else
         {
-            BackgroundDisplay.Instance.setImage(currentGameData.previewImg);
+            BackgroundDisplay.Instance.setImage(currentGameData.previewImg, updateDirection);
         }
 
         //update the displayed controls

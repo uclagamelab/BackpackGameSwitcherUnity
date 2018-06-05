@@ -13,13 +13,17 @@ public class BackgroundDisplay : MonoBehaviour {
 
     interface Fadeable
     {
+        GameObject gameObject
+        {
+            get;
+        }
         float alpha
         {
             get;
             set;
         }
 
-         Transform transform
+        Transform transform
         {
             get;
         }
@@ -38,12 +42,20 @@ public class BackgroundDisplay : MonoBehaviour {
     {
         public VideoPlayer videoPlayer;
         public RawImage img;
-        
+
+        public GameObject gameObject
+        {
+            get
+            {
+                return img.gameObject;
+            }
+        }
+
         public FadeableVideo(VideoPlayer videoPlayer)
         {
             this.videoPlayer = videoPlayer;
             this.img = videoPlayer.GetComponent<RawImage>();
-            
+
         }
 
         public Transform transform
@@ -72,6 +84,13 @@ public class BackgroundDisplay : MonoBehaviour {
 
     public class FadeableRawImage : Fadeable
     {
+        public GameObject gameObject
+            {
+            get
+            {
+            return image.gameObject;
+            }
+        }
         public RawImage image;
         public FadeableRawImage(RawImage image)
         {
@@ -207,24 +226,26 @@ public class BackgroundDisplay : MonoBehaviour {
 
         foreach (Fadeable f in allThings)
             {
+
                 if (f == thingToShow)
                 {
-                f.alpha =  Mathf.MoveTowards(f.alpha, 1, Time.deltaTime * 2);
+                f.alpha = 1;
+                /*f.alpha =  Mathf.MoveTowards(f.alpha, 1, Time.deltaTime * 2);
                     if (f.alpha == 1)
                     {
                         prevThingToShow = null;
-                    }
+                    }*/
                 }
                 else if (f != prevThingToShow)
                 {
                     f.alpha = 0;
+                } else if (f == prevThingToShow )
+                {
+                    f.alpha = 1;// - thingToShow.alpha;
                 }
 
-                if (prevThingToShow != null)
-                {
-                    prevThingToShow.alpha = 1;// - thingToShow.alpha;
-                }
-            }
+
+        }
         
     
         //videoPlayer1.alpha = thingToShow == videoPlayer1 ? 1 : 0;
@@ -248,7 +269,7 @@ public class BackgroundDisplay : MonoBehaviour {
         }
     }
 
-    public void setVideo(string videoUrl)
+    public void setVideo(string videoUrl, int direction)
     {
 
         FadeableVideo targVideoPlayer = thingToShow == videoPlayer1 ? videoPlayer2 : videoPlayer1;
@@ -263,6 +284,15 @@ public class BackgroundDisplay : MonoBehaviour {
             outgoingVideo = videoPlayer2;
         }
 
+        this.varyWithT((rawT) => 
+        {
+            float t = EasingFunctions.Calc(rawT, EasingFunctions.QuadEaseInOut);
+            if (outgoingVideo != null)
+            {
+                outgoingVideo.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(t * Screen.width, 0);
+            }
+            targVideoPlayer.gameObject.GetComponent<RawImageFitter>().offset = new Vector2((t-1) * Screen.width, 0);
+        }, .4f);
 
 
         targVideoPlayer.videoPlayer.Stop();
@@ -275,11 +305,20 @@ public class BackgroundDisplay : MonoBehaviour {
 
         prevThingToShow = thingToShow;
         thingToShow = targVideoPlayer;
-       
 
+        animateChangedObject(direction);
     }
 
-    public void setImage(Texture img)
+    void animateChangedObject(int direction)
+    {
+        this.varyWithT((rawT) =>
+        {
+            float t = EasingFunctions.Calc(rawT, EasingFunctions.QuadEaseInOut);
+            prevThingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction *t * Screen.width, 0);
+            thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
+        }, 1.0f);
+    }
+    public void setImage(Texture img, int direction)
     {
         FadeableRawImage targImg = thingToShow == image1 ? image2 : image1;
         targImg.image.texture = img;
@@ -288,7 +327,7 @@ public class BackgroundDisplay : MonoBehaviour {
         thingToShow = targImg;
         targImg.image.transform.SetAsLastSibling();
 
-
+        animateChangedObject(direction);
     }
 
     public void hide()
