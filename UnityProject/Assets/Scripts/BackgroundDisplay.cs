@@ -283,17 +283,7 @@ public class BackgroundDisplay : MonoBehaviour {
         {
             outgoingVideo = videoPlayer2;
         }
-
-        this.varyWithT((rawT) => 
-        {
-            float t = EasingFunctions.Calc(rawT, EasingFunctions.QuadEaseInOut);
-            if (outgoingVideo != null)
-            {
-                outgoingVideo.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(t * Screen.width, 0);
-            }
-            targVideoPlayer.gameObject.GetComponent<RawImageFitter>().offset = new Vector2((t-1) * Screen.width, 0);
-        }, .4f);
-
+        
 
         targVideoPlayer.videoPlayer.Stop();
         targVideoPlayer.videoPlayer.url = videoUrl;
@@ -308,15 +298,29 @@ public class BackgroundDisplay : MonoBehaviour {
 
         animateChangedObject(direction);
     }
+    public bool animating = false;
 
     void animateChangedObject(int direction)
     {
+        if (animating)
+        {
+            return;
+        }
+
+        animating = true;
         this.varyWithT((rawT) =>
         {
-            float t = EasingFunctions.Calc(rawT, EasingFunctions.QuadEaseInOut);
-            prevThingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction *t * Screen.width, 0);
-            thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
-        }, 1.0f);
+            float t = EasingFunctions.Calc(rawT, EasingFunctions.CubicEaseInOut);
+            if (prevThingToShow != null)
+            {
+                prevThingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * t * Screen.width, 0);
+            }
+                thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
+            if (t == 1)
+            {
+                animating = false;
+            }
+        }, 0.5f);
     }
     public void setImage(Texture img, int direction)
     {

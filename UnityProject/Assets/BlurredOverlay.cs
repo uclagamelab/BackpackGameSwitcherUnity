@@ -48,11 +48,11 @@ public class BlurredOverlay : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown("y"))
+        /*if (Input.GetKeyDown("y"))
         {
 
             AnimateOpen(!open);
-        }
+        }*/
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {

@@ -117,7 +117,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     {
         
 
-        if (( AttractMode.Instance.running && !forceDuringAttractNoAnimation) || animating || GameCatalog.Instance.gameCount == 0)
+        if (( AttractMode.Instance.running && !forceDuringAttractNoAnimation) || BackgroundDisplay.Instance.animating || animating || GameCatalog.Instance.gameCount == 0)
         {
             return;
         }

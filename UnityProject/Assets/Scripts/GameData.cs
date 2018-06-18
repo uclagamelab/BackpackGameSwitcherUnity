@@ -139,7 +139,12 @@ public class GameData
 
         //try to find a .lnk
         string[] shortcutsInGameDirectory = Directory.GetFiles(exeFolder, "*.lnk");
-        if (shortcutsInGameDirectory.Length == 1) //use a shortcut
+        string[] batchFilesInGameDirectory = Directory.GetFiles(exeFolder, "*.bat");
+        if (batchFilesInGameDirectory.Length == 1)
+        {
+            this.executable = batchFilesInGameDirectory[0];
+        }
+        else if (shortcutsInGameDirectory.Length == 1) //use a shortcut
         {
             //TODO : need to think of something smarter... 
             //optionally specify start file???

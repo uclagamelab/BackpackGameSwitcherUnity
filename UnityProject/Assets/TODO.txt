@@ -1,5 +1,13 @@
-﻿#### #### TODO #### #### #### #### #### #### 
+﻿REAL TODO:
+
 * gray bg when coming out of attract
+* close instructions, open different loading screen (blurry video + animated logo)
+* fix menu select in John game (ignore mouse)
+
+
+
+
+#### #### TODO #### #### #### #### #### #### 
 * need foreground lock applied to windows 7 too (don't check != 7 in tools/settings menu)
 * Create warning dialog if no games
 * Focus switching to switcher takes you out of attract mode
