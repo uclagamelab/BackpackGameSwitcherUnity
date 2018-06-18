@@ -8,6 +8,9 @@ public class PreLaunchGameInfo : MonoBehaviour {
     public static PreLaunchGameInfo Instance;
 
     [SerializeField]
+    Texture[] overlays;
+
+    [SerializeField]
     RawImage _rawImg;
 
     [SerializeField]
@@ -141,6 +144,9 @@ public class PreLaunchGameInfo : MonoBehaviour {
         _dimmer.enabled = true;
         if (forward)
         {
+            int idx = MenuVisualsGeneric.Instance.gameIdx;
+            Texture newTexture = this.overlays[idx];
+            this._rawImg.texture = newTexture;
             setHighlighted(null);
         }
        this.varyWithT((rawT) =>

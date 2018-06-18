@@ -27,7 +27,11 @@ public class MenuVisualsGeneric : MonoBehaviour
     }
     #region FIELDS
     List<Listener> listners;
-    int gameIdx = 0;
+    public int gameIdx
+    {
+        get;
+        private set;
+    }
 
     GameInfoUI gameInfoUI;
     PreLaunchGameInfo gameInfoV2;

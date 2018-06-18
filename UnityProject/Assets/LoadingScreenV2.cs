@@ -16,5 +16,9 @@ public class LoadingScreenV2 : MonoBehaviour {
 
         float targetOpacity = MenuVisualsGeneric.Instance.state == MenuVisualsGeneric.MenuState.LaunchGame ?1 : 0;
         canvasGroup.alpha = Mathf.MoveTowards(canvasGroup.alpha, targetOpacity, 3 * Time.deltaTime);
+        if (MenuVisualsGeneric.Instance.state == MenuVisualsGeneric.MenuState.ChooseGame)
+        {
+            canvasGroup.alpha = 0;
+        }
     }
 }
