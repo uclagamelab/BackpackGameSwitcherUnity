@@ -13,14 +13,24 @@ using UnityEngine.UI;
 
 public class MenuVisualsGeneric : MonoBehaviour
 {
+    public static MenuVisualsGeneric Instance
+    {
+        get;
+        private set;
+    }
 
-
+    public enum MenuState { ChooseGame, GameInfo, LaunchGame };
+    public MenuState state
+    {
+        get;
+        private set;
+    }
     #region FIELDS
     List<Listener> listners;
     int gameIdx = 0;
 
     GameInfoUI gameInfoUI;
-    BlurredOverlay gameInfoV2;
+    PreLaunchGameInfo gameInfoV2;
 
     bool animating = false;
 
@@ -72,6 +82,8 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         private void Awake()
     {
+        Instance = this;
+        state = MenuState.ChooseGame;
         this.listners = new List<Listener>();
         gameInfoUI = this.GetComponentInChildren<GameInfoUI>();
     }
@@ -79,18 +91,21 @@ public class MenuVisualsGeneric : MonoBehaviour
 
 
     // Use this for initialization
-    void Start () {
-        
-        setAttractMode(true);
+    void Start ()
+    {
         updateInfoDisplay(currentlySelectedGame, 0);
-        gameInfoV2 = this.GetComponentInChildren<BlurredOverlay>(true);
+        gameInfoV2 = this.GetComponentInChildren<PreLaunchGameInfo>(true);
 
 
     }
 	
     public void setAttractMode(bool attract)
     {
-        this.showLoadingScreen(false);
+        if (attract)
+        {
+            this.state = MenuState.ChooseGame;
+        }
+        /*this.showLoadingScreen(false);
         AttractMode.Instance.running = attract;
         this.gameInfoUI.gameObject.SetActive(!attract);
         
@@ -108,7 +123,7 @@ public class MenuVisualsGeneric : MonoBehaviour
             {
                 l.onLeaveAttract();
             }
-        }
+        }*/
     
     }
 
@@ -117,7 +132,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     {
         
 
-        if (( AttractMode.Instance.running && !forceDuringAttractNoAnimation) || BackgroundDisplay.Instance.animating || animating || GameCatalog.Instance.gameCount == 0)
+        if ( BackgroundDisplay.Instance.animating || animating || GameCatalog.Instance.gameCount == 0)
         {
             return;
         }
@@ -173,7 +188,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         //TODO : should move into GameInfoUi
         gameInfoUI.titleText.text = currentGameData.title;
-        gameInfoUI.descriptionText.text = currentGameData.description;
+        //gameInfoUI.descriptionText.text = currentGameData.description;
             
             gameInfoUI.creditText.text = "by " + currentGameData.author + "";
 
@@ -187,34 +202,6 @@ public class MenuVisualsGeneric : MonoBehaviour
             BackgroundDisplay.Instance.setImage(currentGameData.previewImg, updateDirection);
         }
 
-        //update the displayed controls
-
-        if (currentGameData.joystickLabel == null)
-        {
-            gameInfoUI.joystickLabel.SetActive(false);
-        }
-        else
-        {
-            gameInfoUI.joystickLabel.SetActive(true);
-            gameInfoUI.joystickLabel.GetComponentInChildren<Text>().text = currentGameData.joystickLabel;
-        }
-
-        
-        for (int i = 1; i <= 6; i++)
-        {
-            GameObject buttonLabel = gameInfoUI.buttonLabels[i - 1];
-
-            if (currentGameData.getButtonLabel(i) == null)
-            {
-                buttonLabel.SetActive(false);
-            }
-            else
-            {
-                buttonLabel.SetActive(true);
-                buttonLabel.GetComponentInChildren<Text>().text = currentGameData.getButtonLabel(i);
-            }
-        }
-
     }
 
 
@@ -225,43 +212,31 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         if (!this.gameInfoV2.open)
         {
+            state = MenuState.GameInfo;
             this.gameInfoV2.AnimateOpen(true);
             return false;
         }
-        else
+        else if (this.gameInfoV2.backButtonHighighted)
         {
-            if (this.gameInfoV2.backButtonHighighted)
-            {
+                state = MenuState.ChooseGame;
                 this.gameInfoV2.AnimateOpen(false);
                 return false;
-            }
-        }
-
-     
-
-        if (currentlySelectedGame == null)
-        {
-            return false;
         }
 
 
-        
+
+        this.gameInfoV2.AnimateOpen(false);
+
+        state = MenuState.LaunchGame;
 
 
         bool gameHasExe = currentlySelectedGame.executable != "";
 
         if (inProcessOfLaunching || !gameHasExe)// || AttractMode.Instance.running)
         {
-
-            if (!gameHasExe)
-            {
-                this.showErrorText(currentlySelectedGame.title + " is video only.");
-            }
-
             return false;
         }
 
-        showLoadingScreen(true);
         attemptedLaunchTime = Time.time;
 
         foreach (Listener l in this.listners)
@@ -269,14 +244,8 @@ public class MenuVisualsGeneric : MonoBehaviour
             l.onStartGame();
         }
 
-        //this.state = State.PLAYING_GAME;
         this.varyWithT((float t) => {
-            float cale = 1 - .1f * (Mathf.PingPong(2 * t, 1));
-            if (t == 1)
-            {
-                cale = 1;
-            }
-            this.gameInfoUI.transform.localScale = Vector3.one * cale;
+
 
             if (t == 1)
             {
@@ -293,9 +262,9 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void showLoadingScreen(bool show)
     {
-        BackgroundDisplay.Instance.gameObject.SetActive(!show);
+        //BackgroundDisplay.Instance.gameObject.SetActive(!show);
         this.gameInfoUI.gameObject.SetActive(!show);
-        LoadingScreen.instance.on = show;
+        //LoadingScreen.instance.on = show;
     }
 
     void showErrorText(string error)

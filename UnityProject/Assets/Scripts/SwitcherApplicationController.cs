@@ -92,14 +92,8 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
         if (!aGameIsRunning)
         {
-            if (AttractMode.Instance.running)
-            {
-                AttractUpdate();
-            }
-            else
-            {
-                selectingGameUpdate();
-            }
+
+            selectingGameUpdate();
 
         }
         else //A Game is running...
@@ -126,7 +120,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     void selectingGameUpdate()
     {
-        bool changedAttractTimeTooRecently = Time.time < AttractMode.Instance.changeTime + .5f;
+        bool changedAttractTimeTooRecently = false;// Time.time < AttractMode.Instance.changeTime + .5f;
 
         if (changedAttractTimeTooRecently)
         {

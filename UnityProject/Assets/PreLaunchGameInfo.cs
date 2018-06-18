@@ -4,10 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityStandardAssets.ImageEffects;
 
-public class BlurredOverlay : MonoBehaviour {
-
-    [SerializeField]
-    CameraBlurrer bgBlurrer;
+public class PreLaunchGameInfo : MonoBehaviour {
+    public static PreLaunchGameInfo Instance;
 
     [SerializeField]
     RawImage _rawImg;
@@ -34,8 +32,13 @@ public class BlurredOverlay : MonoBehaviour {
 
     CanvasGroup _canvasGroup;
 
-	// Use this for initialization
-	void Start () {
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    // Use this for initialization
+    void Start () {
         //_rawImg = this.GetComponent<RawImage>();
         _rawImg.enabled = false;
         _dimmer.enabled = false;
@@ -54,7 +57,7 @@ public class BlurredOverlay : MonoBehaviour {
             AnimateOpen(!open);
         }*/
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        /*if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             TakeDirectionInput(-1);
         }
@@ -62,7 +65,7 @@ public class BlurredOverlay : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             TakeDirectionInput(1);
-        }
+        }*/
     }
 
     public void TakeDirectionInput(int direction)
@@ -134,7 +137,7 @@ public class BlurredOverlay : MonoBehaviour {
     {
         open = forward;
         _rawImg.enabled = true;
-        bgBlurrer.enabled = true;
+        //bgBlurrer.enabled = true;
         _dimmer.enabled = true;
         if (forward)
         {
@@ -154,7 +157,7 @@ public class BlurredOverlay : MonoBehaviour {
             _rawImg.material.SetFloat("_MipsBias", 6*Mathf.InverseLerp(1, 0, t));
             _rawImg.material.SetFloat("_BlurDist", 12 * (1-t));
 
-            bgBlurrer.blurAmount = t;
+            //bgBlurrer.blurAmount = t;
             _dimmer.color = Color.Lerp(_dimmerFullColor.withAlpha(0), _dimmerFullColor, t);
 
             _highlightImg.color = Color.white.withAlpha(Mathf.InverseLerp(.5f, 1,t));

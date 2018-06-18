@@ -8,8 +8,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using UnityStandardAssets.ImageEffects;
 
 public class BackgroundDisplay : MonoBehaviour {
+
+    [SerializeField]
+    CameraBlurrer bgBlurrer;
 
     interface Fadeable
     {
@@ -175,7 +179,23 @@ public class BackgroundDisplay : MonoBehaviour {
         this.videoPlayer1 = new FadeableVideo(vid1);
         this.videoPlayer2 = new FadeableVideo(vid2);
     }
-	
+    void blurUpdate()
+    {
+        float targetBlurAmt = MenuVisualsGeneric.Instance.state == MenuVisualsGeneric.MenuState.ChooseGame ? 0 : 1;
+
+        if (targetBlurAmt > 0 && !bgBlurrer.enabled)
+        {
+            bgBlurrer.enabled = true;
+        }
+        else if (bgBlurrer.blurAmount == 0 && bgBlurrer.enabled)
+        {
+            bgBlurrer.enabled = false;
+        }
+
+        bgBlurrer.blurAmount = Mathf.MoveTowards(bgBlurrer.blurAmount, targetBlurAmt, 3 * Time.deltaTime);
+
+
+    }
 
 	// Update is called once per frame
 	void Update ()
@@ -185,10 +205,11 @@ public class BackgroundDisplay : MonoBehaviour {
             return a == thingToShow ? 0 : 1;
         });*/
 
+        blurUpdate();
 
 
-        
-   
+
+
         if (thingToShow == videoPlayer1 || thingToShow == videoPlayer2)
         {
             
@@ -310,7 +331,7 @@ public class BackgroundDisplay : MonoBehaviour {
         animating = true;
         this.varyWithT((rawT) =>
         {
-            float t = EasingFunctions.Calc(rawT, EasingFunctions.CubicEaseInOut);
+            float t = EasingFunctions.Calc(rawT, EasingFunctions.QuadEaseIn);
             if (prevThingToShow != null)
             {
                 prevThingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * t * Screen.width, 0);
@@ -320,7 +341,7 @@ public class BackgroundDisplay : MonoBehaviour {
             {
                 animating = false;
             }
-        }, 0.5f);
+        }, 0.35f);
     }
     public void setImage(Texture img, int direction)
     {

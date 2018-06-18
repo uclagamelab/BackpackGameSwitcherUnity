@@ -13,13 +13,4 @@ public class GameInfoUI : MonoBehaviour {
     public GameObject[] buttonLabels;
     public GameObject joystickLabel;
 
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
