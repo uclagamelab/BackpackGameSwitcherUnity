@@ -84,6 +84,11 @@ public class PreLaunchGameInfo : MonoBehaviour {
         {
             TakeDirectionInput(1);
         }*/
+
+        if (!animating && open && MenuVisualsGeneric.Instance.state == MenuVisualsGeneric.MenuState.ChooseGame)
+        {
+            this.AnimateOpen(false);
+        }
     }
 
     public void TakeDirectionInput(int direction)
