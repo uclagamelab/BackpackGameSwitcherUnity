@@ -1,8 +1,16 @@
 ﻿REAL TODO:
-* gray bg when coming out of attract
-* Just use video's sound
+* Sounds
+	- Cycle video sound
+	- open game details
+	- close game details
+	- quit game
+	- start game
+	- bg ambience 
+
+* title tab
+
 * auto cycle videos if no input
-* if game exits, leave game launching state (logo)
+
 
 
 
