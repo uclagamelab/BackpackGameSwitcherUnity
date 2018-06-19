@@ -160,7 +160,7 @@ public class BackgroundDisplay : MonoBehaviour {
             return _instance;
         }
     }
-
+    float blurAmt = 0;
     // Use this for initialization
     void Awake ()
     {
@@ -192,8 +192,16 @@ public class BackgroundDisplay : MonoBehaviour {
             bgBlurrer.enabled = false;
         }
 
-        bgBlurrer.blurAmount = Mathf.MoveTowards(bgBlurrer.blurAmount, targetBlurAmt, 3 * Time.deltaTime);
-
+        /*
+        
+                    _rawImg.material.SetFloat("_BlurAmt", Mathf.InverseLerp(1, 0.9f, t));
+            _rawImg.material.SetFloat("_MipsBias", 6*Mathf.InverseLerp(1, 0, t));
+            _rawImg.material.SetFloat("_BlurDist", 12 * (1-t));
+         
+         */
+        blurAmt = Mathf.MoveTowards(blurAmt, targetBlurAmt, 6 * Time.deltaTime);
+        bgBlurrer.blurAmount = Mathf.InverseLerp(0, .1f, blurAmt);
+        bgBlurrer.blurSize = blurAmt * 4;
 
     }
 

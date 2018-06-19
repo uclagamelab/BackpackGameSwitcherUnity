@@ -7,6 +7,14 @@ using UnityStandardAssets.ImageEffects;
 public class PreLaunchGameInfo : MonoBehaviour {
     public static PreLaunchGameInfo Instance;
 
+    public bool animating
+    {
+        get;
+        private set;
+    }
+
+    GameObject _highlightedObject;
+
     [SerializeField]
     Texture[] overlays;
 
@@ -54,6 +62,13 @@ public class PreLaunchGameInfo : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+
+        int idx = MenuVisualsGeneric.Instance.gameIdx;
+        idx = Mathf.Clamp(idx, 0, this.overlays.Length - 1);
+        Texture newTexture = this.overlays[idx];
+     
+        this._rawImg.texture = newTexture;
+
         /*if (Input.GetKeyDown("y"))
         {
 
@@ -73,11 +88,17 @@ public class PreLaunchGameInfo : MonoBehaviour {
 
     public void TakeDirectionInput(int direction)
     {
-        if (getHighlighted() == _backButton && direction == 1)
+        if (animating)
+        {
+            return;
+        }
+
+
+        if (backButtonHighighted && direction == 1)
         {
             setHighlighted(_playButton);
         }
-        else if (getHighlighted() == _playButton && direction == -1)
+        else if (!backButtonHighighted && direction == -1)
         {
             setHighlighted(_backButton);
         }
@@ -90,13 +111,15 @@ public class PreLaunchGameInfo : MonoBehaviour {
             _highlightImg.color = Color.white.withAlpha(0);
         }
 
-        if (toHighlight == _playButton || toHighlight == null)
+        if (toHighlight == _playButton)
         {
+            _highlightedObject = _playButton.gameObject;
             _buttonHighlight.anchoredPosition = _playButton.anchoredPosition;
         }
 
-        if (toHighlight == _backButton)
+        if (toHighlight == _backButton || toHighlight == null)
         {
+            _highlightedObject = _backButton.gameObject;
             _buttonHighlight.anchoredPosition = _backButton.anchoredPosition;
         }
     }
@@ -105,7 +128,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
     {
         get
         {
-            return getHighlighted() == _playButton;
+            return getHighlighted() == _playButton.gameObject;
         }
     }
 
@@ -113,41 +136,34 @@ public class PreLaunchGameInfo : MonoBehaviour {
     {
         get
         {
-            return getHighlighted() == _backButton;
+            return getHighlighted() == null || getHighlighted() == _backButton.gameObject;
         }
     }
 
-    RectTransform getHighlighted()
+    GameObject getHighlighted()
     {
-        if (_highlightImg.color.a < .9f)
-        {
-            return null;
-        }
 
-        if (_buttonHighlight.anchoredPosition == _playButton.anchoredPosition)
-        {
-            return _playButton;
-        }
-        else //if (_buttonHighlight.anchoredPosition == _backButton.anchoredPosition)
-        {
-            return _backButton;
-        }
+        return _highlightedObject;
 
 
     }
 
     public void AnimateOpen(bool forward)
     {
+        if (animating)
+        {
+            return;
+        }
+
+        animating = true;
         open = forward;
         _rawImg.enabled = true;
         //bgBlurrer.enabled = true;
         _dimmer.enabled = true;
         if (forward)
         {
-            int idx = MenuVisualsGeneric.Instance.gameIdx;
-            Texture newTexture = this.overlays[idx];
-            this._rawImg.texture = newTexture;
-            setHighlighted(null);
+
+            setHighlighted(_backButton);
         }
        this.varyWithT((rawT) =>
         {
@@ -158,15 +174,20 @@ public class PreLaunchGameInfo : MonoBehaviour {
             color.a = Mathf.InverseLerp(0, .75f, t);
             float elastT = EasingFunctions.Calc(t, EasingFunctions.ExpoEaseOut);
         this.transform.localScale = Vector3.LerpUnclamped(Vector3.one * 3, Vector3.one, elastT);// EasingFunctions.Calc(t, EasingFunctions.QuadEaseOut));
-            _rawImg.material.color = color;
+            /*_rawImg.material.color = color;
             _rawImg.material.SetFloat("_BlurAmt", Mathf.InverseLerp(1, 0.9f, t));
             _rawImg.material.SetFloat("_MipsBias", 6*Mathf.InverseLerp(1, 0, t));
-            _rawImg.material.SetFloat("_BlurDist", 12 * (1-t));
+            _rawImg.material.SetFloat("_BlurDist", 12 * (1-t));*/
 
             //bgBlurrer.blurAmount = t;
             _dimmer.color = Color.Lerp(_dimmerFullColor.withAlpha(0), _dimmerFullColor, t);
 
             _highlightImg.color = Color.white.withAlpha(Mathf.InverseLerp(.5f, 1,t));
+
+            if (t == 1)
+            {
+                animating = false;
+            }
         }, .5f);
 
         

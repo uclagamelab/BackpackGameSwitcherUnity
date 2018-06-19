@@ -72,16 +72,17 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void onCycleButtonPressed(int selectionDirection)
     {
-        if (gameInfoV2.open)
+        if (state != MenuState.LaunchGame)
         {
-            gameInfoV2.TakeDirectionInput(selectionDirection);
+            if (gameInfoV2.open)
+            {
+                gameInfoV2.TakeDirectionInput(selectionDirection);
+            }
+            else
+            {
+                cycleToNextGame(selectionDirection);
+            }
         }
-        else
-        {
-            cycleToNextGame(selectionDirection);
-        }
-
-  
     }
 
         private void Awake()
@@ -134,9 +135,15 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void cycleToNextGame(int selectionDirection, bool forceDuringAttractNoAnimation =false)
     {
-        
 
-        if ( BackgroundDisplay.Instance.animating || animating || GameCatalog.Instance.gameCount == 0)
+
+        if (BackgroundDisplay.Instance.animating
+            ||
+            animating
+            ||
+            PreLaunchGameInfo.Instance.animating
+            || 
+            GameCatalog.Instance.gameCount == 0)
         {
             return;
         }
@@ -213,6 +220,10 @@ public class MenuVisualsGeneric : MonoBehaviour
     //returns if accepted press
     public bool onStartGameButtonPress()
     {
+        if (PreLaunchGameInfo.Instance.animating)
+        {
+            return false;
+        }
 
         if (!this.gameInfoV2.open)
         {
@@ -287,8 +298,10 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void onQuitGame()
     {
+        this.state = MenuState.ChooseGame;
 
         this.showLoadingScreen(false);
+       
 
         foreach (Listener l in this.listners)
             {

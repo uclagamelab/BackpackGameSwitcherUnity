@@ -1,8 +1,8 @@
 ﻿REAL TODO:
-
 * gray bg when coming out of attract
-* close instructions, open different loading screen (blurry video + animated logo)
-* fix menu select in John game (ignore mouse)
+* Just use video's sound
+* auto cycle videos if no input
+* if game exits, leave game launching state (logo)
 
 
 
