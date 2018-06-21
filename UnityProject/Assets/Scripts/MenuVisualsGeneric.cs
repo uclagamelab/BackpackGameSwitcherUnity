@@ -80,7 +80,7 @@ public class MenuVisualsGeneric : MonoBehaviour
             }
             else
             {
-                cycleToNextGame(selectionDirection);
+                cycleToNextGame(-selectionDirection);
             }
         }
     }
