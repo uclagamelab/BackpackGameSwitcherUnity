@@ -7,13 +7,14 @@ Collects input from gamepads, keyboard etc... and controls the menu
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardInput.Listener {
     MenuVisualsGeneric gameMenu;
 
     bool gotAnExitCombo = false; //consumable event
 
-    float attractTimeOut = 2;
+    float attractTimeOut = 120;
 
     bool gameProcessWentNullOrExitedLastUpdate = true;
 
@@ -30,6 +31,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         }
     }
 
+    
 
     // Use this for initialization
     void Awake () {
@@ -174,8 +176,8 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
                 gameMenu.setAttractMode(true);
                 if (Time.time > timeOfNextAttractAutoCyle)
                 {
-                    gameMenu.onCycleButtonPressed(1);
-                    timeOfNextAttractAutoCyle = Time.time + 3;
+                    gameMenu.onCycleButtonPressed(1, false);
+                    timeOfNextAttractAutoCyle = Time.time + 10;
                 }
 
             }

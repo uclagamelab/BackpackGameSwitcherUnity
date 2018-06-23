@@ -91,22 +91,28 @@ public class PreLaunchGameInfo : MonoBehaviour {
         }
     }
 
-    public void TakeDirectionInput(int direction)
+    public bool TakeDirectionInput(int direction)
     {
+        bool accepted = false;
+
         if (animating)
         {
-            return;
+            return false;
         }
 
 
         if (backButtonHighighted && direction == 1)
         {
             setHighlighted(_playButton);
+            accepted = true;
         }
         else if (!backButtonHighighted && direction == -1)
         {
             setHighlighted(_backButton);
+            accepted = true;
         }
+
+        return accepted;
     }
 
     void setHighlighted(RectTransform toHighlight)

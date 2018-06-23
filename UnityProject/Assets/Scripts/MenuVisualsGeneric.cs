@@ -9,6 +9,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class MenuVisualsGeneric : MonoBehaviour
@@ -18,6 +19,11 @@ public class MenuVisualsGeneric : MonoBehaviour
         get;
         private set;
     }
+
+    public delegate void OnCloseInfoCB(bool open);
+    public OnCloseInfoCB OnOpenCloseInfo = (open) => { };
+
+    public OnCloseInfoCB InfoMenuCursorMove = (dirIsRight) => { };
 
     public enum MenuState { ChooseGame, GameInfo, LaunchGame };
     public MenuState state
@@ -70,13 +76,17 @@ public class MenuVisualsGeneric : MonoBehaviour
     }
 
 
-    public void onCycleButtonPressed(int selectionDirection)
+    public void onCycleButtonPressed(int selectionDirection, bool fromUser = true)
     {
         if (state != MenuState.LaunchGame)
         {
             if (gameInfoV2.open)
             {
-                gameInfoV2.TakeDirectionInput(selectionDirection);
+                bool infoInputAccepted = gameInfoV2.TakeDirectionInput(selectionDirection);
+                if (infoInputAccepted && fromUser)
+                {
+                    InfoMenuCursorMove.Invoke(selectionDirection > 0);
+                }
             }
             else
             {
@@ -151,7 +161,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
             foreach (Listener l in this.listners)
             {
-                l.onCycleGame();
+                l.onCycleGame(selectionDirection);
             }
 
             if (!forceDuringAttractNoAnimation)
@@ -229,13 +239,16 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             state = MenuState.GameInfo;
             this.gameInfoV2.AnimateOpen(true);
+
+            OnOpenCloseInfo.Invoke(true);
             return false;
         }
         else if (this.gameInfoV2.backButtonHighighted)
         {
                 state = MenuState.ChooseGame;
                 this.gameInfoV2.AnimateOpen(false);
-                return false;
+            OnOpenCloseInfo.Invoke(false);
+            return false;
         }
 
 
@@ -327,7 +340,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     {
         void onLeaveAttract();
         void onEnterAttract();
-        void onCycleGame();
+        void onCycleGame(int direction/*, bool userInitiated*/);
         void onStartGame();
         void onQuitGame();
     }

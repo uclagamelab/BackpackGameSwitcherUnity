@@ -25,7 +25,7 @@ public class LoadingScreen : MonoBehaviour, MenuVisualsGeneric.Listener {
        // this.on = false;
     }
 
-    public void onCycleGame()
+    public void onCycleGame(int dir)
     {
 
     }
