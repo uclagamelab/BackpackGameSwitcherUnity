@@ -141,12 +141,12 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
        {
 
            PlayOneShot(clip, .9f, pitch);
-       }, .15f);
+       }, .05f);
 
-        this.delayedFunction(() =>
+        /*this.delayedFunction(() =>
         {
             PlayOneShot(cycleFinishSound, .08f, 1.75f);
-        }, .5f);
+        }, .25f);*/
     }
 
     void PlayOneShot(AudioClip ac, float volume, float pitch)

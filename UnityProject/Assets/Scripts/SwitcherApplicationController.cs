@@ -155,7 +155,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     {
         // quit out of a game, if runnning too long with no input.
 
-        if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + 20*60)
+        if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + 5*60)
         {
             onBackgroundKeyCombo();
         }
