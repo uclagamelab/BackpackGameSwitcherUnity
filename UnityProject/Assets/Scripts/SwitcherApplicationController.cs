@@ -172,7 +172,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
             if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + attractTimeOut)
             {
-                Debug.Log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
+                //Debug.Log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
                 gameMenu.setAttractMode(true);
                 if (Time.time > timeOfNextAttractAutoCyle)
                 {
