@@ -223,17 +223,10 @@ public class BackgroundDisplay : MonoBehaviour {
             
             //wait for the video player to be ready?
             FadeableVideo vidToShow = ((FadeableVideo)thingToShow);
-            if (!vidToShow.videoPlayer.isPrepared)
-            {
-
-                return;
-                
-            }
-            else
-            { 
+ 
                 if (!vidToShow.videoPlayer.isPlaying)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
                 {
-                    vidToShow.alpha = 0;
+                    //vidToShow.alpha = 0;
 
 
                     
@@ -246,7 +239,7 @@ public class BackgroundDisplay : MonoBehaviour {
                     //vidToShow.videoPlayer.time = (double)Random.Range(0, 200f);
                 }
     
-            }
+            
        
             
 
@@ -262,7 +255,7 @@ public class BackgroundDisplay : MonoBehaviour {
                 }
                 else if (f != prevThingToShow)
                 {
-                    f.alpha = 0;
+                    //f.alpha = 0;
                 } else if (f == prevThingToShow )
                 {
                    // f.alpha = 1;// - thingToShow.alpha;
@@ -312,8 +305,8 @@ public class BackgroundDisplay : MonoBehaviour {
         targVideoPlayer.videoPlayer.Stop();
         targVideoPlayer.videoPlayer.url = videoUrl;
 
-       
-        targVideoPlayer.videoPlayer.Prepare();
+
+        targVideoPlayer.videoPlayer.Play();//Prepare();
 
         
 
@@ -341,7 +334,7 @@ public class BackgroundDisplay : MonoBehaviour {
                
             }
 
-            thingToShow.alpha = Mathf.InverseLerp(.2f, 1, t);
+            thingToShow.alpha = Mathf.InverseLerp(.3f, 1, t);
             thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
             if (t == 1)
             {

@@ -108,10 +108,10 @@ public class MenuVisualsGeneric : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-        updateInfoDisplay(currentlySelectedGame, 0);
+        //updateInfoDisplay(currentlySelectedGame, 0);
         gameInfoV2 = this.GetComponentInChildren<PreLaunchGameInfo>(true);
 
-
+        selectRandomGame();
     }
 	
     public void setAttractMode(bool attract)
