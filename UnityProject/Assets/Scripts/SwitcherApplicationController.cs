@@ -13,7 +13,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     bool gotAnExitCombo = false; //consumable event
 
-    float attractTimeOut = 60;
+    float attractTimeOut = 2;
 
     bool gameProcessWentNullOrExitedLastUpdate = true;
 
@@ -158,18 +158,30 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
             onBackgroundKeyCombo();
         }
     }
-    
+
+    float timeOfNextAttractAutoCyle = 0;
+
     void checkIfIdleAndReturnToAttractUpdate()
     {
 
 
         if (!ProcessRunner.instance.IsGameRunning())
         {
-         
+
             if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + attractTimeOut)
             {
+                Debug.Log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
                 gameMenu.setAttractMode(true);
+                if (Time.time > timeOfNextAttractAutoCyle)
+                {
+                    gameMenu.onCycleButtonPressed(1);
+                    timeOfNextAttractAutoCyle = Time.time + 3;
+                }
+
             }
+
+
+            
         }
 
     }
