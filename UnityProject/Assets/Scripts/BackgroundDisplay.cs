@@ -334,7 +334,7 @@ public class BackgroundDisplay : MonoBehaviour {
                
             }
 
-            thingToShow.alpha = Mathf.InverseLerp(.3f, 1, t);
+            thingToShow.alpha = Mathf.InverseLerp(.5f, 1, t);
             thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
             if (t == 1)
             {

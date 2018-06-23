@@ -5,6 +5,8 @@ using System.IO;
 
 public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
+    float volumeScale = 1.25f;
+
     public MenuVisualsGeneric menu;
     public AudioClip cycleSound;
     public AudioClip cycleSound2;
@@ -24,7 +26,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
 
     bool hasFocus = true;
-    float MaxMusicVolume = .5f;
+    float MaxMusicVolume = .45f;
 
     void Start () {
         //bgMusicSource = this.gameObject.AddComponent<AudioSource>();
@@ -58,7 +60,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     {
         if (open)
         {
-            PlayOneShot(openInfoSound, .35f, 1);
+            PlayOneShot(openInfoSound, .20f, 1);
         }
         else
         {
@@ -100,7 +102,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             targMusicVolume = 1;
         }
 
-        this.bgMusicSource.volume = Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume * MaxMusicVolume, .5f * Time.deltaTime);
+        this.bgMusicSource.volume = Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume * volumeScale * MaxMusicVolume, .5f * Time.deltaTime);
         bool shouldPlay = bgMusicSource.volume != 0;
         if (bgMusicSource.isPlaying != shouldPlay)
         {
@@ -138,7 +140,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         this.delayedFunction(() =>
        {
 
-           PlayOneShot(clip, .85f, pitch);
+           PlayOneShot(clip, .9f, pitch);
        }, .15f);
 
         this.delayedFunction(() =>
@@ -155,7 +157,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             {
                 aso.clip = ac;
                 aso.pitch = pitch;
-                aso.volume = volume;
+                aso.volume = volumeScale * volume;
                 aso.Play();
             }
         }
