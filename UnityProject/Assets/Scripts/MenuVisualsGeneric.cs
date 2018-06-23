@@ -314,12 +314,18 @@ public class MenuVisualsGeneric : MonoBehaviour
         //If coming out of a game, auto switch 1 game 
         //so you don't see video of the game you were just playing
         //and so you see the video scroll, if you're just walking up
+        
         if (state == MenuState.LaunchGame)
         {
             this.cycleToNextGame(1);
             if (Screen.width != 1920)
             {
                 Screen.SetResolution(1920, 1080, true);
+            }
+
+            foreach (Listener l in this.listners)
+            {
+                l.onQuitGame();
             }
         }
 
@@ -330,10 +336,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         this.showLoadingScreen(false);
        
 
-        foreach (Listener l in this.listners)
-            {
-                l.onQuitGame();
-            }     
+   
     }
 
     public interface Listener

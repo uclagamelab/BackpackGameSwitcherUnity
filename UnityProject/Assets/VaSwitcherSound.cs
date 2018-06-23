@@ -12,6 +12,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     public AudioClip openInfoSound;
     public AudioClip closeInfoSound;
     public AudioClip startGame;
+    public AudioClip quitGame;
     AudioClip backGroundMusic;
     AudioLowPassFilter musicFilter;
 
@@ -172,11 +173,11 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
     void MenuVisualsGeneric.Listener.onQuitGame()
     {
-
+        PlayOneShot(quitGame, .25f, 1);
     }
 
     void MenuVisualsGeneric.Listener.onStartGame()
     {
-        PlayOneShot(startGame, .35f, 1);
+        PlayOneShot(startGame, .2f, 1);
     }
 }
