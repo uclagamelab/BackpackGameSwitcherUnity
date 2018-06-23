@@ -258,19 +258,14 @@ public class BackgroundDisplay : MonoBehaviour {
 
                 if (f == thingToShow)
                 {
-                f.alpha = 1;
-                /*f.alpha =  Mathf.MoveTowards(f.alpha, 1, Time.deltaTime * 2);
-                    if (f.alpha == 1)
-                    {
-                        prevThingToShow = null;
-                    }*/
+                //f.alpha = 1;
                 }
                 else if (f != prevThingToShow)
                 {
                     f.alpha = 0;
                 } else if (f == prevThingToShow )
                 {
-                    f.alpha = 1;// - thingToShow.alpha;
+                   // f.alpha = 1;// - thingToShow.alpha;
                 }
 
 
@@ -343,8 +338,11 @@ public class BackgroundDisplay : MonoBehaviour {
             if (prevThingToShow != null)
             {
                 prevThingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * t * Screen.width, 0);
+               
             }
-                thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
+
+            thingToShow.alpha = Mathf.InverseLerp(.2f, 1, t);
+            thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
             if (t == 1)
             {
                 animating = false;
