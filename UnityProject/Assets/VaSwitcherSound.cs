@@ -5,7 +5,7 @@ using System.IO;
 
 public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
-    float volumeScale = 1.25f;
+    float volumeScale = 4f;
 
     public MenuVisualsGeneric menu;
     public AudioClip cycleSound;
@@ -30,7 +30,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
     void Start () {
         //bgMusicSource = this.gameObject.AddComponent<AudioSource>();
-        oneShotPool = new AudioSource[3];
+        oneShotPool = new AudioSource[5];
         for (int i = 0; i < oneShotPool.Length; i++)
         {
             oneShotPool[i] = this.gameObject.AddComponent<AudioSource>();
@@ -143,14 +143,15 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
            PlayOneShot(clip, .9f, pitch);
        }, .05f);
 
-        /*this.delayedFunction(() =>
+        this.delayedFunction(() =>
         {
             PlayOneShot(cycleFinishSound, .08f, 1.75f);
-        }, .25f);*/
+        }, .4f);
     }
 
     void PlayOneShot(AudioClip ac, float volume, float pitch)
     {
+        
         foreach (AudioSource aso in this.oneShotPool)
         {
             if (!aso.isPlaying)
@@ -159,6 +160,9 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
                 aso.pitch = pitch;
                 aso.volume = volumeScale * volume;
                 aso.Play();
+
+                //Debug.Log("playing " + ac + " --- " + aso.volume);
+                break;
             }
         }
     }
