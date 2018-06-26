@@ -177,7 +177,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
                 if (Time.time > timeOfNextAttractAutoCyle)
                 {
                     gameMenu.onCycleButtonPressed(1, false);
-                    timeOfNextAttractAutoCyle = Time.time + 10;
+                    timeOfNextAttractAutoCyle = Time.time + 90;
                 }
 
             }

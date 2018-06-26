@@ -79,7 +79,7 @@ public class SwitcherMusic : MonoBehaviour, MenuVisualsGeneric.Listener {
         changeToAttractMusic();
     }
 
-    public void onCycleGame(int dir)
+    public void onCycleGame(int dir, bool userInitiated)
     {
         if (AttractMode.Instance == null || !AttractMode.Instance.running)
         {

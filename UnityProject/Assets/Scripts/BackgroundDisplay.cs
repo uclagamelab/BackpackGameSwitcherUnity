@@ -15,6 +15,8 @@ public class BackgroundDisplay : MonoBehaviour {
     [SerializeField]
     CameraBlurrer bgBlurrer;
 
+ 
+
     interface Fadeable
     {
         GameObject gameObject
@@ -47,6 +49,22 @@ public class BackgroundDisplay : MonoBehaviour {
         public VideoPlayer videoPlayer;
         public RawImage img;
 
+        public bool isSeeking = false;
+
+        public float time
+        {
+            get
+            {
+                return (float) videoPlayer.time;
+            }
+
+            set
+            {
+                isSeeking = true;
+                videoPlayer.time = value;
+            }
+        }
+
         public GameObject gameObject
         {
             get
@@ -59,7 +77,14 @@ public class BackgroundDisplay : MonoBehaviour {
         {
             this.videoPlayer = videoPlayer;
             this.img = videoPlayer.GetComponent<RawImage>();
+            videoPlayer.seekCompleted += seekFinished;
 
+        }
+
+        void seekFinished(VideoPlayer vp)
+        {
+            //Debug.Log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+            isSeeking = false;
         }
 
         public Transform transform
@@ -223,15 +248,20 @@ public class BackgroundDisplay : MonoBehaviour {
             
             //wait for the video player to be ready?
             FadeableVideo vidToShow = ((FadeableVideo)thingToShow);
- 
+
+            float targetAlpha = 0;
+            if (vidToShow.videoPlayer.isPrepared  && vidToShow.videoPlayer.isPlaying)//&& !vidToShow.isSeeking)
+            {
+                targetAlpha = 1;
+            }
+            vidToShow.alpha = Mathf.MoveTowards(vidToShow.alpha, targetAlpha, Time.deltaTime / .65f);
+
+
                 if (!vidToShow.videoPlayer.isPlaying)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
                 {
-                    //vidToShow.alpha = 0;
-
-
-                    
-
-                    vidToShow.videoPlayer.transform.SetAsLastSibling();
+                //vidToShow.alpha = 0;
+                
+                vidToShow.videoPlayer.transform.SetAsLastSibling();
 
 
                     vidToShow.videoPlayer.Play();
@@ -286,7 +316,7 @@ public class BackgroundDisplay : MonoBehaviour {
         }
     }
 
-    public void setVideo(string videoUrl, int direction)
+    public void setVideo(string videoUrl, int direction = 0)
     {
 
         FadeableVideo targVideoPlayer = thingToShow == videoPlayer1 ? videoPlayer2 : videoPlayer1;
@@ -300,15 +330,39 @@ public class BackgroundDisplay : MonoBehaviour {
         {
             outgoingVideo = videoPlayer2;
         }
-        
 
-        targVideoPlayer.videoPlayer.Stop();
-        targVideoPlayer.videoPlayer.url = videoUrl;
+        targVideoPlayer.alpha = 0;
+        if (targVideoPlayer.videoPlayer.url != videoUrl)
+        {
+            targVideoPlayer.videoPlayer.Stop();
+            targVideoPlayer.videoPlayer.url = videoUrl;
+            //targVideoPlayer.time = Random.Range(0, (float)60);
 
 
-        targVideoPlayer.videoPlayer.Play();//Prepare();
 
-        
+
+
+        }
+
+
+
+        //
+
+        targVideoPlayer.videoPlayer.
+            //Play();//
+            Prepare();
+
+        //targVideoPlayer.videoPlayer.Pause();
+
+        RenderTexture savedRt = RenderTexture.active;
+        RenderTexture.active = targVideoPlayer.videoPlayer.targetTexture;
+        GL.Clear(true, true, Color.black);
+        RenderTexture.active = savedRt;
+
+
+        //Debug.Log(targVideoPlayer.videoPlayer.isPrepared);
+
+
 
         prevThingToShow = thingToShow;
         thingToShow = targVideoPlayer;
@@ -334,14 +388,15 @@ public class BackgroundDisplay : MonoBehaviour {
                
             }
 
-            thingToShow.alpha = 0;// Mathf.InverseLerp(.25f, 1, t);
+            //thingToShow.alpha = 0;// Mathf.InverseLerp(.25f, 1, t);
             //thingToShow.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, thingToShow.alpha);//.withY(1);
             thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
             if (t == 1)
             {
                 animating = false;
 
-                this.varyWithT((j) => { thingToShow.alpha = j; }, .2f);
+                //this.varyWithT((j) => { thingToShow.alpha = j; }, .2f);
+                prevThingToShow.alpha = 0;
             }
         }, 0.25f);
     }

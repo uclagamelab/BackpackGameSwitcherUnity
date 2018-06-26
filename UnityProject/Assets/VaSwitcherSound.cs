@@ -5,7 +5,9 @@ using System.IO;
 
 public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
-    float volumeScale = 4f;
+    float volumeScale = 3f;
+
+    bool forceSkip = false;
 
     public MenuVisualsGeneric menu;
     public AudioClip cycleSound;
@@ -15,18 +17,28 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     public AudioClip closeInfoSound;
     public AudioClip startGame;
     public AudioClip quitGame;
-    AudioClip backGroundMusic;
     AudioLowPassFilter musicFilter;
 
     public AudioClip infoMenuCursorMove1;
 
+    List<FileInfo> bgMusicList = new List<FileInfo>();
+    int currentBgMusicIdx = 0;
     public AudioSource bgMusicSource;
 
     AudioSource[] oneShotPool;
 
 
     bool hasFocus = true;
-    float MaxMusicVolume = .45f;
+    float MaxMusicVolume = 1f;
+
+    bool multipleBGM
+    {
+        get
+        {
+            return bgMusicList.Count > 1;
+        }
+    }
+
 
     void Start () {
         //bgMusicSource = this.gameObject.AddComponent<AudioSource>();
@@ -38,11 +50,11 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         }
         menu.addListener(this);
 
-        bgMusicSource.clip = backGroundMusic;
-        bgMusicSource.loop = true;
+        
         bgMusicSource.volume = 0;
 
-        StartCoroutine(LoadCustomMusic());
+        LoadCustomMusic();
+        bgMusicSource.loop = !multipleBGM;
 
         menu.OnOpenCloseInfo+= onOpenCloseInfo;
 
@@ -60,18 +72,18 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     {
         if (open)
         {
-            PlayOneShot(openInfoSound, .20f, 1);
+            PlayOneShot(openInfoSound, .20f, 0.75f);
         }
         else
         {
-            PlayOneShot(closeInfoSound, .25f, 1);
+            PlayOneShot(closeInfoSound, .25f, .75f);
         }
     }
 
-    IEnumerator LoadCustomMusic()
+    void LoadCustomMusic()
     {
         string musicLocation = Application.streamingAssetsPath + "/BGMusic";
-        FileInfo fileToUse = null;
+
         foreach (string path in Directory.GetFiles(musicLocation))
         {
             string[] okExtensions = {"ogg", "wav"};
@@ -80,19 +92,46 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             {
                 if (maybeFile.Extension.ToLower().EndsWith(ext))
                 {
-                    Debug.Log("" + maybeFile);
-                    fileToUse = maybeFile;
+                    Debug.Log("!!!!!!!!!!!!!!!" + maybeFile);
+                   // fileToUse = maybeFile;
+                    bgMusicList.Add(maybeFile);
                 }
             }
         }
 
-        if (fileToUse != null)
+
+
+        if (bgMusicList.Count > 0)
         {
-            WWW audRequest = new WWW(fileToUse.FullName);
-            yield return audRequest;
-            this.backGroundMusic = audRequest.GetAudioClip();// false, false);
-            this.bgMusicSource.clip = this.backGroundMusic;
+            LoadNewSong(Random.Range(0, bgMusicList.Count));
         }
+    }
+
+    void LoadNewSong(int bgmIdx)
+    {
+        currentBgMusicIdx = bgmIdx;
+        FileInfo fileToUse = bgMusicList[currentBgMusicIdx];
+        loadingNextSongRoutine = StartCoroutine(GetAudioClipFromDisk(fileToUse));
+    }
+
+    Coroutine loadingNextSongRoutine = null;
+
+    void OnNewMusicClipLoaded(AudioClip newClip)
+    {
+        this.bgMusicSource.clip = newClip;
+        if (hasFocus)
+        {
+            bgMusicSource.Play();
+        }
+    }
+
+    IEnumerator GetAudioClipFromDisk(FileInfo fileToUse)
+    {
+        WWW audRequest = new WWW(fileToUse.FullName);
+        yield return audRequest;
+        AudioClip newClip = audRequest.GetAudioClip();// false, false);
+        OnNewMusicClipLoaded(newClip);
+        loadingNextSongRoutine = null;
     }
 	
 	void Update () {
@@ -102,8 +141,34 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             targMusicVolume = 1;
         }
 
-        this.bgMusicSource.volume = Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume * volumeScale * MaxMusicVolume, .5f * Time.deltaTime);
-        bool shouldPlay = bgMusicSource.volume != 0;
+
+        bool alreadyInProcessOfLoadingNextSong = loadingNextSongRoutine != null;
+        bool closeToEndOfSong = bgMusicSource.clip != null && !bgMusicSource.isPlaying;//.time == bgMusicSource.clip.length;
+        bool shouldLoadNextSong = multipleBGM && closeToEndOfSong && targMusicVolume == 1;
+
+        shouldLoadNextSong |= Input.GetKeyDown(KeyCode.Y);
+
+        shouldLoadNextSong &= !alreadyInProcessOfLoadingNextSong;
+
+        if (shouldLoadNextSong)
+        {
+            
+            if (bgMusicSource.clip != null)
+            {
+                bgMusicSource.clip.UnloadAudioData();
+                DestroyImmediate(bgMusicSource.clip);
+            }
+            
+            bgMusicSource.clip = null;
+               
+               currentBgMusicIdx = (currentBgMusicIdx + 1) % bgMusicList.Count;
+            LoadNewSong(currentBgMusicIdx);
+            Debug.Log(currentBgMusicIdx + " / " + (bgMusicList.Count - 1));
+        }
+
+
+        this.bgMusicSource.volume = Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume * MaxMusicVolume, .5f * Time.deltaTime);
+        bool shouldPlay = bgMusicSource.volume != 0 && bgMusicSource.clip != null;
         if (bgMusicSource.isPlaying != shouldPlay)
         {
             if (shouldPlay)
@@ -126,6 +191,8 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         this.musicFilter.cutoffFrequency = Mathf.Lerp(this.musicFilter.cutoffFrequency, targetCutoff, 8 * Time.deltaTime);// 2*maxDiff * Time.deltaTime);
         this.musicFilter.cutoffFrequency = Mathf.MoveTowards(this.musicFilter.cutoffFrequency, targetCutoff, maxDiff * Time.deltaTime);
 
+
+
     }
 
     void OnApplicationFocus(bool hasFocus)
@@ -133,8 +200,13 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         this.hasFocus = hasFocus;
     }
 
-    void MenuVisualsGeneric.Listener.onCycleGame(int direction)
+    void MenuVisualsGeneric.Listener.onCycleGame(int direction, bool userInitiated)
     {
+        if (!userInitiated)
+        {
+            return;
+        }
+
         float pitch = .85f;// direction > 0 ? 0.85f : -0.85f;
         AudioClip clip = direction > 0 ? cycleSound : cycleSound2;
         this.delayedFunction(() =>
@@ -158,7 +230,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             {
                 aso.clip = ac;
                 aso.pitch = pitch;
-                aso.volume = volumeScale * volume;
+                aso.volume = Mathf.Clamp01(volumeScale * volume);
                 aso.Play();
 
                 //Debug.Log("playing " + ac + " --- " + aso.volume);

@@ -90,7 +90,7 @@ public class MenuVisualsGeneric : MonoBehaviour
             }
             else
             {
-                cycleToNextGame(-selectionDirection);
+                cycleToNextGame(-selectionDirection, false, fromUser);
             }
         }
     }
@@ -143,7 +143,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     }
 
 
-    public void cycleToNextGame(int selectionDirection, bool forceDuringAttractNoAnimation =false)
+    public void cycleToNextGame(int selectionDirection, bool forceDuringAttractNoAnimation =false, bool fromUser = true)
     {
 
 
@@ -161,7 +161,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
             foreach (Listener l in this.listners)
             {
-                l.onCycleGame(selectionDirection);
+                l.onCycleGame(selectionDirection, fromUser);
             }
 
             if (!forceDuringAttractNoAnimation)
@@ -343,7 +343,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     {
         void onLeaveAttract();
         void onEnterAttract();
-        void onCycleGame(int direction/*, bool userInitiated*/);
+        void onCycleGame(int direction, bool userInitiated);
         void onStartGame();
         void onQuitGame();
     }
