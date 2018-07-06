@@ -73,17 +73,19 @@ public class BackgroundDisplay : MonoBehaviour {
             }
         }
 
+
         public FadeableVideo(VideoPlayer videoPlayer)
         {
             this.videoPlayer = videoPlayer;
             this.img = videoPlayer.GetComponent<RawImage>();
             videoPlayer.seekCompleted += seekFinished;
+            //Debug.Log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
 
         }
 
         void seekFinished(VideoPlayer vp)
         {
-            //Debug.Log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+           // Debug.Log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
             isSeeking = false;
         }
 
@@ -206,6 +208,11 @@ public class BackgroundDisplay : MonoBehaviour {
     }
     void blurUpdate()
     {
+        if (bgBlurrer == null)
+        {
+            return;
+        }
+
         float targetBlurAmt = MenuVisualsGeneric.Instance.state == MenuVisualsGeneric.MenuState.ChooseGame ? 0 : 1;
 
         if (targetBlurAmt > 0 && !bgBlurrer.enabled)
@@ -250,14 +257,19 @@ public class BackgroundDisplay : MonoBehaviour {
             FadeableVideo vidToShow = ((FadeableVideo)thingToShow);
 
             float targetAlpha = 0;
-            if (vidToShow.videoPlayer.isPrepared  && vidToShow.videoPlayer.isPlaying)//&& !vidToShow.isSeeking)
+            if (vidToShow.videoPlayer.isPrepared)//&& !vidToShow.isSeeking)
             {
                 targetAlpha = 1;
+                /*if (vidToShow.alpha == 0)
+                {
+                    vidToShow.videoPlayer.time = (double)Random.Range(0, 100);
+                    
+                }*/
             }
             vidToShow.alpha = Mathf.MoveTowards(vidToShow.alpha, targetAlpha, Time.deltaTime / .65f);
 
 
-                if (!vidToShow.videoPlayer.isPlaying)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
+                if (!vidToShow.videoPlayer.isPlaying && vidToShow.videoPlayer.isPrepared)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
                 {
                 //vidToShow.alpha = 0;
                 
@@ -266,7 +278,7 @@ public class BackgroundDisplay : MonoBehaviour {
 
                     vidToShow.videoPlayer.Play();
 
-                    //vidToShow.videoPlayer.time = (double)Random.Range(0, 200f);
+                    
                 }
     
             
@@ -315,7 +327,7 @@ public class BackgroundDisplay : MonoBehaviour {
 
         }
     }
-
+    bool needToSeek = false;
     public void setVideo(string videoUrl, int direction = 0)
     {
 
@@ -335,8 +347,9 @@ public class BackgroundDisplay : MonoBehaviour {
         if (targVideoPlayer.videoPlayer.url != videoUrl)
         {
             targVideoPlayer.videoPlayer.Stop();
+            
             targVideoPlayer.videoPlayer.url = videoUrl;
-            //targVideoPlayer.time = Random.Range(0, (float)60);
+            //
 
 
 
@@ -347,10 +360,13 @@ public class BackgroundDisplay : MonoBehaviour {
 
 
         //
-
+        //targVideoPlayer.videoPlayer.time = (double)Random.Range(0, 100);
         targVideoPlayer.videoPlayer.
             //Play();//
             Prepare();
+        //needToSeek = true;
+
+
 
         //targVideoPlayer.videoPlayer.Pause();
 
@@ -396,7 +412,10 @@ public class BackgroundDisplay : MonoBehaviour {
                 animating = false;
 
                 //this.varyWithT((j) => { thingToShow.alpha = j; }, .2f);
-                prevThingToShow.alpha = 0;
+                if (prevThingToShow != null)
+                {
+                    prevThingToShow.alpha = 0;
+            }
             }
         }, 0.25f);
     }

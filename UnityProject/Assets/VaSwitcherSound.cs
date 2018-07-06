@@ -2,12 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.Audio;
 
 public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
-    float volumeScale = 3f;
 
-    bool forceSkip = false;
+    float sfxVolume
+    {
+        get
+        {
+            return 3.5f;// * _sfxVolFromeSettings;
+        }
+    }
+
+    [SerializeField]
+    AudioMixerGroup _sfxAudioMixerGroup;
+
+    [SerializeField]
+    AudioMixerGroup _bgmGroup;
 
     public MenuVisualsGeneric menu;
     public AudioClip cycleSound;
@@ -29,7 +41,6 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
 
     bool hasFocus = true;
-    float MaxMusicVolume = 1f;
 
     bool multipleBGM
     {
@@ -47,11 +58,13 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         {
             oneShotPool[i] = this.gameObject.AddComponent<AudioSource>();
             oneShotPool[i].playOnAwake = false;
+            oneShotPool[i].outputAudioMixerGroup = _sfxAudioMixerGroup;
         }
         menu.addListener(this);
 
         
         bgMusicSource.volume = 0;
+        bgMusicSource.outputAudioMixerGroup = _bgmGroup;
 
         LoadCustomMusic();
         bgMusicSource.loop = !multipleBGM;
@@ -61,11 +74,14 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         menu.InfoMenuCursorMove += OnInfoMenuCursorMove;
 
         musicFilter = bgMusicSource.GetComponent<AudioLowPassFilter>();
+
     }
+
+
 
     void OnInfoMenuCursorMove(bool open)
     {
-        PlayOneShot(infoMenuCursorMove1, .1f, 1);
+        PlayOneShot(infoMenuCursorMove1, .075f, 1);
     }
 
         void onOpenCloseInfo(bool open)
@@ -92,7 +108,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             {
                 if (maybeFile.Extension.ToLower().EndsWith(ext))
                 {
-                    Debug.Log("!!!!!!!!!!!!!!!" + maybeFile);
+                    //Debug.Log("!!!!!!!!!!!!!!!" + maybeFile);
                    // fileToUse = maybeFile;
                     bgMusicList.Add(maybeFile);
                 }
@@ -143,8 +159,17 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
 
         bool alreadyInProcessOfLoadingNextSong = loadingNextSongRoutine != null;
-        bool closeToEndOfSong = bgMusicSource.clip != null && !bgMusicSource.isPlaying;//.time == bgMusicSource.clip.length;
-        bool shouldLoadNextSong = multipleBGM && closeToEndOfSong && targMusicVolume == 1;
+
+        bool closeToEndOfSong = 
+            bgMusicSource.clip != null 
+            && 
+            !bgMusicSource.isPlaying 
+            && 
+            targMusicVolume == 1
+            && 
+            bgMusicSource.time != 0;//.time == bgMusicSource.clip.length;
+
+        bool shouldLoadNextSong = multipleBGM && closeToEndOfSong && targMusicVolume == 1;// && bgmMaxVolume != 0;
 
         shouldLoadNextSong |= Input.GetKeyDown(KeyCode.Y);
 
@@ -166,9 +191,10 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             Debug.Log(currentBgMusicIdx + " / " + (bgMusicList.Count - 1));
         }
 
+        this.bgMusicSource.volume =  Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume, .35f * Time.deltaTime);
 
-        this.bgMusicSource.volume = Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume * MaxMusicVolume, .5f * Time.deltaTime);
         bool shouldPlay = bgMusicSource.volume != 0 && bgMusicSource.clip != null;
+
         if (bgMusicSource.isPlaying != shouldPlay)
         {
             if (shouldPlay)
@@ -230,7 +256,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             {
                 aso.clip = ac;
                 aso.pitch = pitch;
-                aso.volume = Mathf.Clamp01(volumeScale * volume);
+                aso.volume = Mathf.Clamp01(sfxVolume * volume);
                 aso.Play();
 
                 //Debug.Log("playing " + ac + " --- " + aso.volume);
@@ -256,6 +282,6 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
     void MenuVisualsGeneric.Listener.onStartGame()
     {
-        PlayOneShot(startGame, .2f, 1);
+        PlayOneShot(startGame, .5f, 1);
     }
 }

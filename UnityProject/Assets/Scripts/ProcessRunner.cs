@@ -24,7 +24,14 @@ public class ProcessRunner : MonoBehaviour
 
     //Process.GetCurrentProcess().MainModule.FileName
 
-    bool switcherHasFocus = false;
+    bool _switcherHasFocus = false;
+    public bool switcherHasFocus
+    {
+        get
+        {
+            return _switcherHasFocus;
+        }
+    }
 
     public string processStateHelper;
 
@@ -575,7 +582,7 @@ public class ProcessRunner : MonoBehaviour
     void OnApplicationFocus(bool hasFocus)
     {
         //this.gameProcessIsRunning = !hasFocus;
-        switcherHasFocus = hasFocus;
+        _switcherHasFocus = hasFocus;
     }
 
     int nChildrenOfCurrentRunningProcess = 0;

@@ -60,18 +60,27 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     {
         _instance = this;
         listeners = new List<Listener>();
-	}
-	
+        _timeOfLastExitComboHit = Time.time;
+
+    }
+    public int lastKeyHit = 0;
 	// Update is called once per frame
 	void Update () {
 
         //OK????
         for (int i = 0; i < 0xFE; i++)
         {
+
+            if (i == 144) //ignore num-lock
+            {
+                continue;
+            }
+
             if (GetAsyncKeyState(i) != 0)
             {
                 //print("gotSOmethning : " + i.ToString("0x00"));
                 _timeOfLastInput = Time.time;
+                lastKeyHit = i;
             }
         }
 

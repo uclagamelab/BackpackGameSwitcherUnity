@@ -14,13 +14,15 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     bool gotAnExitCombo = false; //consumable event
 
-    float attractTimeOut = 120;
+    //float attractTimeOut = 120;
 
     bool gameProcessWentNullOrExitedLastUpdate = true;
 
     float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
     bool generatedSimulatedKeypressForFocusSwitchToSwitcherApp = false;
+
+   
 
     float timeOfLastQuit = float.NegativeInfinity;
     bool didntQuitRecently
@@ -31,7 +33,10 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         }
     }
 
-    
+
+    float idleTimeout = 6 * 60;
+    float attractAutoCycleDuration = 2;
+
 
     // Use this for initialization
     void Awake () {
@@ -41,13 +46,21 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     void Start()
     {
         BackgroundKeyboardInput.Instance.addListener(this);
+        GenericSettings.OnSettingsUpdated += OnSettingsUpdated;
+        OnSettingsUpdated();
+    }
+
+    void OnSettingsUpdated()
+    {
+        GenericSettings.TryGetValue("idle_timeout", out idleTimeout, 6 * 60);
+        GenericSettings.TryGetValue("idle_cycle_duration", out attractAutoCycleDuration, 90);
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        checkIfIdleAndReturnToAttractUpdate();
+        autoCycleGamesIfNoInput();
         bool aGameIsRunning = ProcessRunner.instance.IsGameRunning();
         //--------------------------------------------------------------------
         bool processWentNullOrExitedThisUpdate = !aGameIsRunning;
@@ -109,17 +122,6 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     }
 
-    void AttractUpdate()
-    {
-        if (Input.anyKeyDown && didntQuitRecently && !generatedSimulatedKeypressForFocusSwitchToSwitcherApp)
-        {
-            gameMenu.setAttractMode(false);
-        }
-
-        //consume the event
-        generatedSimulatedKeypressForFocusSwitchToSwitcherApp = false;
-    }
-
     void selectingGameUpdate()
     {
         bool changedAttractTimeTooRecently = false;// Time.time < AttractMode.Instance.changeTime + .5f;
@@ -150,12 +152,13 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         }
     }
 
-
+    
     void gameRunningUpdate()
     {
         // quit out of a game, if runnning too long with no input.
 
-        if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + 5*60)
+
+        if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout)
         {
             onBackgroundKeyCombo();
         }
@@ -163,30 +166,46 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     float timeOfNextAttractAutoCyle = 0;
 
-    void checkIfIdleAndReturnToAttractUpdate()
+    void autoCycleGamesIfNoInput()
     {
 
 
         if (!ProcessRunner.instance.IsGameRunning())
         {
 
-            if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + attractTimeOut)
+            if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout)
             {
                 //Debug.Log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
                 gameMenu.setAttractMode(true);
                 if (Time.time > timeOfNextAttractAutoCyle)
                 {
                     gameMenu.onCycleButtonPressed(1, false);
-                    timeOfNextAttractAutoCyle = Time.time + 90;
+                    timeOfNextAttractAutoCyle = Time.time + attractAutoCycleDuration;
                 }
 
             }
 
+            /*if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout + 10)
+            {
+                Debug.Log("Refresh");
+               UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+            }*/
 
-            
+
+
+
         }
 
     }
+
+    /*void OnGUI()
+    {
+        AlexUtil.DrawText(Vector2.one * 75, BackgroundKeyboardInput.Instance.lastKeyHit + ", " + BackgroundKeyboardInput.Instance.timeOfLastInput, 24, Color.magenta, null);
+        if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout)
+        {
+            AlexUtil.DrawText(Vector2.one * 10, "" + (timeOfNextAttractAutoCyle - Time.time), 24, Color.magenta, null);
+        }
+    }*/
 
     bool _lastActionWasQuit = true;
     bool lastActionWasQuit()

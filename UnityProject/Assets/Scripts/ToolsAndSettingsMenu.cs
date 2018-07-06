@@ -92,6 +92,8 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
         //Apply the settings
         GameCatalog.Instance.repopulateCatalog(this.gamesDirInputField.text);
+
+        GenericSettings.SaveAllGenericSettings();
     }
 
     void Update()
