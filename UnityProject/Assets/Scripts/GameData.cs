@@ -25,6 +25,8 @@ public class GameData
 
     public string videoUrl = null;
 
+    public Texture2D instructionsOverlay = null;
+
     // Dictionary<string, string> controllerLabels;
     string[] controlLabels; // convention is '0' is joystick, 1-6 are buttons
     public string joystickLabel
@@ -108,8 +110,47 @@ public class GameData
 
         //--- set up video ---------------
         setUpVideo(gameFolder);
+
+        setUpInstructionsOverlay(gameFolder);
     //TODO
 }
+
+    void setUpInstructionsOverlay(FileInfo gameFolder)
+    {
+        //UGH
+        BackgroundDisplay.Instance.StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
+    }
+
+    IEnumerator setUpInstructionsOverlayRoutine(FileInfo gameFolder)
+    {
+        string instructionsFolder = gameFolder.FullName + "/instructions";
+        if (Directory.Exists(instructionsFolder))
+        {
+
+            List<string> imgsInDirectory = GetFilesMultipleSearchPattern(instructionsFolder, new string[] { "*.png" });
+            foreach (string v in imgsInDirectory)
+            {
+                //Debug.Log(v + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            }
+            if (imgsInDirectory.Count > 0)
+            {
+               string ovlUrl = imgsInDirectory[0];
+
+                this.instructionsOverlay = new Texture2D(4, 4, TextureFormat.DXT5, false); //DXT5, assuming image is png
+                WWW instOvlWww = new WWW(ovlUrl);
+                yield return instOvlWww;
+
+                instOvlWww.LoadImageIntoTexture(this.instructionsOverlay);
+
+                //GameObject sp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                //sp.GetComponent<Renderer>().material.mainTexture = this.instructionsOverlay;
+            }
+
+
+
+        }
+
+    }
 
     void setUpVideo(FileInfo gameFolder)
     {

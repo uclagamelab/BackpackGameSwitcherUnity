@@ -16,9 +16,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
     GameObject _highlightedObject;
 
     [SerializeField]
-    Texture[] overlays;
-
-    [SerializeField]
     RawImage _rawImg;
 
     [SerializeField]
@@ -64,10 +61,10 @@ public class PreLaunchGameInfo : MonoBehaviour {
     {
 
         int idx = MenuVisualsGeneric.Instance.gameIdx;
-        idx = Mathf.Clamp(idx, 0, this.overlays.Length - 1);
-        Texture newTexture = this.overlays[idx];
-     
-        this._rawImg.texture = newTexture;
+        //idx = Mathf.Clamp(idx, 0, this.overlays.Length - 1);
+        //Texture newTexture = this.overlays[idx];
+
+        this._rawImg.texture = MenuVisualsGeneric.Instance.currentlySelectedGame.instructionsOverlay;// newTexture;
 
         /*if (Input.GetKeyDown("y"))
         {
