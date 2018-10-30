@@ -40,7 +40,9 @@ public class GameCatalog : MonoBehaviour
     private void Awake()
     {
         _instance = this;
-        repopulateCatalog(SwitcherSettings.GamesFolder);
+        string cleanPath = SwitcherSettings.GamesFolder;
+        cleanPath = cleanPath.Replace('\\', '/');
+        repopulateCatalog(cleanPath);
     }
 
     void Start () 
@@ -74,8 +76,8 @@ public class GameCatalog : MonoBehaviour
         {
             
 
-            try
-            {
+            /*try
+            {*/
                 bool shouldSkip = new FileInfo(gameFolderPathString).Name.StartsWith("~");
                 if (shouldSkip)
                 {
@@ -83,13 +85,13 @@ public class GameCatalog : MonoBehaviour
                     continue;
                 }
 
-                GameData gameData = new GameData(gameFolderPathString);
+                GameData gameData = new GameData(gameFolderPathString.Replace('\\', '/'));
                 allGames.Add(gameData);
-            }
+            /*}
             catch (System.Exception e)
             {
                 Debug.LogError("Problem loading game at : '" + gameFolderPathString + "'\n\t reason: " + e);
-            }
+            }*/
         }
 
         this.joyToKeyData = new GameData();

@@ -248,9 +248,13 @@ public class BackgroundDisplay : MonoBehaviour {
         blurUpdate();
 
 
+        bool thingToShowIsAVideo = thingToShow == videoPlayer1 || thingToShow == videoPlayer2;
 
-
-        if (thingToShow == videoPlayer1 || thingToShow == videoPlayer2)
+        if (!thingToShowIsAVideo)
+        {
+            thingToShow.alpha = Mathf.MoveTowards(thingToShow.alpha, 1, Time.deltaTime / .65f);
+        }
+        else //thing to show is a video
         {
             
             //wait for the video player to be ready?
@@ -327,6 +331,43 @@ public class BackgroundDisplay : MonoBehaviour {
 
         }
     }
+
+    public void setImage(Texture img, int direction)
+    {
+
+        Fadeable outgoingThing = null;
+        if (thingToShow == videoPlayer1)
+        {
+            outgoingThing = videoPlayer1;
+        }
+        else if (thingToShow == videoPlayer2)
+        {
+            outgoingThing = videoPlayer2;
+        }
+        else if (thingToShow == image1)
+        {
+            outgoingThing = image1;
+        }
+        else if (thingToShow == image2)
+        {
+            outgoingThing = image2;
+        }
+
+        FadeableRawImage targImg = thingToShow == image1 ? image2 : image1;
+        targImg.image.texture = img;
+
+
+        targImg.image.transform.SetAsFirstSibling();
+
+       
+
+        prevThingToShow = thingToShow;
+        thingToShow = targImg;
+
+        animateChangedObject(direction);
+    }
+
+
     bool needToSeek = false;
     public void setVideo(string videoUrl, int direction = 0)
     {
@@ -418,17 +459,6 @@ public class BackgroundDisplay : MonoBehaviour {
             }
             }
         }, 0.25f);
-    }
-    public void setImage(Texture img, int direction)
-    {
-        FadeableRawImage targImg = thingToShow == image1 ? image2 : image1;
-        targImg.image.texture = img;
-
-        prevThingToShow = thingToShow;
-        thingToShow = targImg;
-        targImg.image.transform.SetAsLastSibling();
-
-        animateChangedObject(direction);
     }
 
     public void hide()

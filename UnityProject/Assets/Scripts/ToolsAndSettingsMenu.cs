@@ -91,7 +91,10 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         SwitcherSettings.JoyToKeyFolder = this.joyToKeyInputField.text;
 
         //Apply the settings
-        GameCatalog.Instance.repopulateCatalog(this.gamesDirInputField.text);
+
+        string cleanPath = this.gamesDirInputField.text;
+        cleanPath = cleanPath.Replace('\\', '/');
+        GameCatalog.Instance.repopulateCatalog(cleanPath);
 
         GenericSettings.SaveAllGenericSettings();
     }

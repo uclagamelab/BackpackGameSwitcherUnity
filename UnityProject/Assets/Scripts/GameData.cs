@@ -118,7 +118,8 @@ public class GameData
     void setUpInstructionsOverlay(FileInfo gameFolder)
     {
         //UGH
-        BackgroundDisplay.Instance.StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
+        GameObject nob = new GameObject();
+        nob.AddComponent<Irrepsonsible>().StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
     }
 
     IEnumerator setUpInstructionsOverlayRoutine(FileInfo gameFolder)
@@ -349,5 +350,10 @@ public class GameData
 
         this.previewImg = textureReq.texture;
     }
+
+}
+
+class Irrepsonsible : MonoBehaviour
+{
 
 }

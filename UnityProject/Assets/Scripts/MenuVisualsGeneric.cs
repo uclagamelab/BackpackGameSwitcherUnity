@@ -220,6 +220,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         }
         else
         {
+            Debug.Log("only an image");
             BackgroundDisplay.Instance.setImage(currentGameData.previewImg, updateDirection);
         }
 
