@@ -48,7 +48,10 @@ public class PreLaunchGameInfo : MonoBehaviour {
     // Use this for initialization
     void Start () {
         //_rawImg = this.GetComponent<RawImage>();
-        _rawImg.enabled = false;
+        if (_rawImg != null)
+        {
+            _rawImg.enabled = false;
+        }
         _dimmer.enabled = false;
         _dimmerFullColor = _dimmer.color;
         _highlightImg = _buttonHighlight.GetComponentInChildren<Image>();
@@ -64,7 +67,11 @@ public class PreLaunchGameInfo : MonoBehaviour {
         //idx = Mathf.Clamp(idx, 0, this.overlays.Length - 1);
         //Texture newTexture = this.overlays[idx];
 
-        this._rawImg.texture = MenuVisualsGeneric.Instance.currentlySelectedGame.instructionsOverlay;// newTexture;
+        if (_rawImg != null)
+        {
+            this._rawImg.texture = MenuVisualsGeneric.Instance.currentlySelectedGame.instructionsOverlay;// newTexture;
+        }
+        
 
         /*if (Input.GetKeyDown("y"))
         {
@@ -165,7 +172,11 @@ public class PreLaunchGameInfo : MonoBehaviour {
 
         animating = true;
         open = forward;
-        _rawImg.enabled = true;
+        if (_rawImg != null)
+        {
+            _rawImg.enabled = true;
+        }
+      
         //bgBlurrer.enabled = true;
         _dimmer.enabled = true;
         if (forward)
