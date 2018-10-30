@@ -46,4 +46,23 @@ public class GameInfoUI : MonoBehaviour {
         }
     }
 
+    GameData _cachedCurrentGameData = null;
+
+    private void Start()
+    {
+        
+    }
+
+    private void Update()
+    {
+        if (_cachedCurrentGameData != MenuVisualsGeneric.Instance.currentlySelectedGame)
+        {
+            _cachedCurrentGameData = MenuVisualsGeneric.Instance.currentlySelectedGame;
+
+            this.titleText.text = _cachedCurrentGameData.title;
+            this.creditText.text = _cachedCurrentGameData.author;
+            this.descriptionText.text = _cachedCurrentGameData.description;
+        }
+    }
+
 }
