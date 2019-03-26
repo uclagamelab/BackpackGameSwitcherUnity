@@ -118,7 +118,8 @@ public class GameData
     void setUpInstructionsOverlay(FileInfo gameFolder)
     {
         //UGH
-        BackgroundDisplay.Instance.StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
+
+        ProcessRunner.instance.StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
     }
 
     IEnumerator setUpInstructionsOverlayRoutine(FileInfo gameFolder)
@@ -130,7 +131,7 @@ public class GameData
             List<string> imgsInDirectory = GetFilesMultipleSearchPattern(instructionsFolder, new string[] { "*.png" });
             foreach (string v in imgsInDirectory)
             {
-                //Debug.Log(v + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                Debug.Log(v + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             }
             if (imgsInDirectory.Count > 0)
             {
