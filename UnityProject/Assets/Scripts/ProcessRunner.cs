@@ -218,12 +218,18 @@ public class ProcessRunner : MonoBehaviour
     //Not really used anymore, since joytokey does a good job on its own.
     void setJoyToKeyConfig(string configFile)
     {
+        if (!System.IO.File.Exists(@GameCatalog.Instance.joyToKeyData.executable))
+        {
+            UnityEngine.Debug.LogError("JoyToKey executable not available at '" + GameCatalog.Instance.joyToKeyData.executable + "'");
+            return;
+        }
+
         ProcessStartInfo startInfo = new ProcessStartInfo();
 
         startInfo.WorkingDirectory = @GameCatalog.Instance.joyToKeyData.directory; //"C:\\Users\\Garrett Johnson\\Desktop";
         startInfo.FileName = @GameCatalog.Instance.joyToKeyData.executable;
         startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
-
+        
 
         _joy2KeyProcess = Process.Start(startInfo);
     }

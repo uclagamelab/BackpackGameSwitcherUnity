@@ -252,7 +252,10 @@ public class BackgroundDisplay : MonoBehaviour {
 
         if (!thingToShowIsAVideo)
         {
-            thingToShow.alpha = Mathf.MoveTowards(thingToShow.alpha, 1, Time.deltaTime / .65f);
+            if (thingToShow != null)
+            {
+                thingToShow.alpha = Mathf.MoveTowards(thingToShow.alpha, 1, Time.deltaTime / .65f);
+            }
         }
         else //thing to show is a video
         {

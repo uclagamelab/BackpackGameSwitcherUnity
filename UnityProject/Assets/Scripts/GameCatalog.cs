@@ -63,13 +63,23 @@ public class GameCatalog : MonoBehaviour
         {
             allGames.Clear();
         }
-        
+
         //print("================================================================================");
 
 
         //string[] files = Directory.GetFiles(Application.streamingAssetsPath + "/games");
 
-        string[] gameFolders = Directory.GetDirectories(gamesFolderPath);
+        string[] gameFolders;
+        if (Directory.Exists(gamesFolderPath))
+        {
+            gameFolders = Directory.GetDirectories(gamesFolderPath);
+        }
+        else
+        {
+            Debug.LogError("games path '" + gamesFolderPath + "' not found");
+            gameFolders = new string[] { };
+        }
+        
 
 
         foreach (string gameFolderPathString in gameFolders)
