@@ -1,18 +1,9 @@
 ﻿REAL TODO:
-* Sounds
-	- Cycle video sound
-	- open game details
-	- close game details
-	- quit game
-	- start game
-	- bg ambience 
-
-* title tab
-
-* auto cycle videos if no input
-
-
-
+* Try to better automate skipping of unity resolution dialog
+* Actually make joy2key configs for everything, where possible
+* check on website, and with tyler for missing games
+* Autogenerate joytokey exe association file
+* Better support/solution for shortcuts breaking when switching machines
 
 
 #### #### TODO #### #### #### #### #### #### 

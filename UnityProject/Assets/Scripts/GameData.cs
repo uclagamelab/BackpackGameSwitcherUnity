@@ -66,6 +66,11 @@ public class GameData
         JSONObject jsonObject = new JSONObject(jsonString);
 
         this.title = jsonObject["title"].str;
+        if (!string.IsNullOrEmpty(this.title))
+        {
+            this.title = title.Replace("\\\"", "\"");//for games with quotes, this json library doesn't seem to properly unescape strings
+        }
+
         this.author = jsonObject["designers"].str;
         if (jsonObject.HasField("command arguments"))
         {
