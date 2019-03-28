@@ -99,7 +99,15 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
             {
                 //print("give it a try");
                 generatedSimulatedKeypressForFocusSwitchToSwitcherApp = true;
-                ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls
+                if (!string.IsNullOrEmpty(gameMenu.currentlySelectedGame.windowTitle))
+                {
+                    ProcessRunner.instance.BringRunningToForeground(gameMenu.currentlySelectedGame.windowTitle); //this function should be robust to repeated calls
+                }
+                else
+                {
+                    ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls
+                }
+                
             }
         }
 
@@ -193,7 +201,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
 
 
-
+            
         }
 
     }

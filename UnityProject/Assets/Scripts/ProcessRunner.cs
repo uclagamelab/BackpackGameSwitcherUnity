@@ -424,7 +424,7 @@ public class ProcessRunner : MonoBehaviour
         BringThisToForeground();
     }
 	
-    public void BringRunningToForeground()
+    public void BringRunningToForeground(string overrideWindowTitle = null)
     {
         //string windowTitle =_runningProcess.MainWindowTitle; //doesn't work...
 
@@ -433,7 +433,7 @@ public class ProcessRunner : MonoBehaviour
         //UnityEngine.Debug.Log("!!!!!************trying to bring game to fg : '" + _runningPrimaryWindow + "'");
 
         
-        bool useOldWay = true;
+        bool useOldWay = overrideWindowTitle == null;
         if (useOldWay)
         {
             //orig way <<<<<<<<
@@ -442,7 +442,7 @@ public class ProcessRunner : MonoBehaviour
         }
         else
         {
-            string windowTitle = "???";
+            string windowTitle = overrideWindowTitle;
             UnityEngine.Debug.LogError("this way doesn't work! (can't get window title?)");
             //string windowTitle = "";
             /// Alt way <<<<<<<<<<<<<<<<
