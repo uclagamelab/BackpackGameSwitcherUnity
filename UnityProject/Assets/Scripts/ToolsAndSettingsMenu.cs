@@ -20,7 +20,21 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     [SerializeField]
     InputField joyToKeyInputField;
 
-	void Awake ()
+    [Header("Windows")]
+    [SerializeField]
+    GameObject _mainSettingsWindow;
+
+    [SerializeField]
+    GameObject _gameListWindow;
+
+    [Header("Buttons")]
+    [SerializeField]
+    Button _editGamesButton;
+
+    [SerializeField]
+    Button _overallSettingsButton;
+
+    void Awake ()
     {
         loadValuesFromSettings();
 
@@ -31,8 +45,20 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         }
 
 
-        //print(a);
-        //Debug.Break();
+        _editGamesButton.onClick.AddListener(onEditGamesButtonClicked);
+        _overallSettingsButton.onClick.AddListener(onOverallSettingsButtonClicked);
+    }
+
+    void onEditGamesButtonClicked()
+    {
+        _mainSettingsWindow.gameObject.SetActive(false);
+        _gameListWindow.gameObject.SetActive(true);
+    }
+
+    void onOverallSettingsButtonClicked()
+    {
+        _mainSettingsWindow.gameObject.SetActive(true);
+        _gameListWindow.gameObject.SetActive(false);
     }
 
     public void showSetup(bool show)

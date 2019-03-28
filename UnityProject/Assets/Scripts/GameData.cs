@@ -34,11 +34,24 @@ public class GameData
         get { return controlLabels[0]; }
     }
 
+    public string GetJSON()
+    {
+        string rawJson = File.ReadAllText(_jsonFilePath);
+        rawJson = JSONPrettifier.Prettify(rawJson);
+        return rawJson;
+    }
+
+    public void WriteJSON(string newJson)
+    {
+        XuFileSystemUtil.WriteStringToFile(newJson, this._jsonFilePath);
+    }
+
     public string getButtonLabel(int buttonIdx)
     {
         return controlLabels[buttonIdx];
     }
 
+    string _jsonFilePath = null;
 
     public GameData(string gameFolderPath)
     {
@@ -61,6 +74,7 @@ public class GameData
     else
     {
         string jsonFilePath = jsonFiles[0];
+            _jsonFilePath = jsonFilePath;
         //assuming just 1 JSON file...
         string jsonString = File.ReadAllText(jsonFilePath);
         JSONObject jsonObject = new JSONObject(jsonString);
