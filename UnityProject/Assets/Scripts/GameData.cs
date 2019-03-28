@@ -34,11 +34,70 @@ public class GameData
         get { return controlLabels[0]; }
     }
 
-    public string GetJSON()
+    public string GetJSON(bool prettify = true)
     {
         string rawJson = File.ReadAllText(_jsonFilePath);
-        rawJson = JSONPrettifier.Prettify(rawJson);
+        if (prettify)
+        {
+            rawJson = JSONPrettifier.Prettify(rawJson);
+        }
         return rawJson;
+    }
+
+    public void flushChangesToJson()
+    {
+        JSONObject jsonObject = new JSONObject(GetJSON(false));
+
+        jsonObject.SetField("title", this.title);
+        jsonObject.SetField("designers", this.author);
+        jsonObject.SetField("description",this.description);
+        jsonObject.SetField("window title", this.windowTitle);
+        jsonObject.SetField("joytokey cfg", this.joyToKeyConfigFile);
+
+        WriteJSON(jsonObject.ToString(true));
+
+        /*
+         
+        this.title = jsonObject["title"].str;
+        if (!string.IsNullOrEmpty(this.title))
+        {
+            this.title = title.Replace("\\\"", "\"");//for games with quotes, this json library doesn't seem to properly unescape strings
+        }
+
+        this.author = jsonObject["designers"].str;
+        if (jsonObject.HasField("command arguments"))
+        {
+                this.commandLineArguments = jsonObject["command arguments"].str;
+        }
+        
+        this.description = jsonObject["description"].str;
+        if (jsonObject.HasField("joytokey cfg"))
+        {
+            this.joyToKeyConfigFile = jsonObject["joytokey cfg"].str;
+        }
+
+        if (jsonObject.HasField("window title"))
+        {
+            windowTitle = jsonObject["window title"].ToString();
+        }
+
+        if (jsonObject.HasField("controls"))
+        {
+
+               for (int i = 0; i <= 6; i++)
+                {
+                    string controlName = i == 0 ? "joystick" : "button_" + i;
+                    if (jsonObject["controls"].HasField(controlName))
+                    {
+                        this.controlLabels[i] = jsonObject["controls"][controlName].str;
+                    }
+                }
+                // Debug.Log(jsonObject["controls"]["button_1"]);
+        }
+         
+         
+         */
+
     }
 
     public void WriteJSON(string newJson)
@@ -75,9 +134,8 @@ public class GameData
     {
         string jsonFilePath = jsonFiles[0];
             _jsonFilePath = jsonFilePath;
-        //assuming just 1 JSON file...
-        string jsonString = File.ReadAllText(jsonFilePath);
-        JSONObject jsonObject = new JSONObject(jsonString);
+            //assuming just 1 JSON file...
+        JSONObject jsonObject = new JSONObject(GetJSON(false));
 
         this.title = jsonObject["title"].str;
         if (!string.IsNullOrEmpty(this.title))
@@ -99,7 +157,7 @@ public class GameData
 
         if (jsonObject.HasField("window title"))
         {
-            windowTitle = jsonObject["window title"].ToString();
+            windowTitle = jsonObject["window title"].str;
         }
 
         if (jsonObject.HasField("controls"))
