@@ -59,7 +59,11 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     // Update is called once per frame
     void Update()
     {
-
+        //Don't focus steal while menu is open
+        if (ToolsAndSettingsMenu.isOpen)
+        {
+            return;
+        }
         autoCycleGamesIfNoInput();
         bool aGameIsRunning = ProcessRunner.instance.IsGameRunning();
         //--------------------------------------------------------------------
@@ -123,11 +127,6 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         {
             gameRunningUpdate();
         }
-
-
- 
-     
-
     }
 
     void selectingGameUpdate()

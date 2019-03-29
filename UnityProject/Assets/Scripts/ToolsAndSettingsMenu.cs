@@ -8,7 +8,11 @@ using UnityEngine.UI;
 
 public class ToolsAndSettingsMenu : MonoBehaviour {
 
-
+    public static bool isOpen
+    {
+        get;
+        private set;
+    }
 
     [SerializeField]
     Transform allMenu;
@@ -47,6 +51,9 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
         _editGamesButton.onClick.AddListener(onEditGamesButtonClicked);
         _overallSettingsButton.onClick.AddListener(onOverallSettingsButtonClicked);
+
+        isOpen = allMenu.gameObject.activeSelf; 
+
     }
 
     void onEditGamesButtonClicked()
@@ -63,6 +70,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     public void showSetup(bool show)
     {
+        isOpen = show;
         this.resultMessage.text = "";
         this.allMenu.gameObject.SetActive(show);
         if (show)
@@ -143,11 +151,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         resultMessage.text = "Done!, \n\nsaved existing file as : <nothing yet>";
     }
 
-    public void browseAndSetInputField(InputField directoryField)
-    {
-        string path = FileBrowser.OpenSingleFolder("Open Folder");
-        directoryField.text = path;
-    }
 
     public void restoreDefaults()
     {
