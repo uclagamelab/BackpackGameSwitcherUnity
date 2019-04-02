@@ -2,6 +2,31 @@
 
 using UnityEngine;
 using UnityEditor;
+#if UNITY_2017_1_OR_NEWER
+using UnityEngine.Networking;
+#endif
+
+/*
+Copyright (c) 2010-2019 Matt Schoen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 
 public class JSONChecker : EditorWindow {
 	string JSON = @"{
@@ -13,7 +38,7 @@ public class JSONChecker : EditorWindow {
 			""SomeBool"": true,
 			""SomeNull"": null
 		},
-		
+
 		""SomeEmptyObject"": { },
 		""SomeEmptyArray"": [ ],
 		""EmbeddedObject"": ""{\""field\"":\""Value with \\\""escaped quotes\\\""\""}""
@@ -45,13 +70,24 @@ public class JSONChecker : EditorWindow {
 		URL = EditorGUILayout.TextField("URL", URL);
 		if (GUILayout.Button("Get JSON")) {
 			Debug.Log(URL);
-			WWW test = new WWW(URL);
-			while (!test.isDone) ;
+#if UNITY_2017_1_OR_NEWER
+			var test = new UnityWebRequest(URL);
+			test.SendWebRequest();
+			while (!test.isDone && !test.isNetworkError) ;
+#else
+			var test = new WWW(URL);
+ 			while (!test.isDone) ;
+#endif
 			if (!string.IsNullOrEmpty(test.error)) {
 				Debug.Log(test.error);
 			} else {
-				Debug.Log(test.text);
-				j = new JSONObject(test.text);
+#if UNITY_2017_1_OR_NEWER
+				var text = test.downloadHandler.text;
+#else
+				var text = test.text;
+#endif
+				Debug.Log(text);
+				j = new JSONObject(text);
 				Debug.Log(j.ToString(true));
 			}
 		}
