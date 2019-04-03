@@ -28,6 +28,7 @@ public class FileSelectorButton : MonoBehaviour
     InputField _targetField;
 
     public bool _setFileNameInsteadOfFullPath = true;
+    public System.Action<string> OnValidPathChosen = (string chosenFile)=> { };
 
     // Start is called before the first frame update
     void Awake()
@@ -36,11 +37,6 @@ public class FileSelectorButton : MonoBehaviour
         _targetField = this.transform.parent.GetComponentInChildren<InputField>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     void onClick()
     {
@@ -75,16 +71,14 @@ public class FileSelectorButton : MonoBehaviour
         if (!string.IsNullOrEmpty(result))
         {
             startDirectory = Path.GetDirectoryName(result);
+            string finalVal = result;
             if (_setFileNameInsteadOfFullPath)
             {
-                _targetField.text = Path.GetFileName(result);//exclude the path
-            }
-            else
-            {
-                _targetField.text = result;//exclude the path
+                finalVal = Path.GetFileName(result);//exclude the path
             }
 
-            
+            _targetField.text = finalVal;
+            OnValidPathChosen.Invoke(finalVal);
         }
     }
 }

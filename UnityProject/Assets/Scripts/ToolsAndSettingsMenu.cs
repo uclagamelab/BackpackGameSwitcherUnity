@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,6 +39,12 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     [SerializeField]
     Button _overallSettingsButton;
 
+    [SerializeField]
+    Button _generateJoyToKeyAppAssociationFileButton;
+
+    [SerializeField]
+    Button _auditButton;
+
     void Awake ()
     {
         loadValuesFromSettings();
@@ -51,6 +58,9 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
         _editGamesButton.onClick.AddListener(onEditGamesButtonClicked);
         _overallSettingsButton.onClick.AddListener(onOverallSettingsButtonClicked);
+        _auditButton.onClick.AddListener(auditGames);
+        _generateJoyToKeyAppAssociationFileButton.onClick.AddListener(GenerateJoyToKeyExeAssociationFile);
+
 
         isOpen = allMenu.gameObject.activeSelf; 
 
@@ -148,7 +158,50 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     public void GenerateJoyToKeyExeAssociationFile()
     {
-        resultMessage.text = "Done!, \n\nsaved existing file as : <nothing yet>";
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            /*
+             AppLinkData
+    46
+    0
+             */
+            sb.Append("AppLinkData\n46\n0\n\n");
+            foreach (GameData dat in GameCatalog.Instance.games)
+            {
+                if (!string.IsNullOrEmpty(dat.exePath) && !string.IsNullOrEmpty(dat.joyToKeyConfigFile))
+                {
+                    //System.IO.Path.GetFileName();
+                    sb.Append(dat.title);
+                    sb.Append('|');
+                    string j2kFile = dat.joyToKeyConfigFile;
+                    if (j2kFile.EndsWith(".cfg"))
+                    {
+                        j2kFile = j2kFile.Substring(0, j2kFile.Length - ".cfg".Length);
+                    }
+                    sb.Append(j2kFile);
+                    sb.Append('|');
+                    sb.Append(dat.exePath);
+                    sb.Append('\n');
+                }
+            }
+
+
+            string finalPath = System.IO.Path.Combine(GameCatalog.Instance.joyToKeyData.directory, "AppLink.dat");
+            if (File.Exists(finalPath))
+            {
+                int backUpNum = 1;
+                string backupPath = null;
+                while (backupPath == null || File.Exists(backupPath))
+                {
+                    backupPath = System.IO.Path.Combine(GameCatalog.Instance.joyToKeyData.directory, "AppLink_bak_" + backUpNum + ".dat");
+                    backUpNum++;
+                }
+                File.Move(finalPath, backupPath);
+            }
+            XuFileSystemUtil.WriteStringToFile(sb.ToString(), finalPath);
+        }
+
+        //resultMessage.text = "Done!, \n\nsaved existing file as : <nothing yet>";
     }
 
 
@@ -158,4 +211,35 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         loadValuesFromSettings();
     }
 
+    System.Text.StringBuilder _auditStringBuilder = new System.Text.StringBuilder();
+    public void auditGames()
+    {
+        _auditStringBuilder.Clear();
+        foreach (GameData dat in GameCatalog.Instance.games)
+        {
+
+            if (string.IsNullOrEmpty(dat.exePath))
+            {
+                _auditStringBuilder.AppendLine(dat.title + " has empty exe path");
+            }
+            else if (!System.IO.File.Exists(Path.Combine(dat.rootFolder.FullName, dat.exePath)))
+            {
+                _auditStringBuilder.AppendLine(dat.title + ", no file found at specified exe path");
+            }
+
+            if (string.IsNullOrEmpty(dat.joyToKeyConfigFile))
+            {
+                _auditStringBuilder.AppendLine(dat.title + " doesn't specify joy to key config");
+            }
+            else if (!System.IO.File.Exists(Path.Combine(GameCatalog.Instance.joyToKeyData.directory, dat.joyToKeyConfigFile)))
+            {
+                _auditStringBuilder.AppendLine(dat.title + ", joytokey config: ;" + dat.joyToKeyConfigFile + "' not found");
+            }
+            _auditStringBuilder.AppendLine();
+        }
+
+        resultMessage.text = _auditStringBuilder.ToString();
+        Debug.Log(_auditStringBuilder);
+    }
+    
 }

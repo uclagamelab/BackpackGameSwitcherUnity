@@ -239,12 +239,11 @@ public class ProcessRunner : MonoBehaviour
     public bool OpenProcess(string directory, string exe, string cmdArgs, string joyToKeyArgs)
     {
         //print(">>>>>>>>>>>>>>>>>>>>" + cmdArgs);
-
-
+        
         ////////////////////
         //Open Joy2Key with appropriate config file
         ////////////////////
-        //setJoyToKeyConfig(joyToKeyArgs);
+        setJoyToKeyConfig(joyToKeyArgs);
 
         ///////////////// End joy2key startup
 
@@ -291,8 +290,6 @@ public class ProcessRunner : MonoBehaviour
 	// Closes the process if one is running
 	void CloseProcess()
 	{
-        UnityEngine.Debug.Log("CloseProcess called");
-
         if ( _runningProcess != null )
 		{
             UnityEngine.Debug.Log("CloseProcess called : " + _runningProcess.Id);
@@ -361,18 +358,12 @@ public class ProcessRunner : MonoBehaviour
 	// returns true if the 'hWnd' is managed by the 'processId'
 	bool DoesWindowMatchProcessId( IntPtr hWnd, int processId )
 	{
-		int winProcId;
         //int threadId = GetWindowThreadProcessId( new HandleRef(new object(), hWnd), out winProcId);
         uint uwinProcId;
         GetWindowThreadProcessId(hWnd, out uwinProcId);
         //winProcId = uwinProcId.ToString();
 
-     bool matched = uwinProcId.ToString().Equals(processId.ToString());
-        if(matched)
-        {
-            UnityEngine.Debug.Log(uwinProcId + "'''''" + processId.ToString());
-        }
-        //return winProcId == processId;
+        bool matched = uwinProcId.ToString().Equals(processId.ToString());
         return matched;
     }
 
@@ -409,7 +400,11 @@ public class ProcessRunner : MonoBehaviour
         //AttachThreadInput( _thisThreadID, _targetThreadID, false);
     }
 
-	public bool IsGameRunning(){ return _runningProcess != null && !_runningProcess.HasExited; }
+    //Add startup forgiveness timer, for games that change window
+	public bool IsGameRunning()
+    {
+        return _runningProcess != null && !_runningProcess.HasExited;
+    }
 	public void BringThisToForeground()
     {
 

@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -152,23 +154,71 @@ public class GameInfoEditor : MonoBehaviour
         public InputField _authorField;
         public InputField _windowTitleField;
         public InputField _joyToKeyField;
+        public InputField _exePathField;
+        public Button _exeBrowseFileButton;
         public InputField _descriptionField;
         public Button _saveChangesButton;
 
         //public InputField _exeNameField;
 
+        GameData _currentGame;
+
         public void SetUp()
         {
             _saveChangesButton.onClick.AddListener(()=>flushToGame(GameInfoEditor.instance.currentSelectedGame));
+
+            FileSelectorButton j2kFsb = _joyToKeyField.transform.parent.GetComponentInChildren<FileSelectorButton>();
+            if (j2kFsb != null)
+            {
+                j2kFsb.OnValidPathChosen += (dontCare)=> flushCurrentGame();
+            }
+
+            _exeBrowseFileButton.onClick.AddListener(OnClickChooseExeButton);
+            //FileSelectorButton exeFsb = _exePathField.transform.parent.GetComponentInChildren<FileSelectorButton>();
+            //if (exeFsb != null)
+            //{
+            //    exeFsb.OnValidPathChosen += OnExeForGameChosen;
+            //}
+        }
+
+        void OnClickChooseExeButton()
+        {
+            string exeFullPath = Crosstales.FB.FileBrowser.OpenSingleFile("Select Exe", _currentGame.rootFolder.FullName, "exe,bat,lnk");
+            if (!string.IsNullOrEmpty(exeFullPath))
+            {
+                _exePathField.text = exeFullPath;
+                Uri exeUri = new Uri(exeFullPath);
+                Uri gameDirPath = new Uri(_currentGame.rootFolder.FullName);
+                Uri relPathUri = gameDirPath.MakeRelativeUri(exeUri);
+                string relPath = Uri.UnescapeDataString(relPathUri.ToString());//HttpUtility.HtmlDecode(relPathUri.ToString());
+                int rootFolderPortion = (_currentGame.rootFolder.Name.Length + 1);
+                string finalRelPath = relPath.Substring(rootFolderPortion, relPath.Length - rootFolderPortion);
+                Debug.Log(_currentGame.rootFolder);
+                Debug.Log(finalRelPath);
+                _exePathField.text = finalRelPath;
+
+                flushCurrentGame();
+            }
+
         }
 
         public void UpdateWithGame(GameData game)
         {
+            _currentGame = game;
             _titleField.text = game.title;
             _authorField.text = game.author;
             _windowTitleField.text = game.windowTitle;
             _joyToKeyField.text = game.joyToKeyConfigFile;
             _descriptionField.text = game.description;
+            _exePathField.text = game.exePath;
+        }
+
+        void flushCurrentGame()
+        {
+            if (_currentGame != null)
+            {
+                flushToGame(_currentGame);
+            }
         }
 
         void flushToGame(GameData game)
@@ -178,7 +228,11 @@ public class GameInfoEditor : MonoBehaviour
             game.windowTitle = _windowTitleField.text;
             game.joyToKeyConfigFile = _joyToKeyField.text;
             game.description = _descriptionField.text;
+            //game.exePath.isAbsolute = false;
+            game.exePath = _exePathField.text;
             game.flushChangesToJson();
         }
     }
+
+
 }

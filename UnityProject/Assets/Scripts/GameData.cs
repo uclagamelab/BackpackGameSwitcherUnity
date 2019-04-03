@@ -8,24 +8,35 @@ using System.IO;
 using UnityEngine;
 
 
-
+[System.Serializable]
 public class GameData
 {
+    #region UNSERIALIZED
+    [System.NonSerialized]
+    FileInfo _gameFolder = null;
+    public FileInfo rootFolder => _gameFolder;
 
-    //[DllImport("shell32.dll")]
+    [System.NonSerialized]
+    public string videoUrl = null;
+
+    [System.NonSerialized]
+    public string executable;
+
+    [System.NonSerialized]
+    public Texture2D instructionsOverlay = null;
+    #endregion
 
     public string title;
-    public string executable;
+
     public string author;
     public string description;
 
     public string windowTitle = null;
 
-    string _joyToKeyConfigFile = null;
+    public string _joyToKeyConfigFile = null;
 
-    public string videoUrl = null;
-
-    public Texture2D instructionsOverlay = null;
+    
+    public string exePath;
 
     // Dictionary<string, string> controllerLabels;
     string[] controlLabels; // convention is '0' is joystick, 1-6 are buttons
@@ -36,25 +47,33 @@ public class GameData
 
     public string GetJSON(bool prettify = true)
     {
-        string rawJson = File.ReadAllText(_jsonFilePath);
-        if (prettify)
+        string rawJson =  !File.Exists(jsonFilePath) ? null : File.ReadAllText(jsonFilePath);
+        if (string.IsNullOrEmpty(rawJson))
         {
-            rawJson = JSONPrettifier.Prettify(rawJson);
+            rawJson = JsonUtility.ToJson(this, prettify);
+            XuFileSystemUtil.WriteStringToFile(rawJson, jsonFilePath);
         }
+        //if (prettify)
+        //{
+        //    rawJson = JSONPrettifier.Prettify(rawJson);
+        //}
         return rawJson;
     }
 
     public void flushChangesToJson()
     {
-        JSONObject jsonObject = new JSONObject(GetJSON(false));
+        string newJson = JsonUtility.ToJson(this, true);
+        WriteJSON(newJson);
+        /*JSONObject jsonObject = new JSONObject(GetJSON(false));
 
         jsonObject.SetField("title", this.title);
         jsonObject.SetField("designers", this.author);
         jsonObject.SetField("description",this.description);
         jsonObject.SetField("window title", this.windowTitle);
         jsonObject.SetField("joytokey cfg", this.joyToKeyConfigFile);
-
+        jsonObject.SetField("exe path", this.exePath);
         WriteJSON(jsonObject.ToString(true));
+        */
 
         /*
          
@@ -102,7 +121,7 @@ public class GameData
 
     public void WriteJSON(string newJson)
     {
-        XuFileSystemUtil.WriteStringToFile(newJson, this._jsonFilePath);
+        XuFileSystemUtil.WriteStringToFile(newJson, this.jsonFilePath);
     }
 
     public string getButtonLabel(int buttonIdx)
@@ -110,12 +129,22 @@ public class GameData
         return controlLabels[buttonIdx];
     }
 
-    string _jsonFilePath = null;
+    string jsonFilePath
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_gameFolder?.FullName))
+            {
+                Debug.LogError("must set game folder before you can get jsonFilePath");
+                return null;
+            }
+            return System.IO.Path.Combine(_gameFolder.FullName, "SwitcherGameInfo.json");
+        }
+    }
 
     public GameData(string gameFolderPath)
     {
-
-        FileInfo gameFolder = new FileInfo(gameFolderPath);
+        _gameFolder = new FileInfo(gameFolderPath);//IMPORTANT that this gets set immediately
 
         controlLabels = new string[7];
         for (int i = 0; i < controlLabels.Length; i++)
@@ -123,74 +152,34 @@ public class GameData
             controlLabels[i] = null;
         }
 
-    // --- Find the JSON info file ---------
-        string[] jsonFiles = Directory.GetFiles(gameFolder.FullName, "*.json");
+        // --- Find the JSON info file ---------
 
-    if (jsonFiles.Length == 0)
-    {
-        Debug.LogError("Couldn't find Json file in '" + gameFolder.FullName + "'");
-    }
-    else
-    {
-        string jsonFilePath = jsonFiles[0];
-            _jsonFilePath = jsonFilePath;
-            //assuming just 1 JSON file...
-        JSONObject jsonObject = new JSONObject(GetJSON(false));
+        //bool jsonInfoFound = File.Exists(jsonFilePath);
+        //string[] jsonFiles = Directory.GetFiles(_gameFolder.FullName, "*.json");
+        string gameDataJson = GetJSON();
 
-        this.title = jsonObject["title"].str;
-        if (!string.IsNullOrEmpty(this.title))
+
+            JsonUtility.FromJsonOverwrite(gameDataJson, this);
+
+        if (string.IsNullOrEmpty(this.title))
         {
-            this.title = title.Replace("\\\"", "\"");//for games with quotes, this json library doesn't seem to properly unescape strings
+            this.title = _gameFolder.Name;
+            flushChangesToJson();
         }
-
-        this.author = jsonObject["designers"].str;
-        if (jsonObject.HasField("command arguments"))
-        {
-                this.commandLineArguments = jsonObject["command arguments"].str;
-        }
-        
-        this.description = jsonObject["description"].str;
-        if (jsonObject.HasField("joytokey cfg"))
-        {
-            this.joyToKeyConfigFile = jsonObject["joytokey cfg"].str;
-        }
-
-        if (jsonObject.HasField("window title"))
-        {
-            windowTitle = jsonObject["window title"].str;
-        }
-
-        if (jsonObject.HasField("controls"))
-        {
-
-               for (int i = 0; i <= 6; i++)
-                {
-                    string controlName = i == 0 ? "joystick" : "button_" + i;
-                    if (jsonObject["controls"].HasField(controlName))
-                    {
-                        this.controlLabels[i] = jsonObject["controls"][controlName].str;
-                    }
-                }
-                // Debug.Log(jsonObject["controls"]["button_1"]);
-        }
-
-        //Debug.Log(this.title + ", " + this.author + ", " + this.commandLineArguments);
-    }
 
         // --- Find the exe ------------------------
-        setUpExe(gameFolder);
+        setUpExe(_gameFolder);
 
         // --- Find the preview images ------------------------
-        setUpImages(gameFolder);
+        setUpImages(_gameFolder);
 
         // --- Find the instructions ------------------------
 
         //--- set up video ---------------
-        setUpVideo(gameFolder);
+        setUpVideo(_gameFolder);
 
-        setUpInstructionsOverlay(gameFolder);
-    //TODO
-}
+        setUpInstructionsOverlay(_gameFolder);    
+    }
 
     void setUpInstructionsOverlay(FileInfo gameFolder)
     {

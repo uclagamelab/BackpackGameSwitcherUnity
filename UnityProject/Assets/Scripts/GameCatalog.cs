@@ -55,6 +55,12 @@ public class GameCatalog : MonoBehaviour
    
     public void repopulateCatalog(string gamesFolderPath)
     {
+        this.joyToKeyData = new GameData();
+
+        // directory = (Application.streamingAssetsPath + "\\JoyToKey"),
+        this.joyToKeyData.executable = SwitcherSettings.JoyToKeyFolder + "/JoyToKey.exe";//Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
+        this.joyToKeyData.commandLineArguments = ""; //does it actually need some???
+
         if (allGames == null)
         {
             allGames = new List<GameData>();
@@ -104,12 +110,9 @@ public class GameCatalog : MonoBehaviour
             }*/
         }
 
-        this.joyToKeyData = new GameData();
 
-        // directory = (Application.streamingAssetsPath + "\\JoyToKey"),
-        this.joyToKeyData.executable = SwitcherSettings.JoyToKeyFolder + "/JoyToKey.exe";//Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
-        this.joyToKeyData.commandLineArguments = ""; //does it actually need some???
     }
+
 
     /*void setCustomGamesFolderIfInCommandlineArgs()
     {
