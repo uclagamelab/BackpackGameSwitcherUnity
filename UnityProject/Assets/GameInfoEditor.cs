@@ -119,6 +119,7 @@ public class GameInfoEditor : MonoBehaviour
         if (currentSelectedGame != null)
         {
             currentSelectedGame.WriteJSON(_jsonEditor.text);
+            JsonUtility.FromJsonOverwrite(_jsonEditor.text, currentSelectedGame);
         }
     }
 

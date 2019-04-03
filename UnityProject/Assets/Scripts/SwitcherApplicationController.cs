@@ -85,12 +85,9 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         }
 
         gameProcessWentNullOrExitedLastUpdate = processWentNullOrExitedThisUpdate;
-        //------------------------------------------------------------------
-
-
 
         //Make Switcher Retake focus, if necessary
-        if (Time.time > lastFocusSwitchAttemptTime + .5f)
+        if (Time.time > lastFocusSwitchAttemptTime + 1)
         {
             lastFocusSwitchAttemptTime = Time.time;
             if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.
@@ -105,11 +102,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
                 generatedSimulatedKeypressForFocusSwitchToSwitcherApp = true;
                 if (!string.IsNullOrEmpty(gameMenu.currentlySelectedGame.windowTitle))
                 {
-                    ProcessRunner.instance.BringRunningToForeground(gameMenu.currentlySelectedGame.windowTitle); //this function should be robust to repeated calls
-                }
-                else
-                {
-                    ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls
+                    ProcessRunner.instance.BringRunningToForeground(gameMenu.currentlySelectedGame); //this function should be robust to repeated calls
                 }
                 
             }

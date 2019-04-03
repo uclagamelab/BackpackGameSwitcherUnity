@@ -11,7 +11,24 @@ using UnityEngine;
 [System.Serializable]
 public class GameData
 {
-    #region UNSERIALIZED
+    #region SERIALIZED --------------------------------------------------
+    public string title;
+
+    //public string commandLineArguments;
+
+    public string designers;
+    public string description;
+
+    public string windowTitle = null;
+
+    public string joyToKeyConfig_singlePlayer = null;
+
+
+    public string exePath;
+    #endregion ---------------------------------------------------------
+
+    #region --- UNSERIALIZED ------------------------------------------
+
     [System.NonSerialized]
     FileInfo _gameFolder = null;
     public FileInfo rootFolder => _gameFolder;
@@ -27,19 +44,10 @@ public class GameData
 
     [System.NonSerialized]
     public Texture2D instructionsOverlay = null;
-    #endregion
+    [System.NonSerialized]
+    public Texture previewImg;
+    #endregion -----------------------------------------------
 
-    public string title;
-
-    public string designers;
-    public string description;
-
-    public string windowTitle = null;
-
-    public string joyToKeyConfig_singlePlayer = null;
-
-    
-    public string exePath;
 
 
     string[] controlLabels; // convention is '0' is joystick, 1-6 are buttons
@@ -161,8 +169,16 @@ public class GameData
         //string[] jsonFiles = Directory.GetFiles(_gameFolder.FullName, "*.json");
         string gameDataJson = GetJSON();
 
-
+        try
+        {
             JsonUtility.FromJsonOverwrite(gameDataJson, this);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("problem parsing json in " + _gameFolder.FullName);
+            return;
+        }
+            
 
         if (string.IsNullOrEmpty(this.title))
         {
@@ -343,9 +359,9 @@ public class GameData
         }
     }
 
-    public string commandLineArguments;
 
-    public Texture previewImg;
+
+
 
     enum GameType
     {

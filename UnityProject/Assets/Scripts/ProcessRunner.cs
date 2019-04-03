@@ -21,8 +21,8 @@ using System.IO;
 
 public class ProcessRunner : MonoBehaviour
 {
-
-    //Process.GetCurrentProcess().MainModule.FileName
+    private string _currentJoyToKeyConfig = null;
+    private readonly string SWITCHER_JOYTOKEY_CONFIG = "menuselect.cfg";
 
     bool _switcherHasFocus = false;
     public bool switcherHasFocus
@@ -30,6 +30,11 @@ public class ProcessRunner : MonoBehaviour
         get
         {
             return _switcherHasFocus;
+        }
+
+        private set
+        {
+            _switcherHasFocus = value;
         }
     }
 
@@ -174,7 +179,7 @@ public class ProcessRunner : MonoBehaviour
 
         //this.killAllPrevProcesses();
 
-        setJoyToKeyConfig("menuselect.cfg");
+        setJoyToKeyConfig(SWITCHER_JOYTOKEY_CONFIG);
 
 
         //Not sure if delay is actually necessary
@@ -185,39 +190,21 @@ public class ProcessRunner : MonoBehaviour
 
     }
 
-
-	void Update()
-	{
-
-        /*processStateHelper = "";
-
-        checkForChildProcesses();
-
-        if (this._runningProcess != null)
-        {
-            
-            //processStateHelper += this._runningProcess.Threads.Count;
-            //processStateHelper += " " + this._runningProcess.HasExited;
-            //processStateHelper += " " + this._runningProcess.Modules.Count;
-            //processStateHelper += " " + this._runningProcess.MainModule + "!"; // the exe name!
-            //processStateHelper += " " + this._runningProcess.MainModule.GetLifetimeService()
-            processStateHelper += nChildrenOfCurrentRunningProcess  + "~~~~~~~~";
-            
-        }*/
-           
-
-
-
-        //
-        
-
-    }
-
     float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
-    //Not really used anymore, since joytokey does a good job on its own.
-    void setJoyToKeyConfig(string configFile)
+    void setJoyToKeyConfigIfNotAlreadySet(string configFile)
     {
+        if (configFile != _currentJoyToKeyConfig)
+        {
+            setJoyToKeyConfig(configFile);
+        }
+    }
+
+        //Not really used anymore, since joytokey does a good job on its own.
+        void setJoyToKeyConfig(string configFile)
+    {
+        _currentJoyToKeyConfig = configFile;
+
         if (!System.IO.File.Exists(@GameCatalog.Instance.joyToKeyData.executable))
         {
             UnityEngine.Debug.LogError("JoyToKey executable not available at '" + GameCatalog.Instance.joyToKeyData.executable + "'");
@@ -411,6 +398,7 @@ public class ProcessRunner : MonoBehaviour
         //ForceBringToForeground(thisPrimaryWindow);
         string switcherWindowName = Application.productName;
         sendKeysBatchFile(switcherWindowName);
+        setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
     }
 
     public void quitCurrentGame()
@@ -419,15 +407,12 @@ public class ProcessRunner : MonoBehaviour
         BringThisToForeground();
     }
 	
-    public void BringRunningToForeground(string overrideWindowTitle = null)
+    public void BringRunningToForeground(GameData currentlySelectedGame)
     {
-        //string windowTitle =_runningProcess.MainWindowTitle; //doesn't work...
-
-
-
-        //UnityEngine.Debug.Log("!!!!!************trying to bring game to fg : '" + _runningPrimaryWindow + "'");
-
+        string overrideWindowTitle = currentlySelectedGame.windowTitle;
+        setJoyToKeyConfigIfNotAlreadySet(currentlySelectedGame.joyToKeyConfig);
         
+
         bool useOldWay = overrideWindowTitle == null;
         if (useOldWay)
         {
@@ -583,37 +568,10 @@ public class ProcessRunner : MonoBehaviour
     void OnApplicationFocus(bool hasFocus)
     {
         //this.gameProcessIsRunning = !hasFocus;
-        _switcherHasFocus = hasFocus;
+        switcherHasFocus = hasFocus;
     }
 
-    int nChildrenOfCurrentRunningProcess = 0;
-    void checkForChildProcesses()
-    {
-        nChildrenOfCurrentRunningProcess = 0;
-        foreach (Process p in Process.GetProcesses())
-        {
-            if (p.HasExited)
-            {
-                continue;
-            }
 
-            var performanceCounter = new PerformanceCounter("Process", "Creating Process ID", p.ProcessName);
-            MyProcInfo parent = GetProcessIdIfStillRunning((int)performanceCounter.RawValue);
-            
-            if (parent.ProcessName == _runningProcess.ProcessName)
-            {
-                nChildrenOfCurrentRunningProcess++;
-                UnityEngine.Debug.Break();
-            }
-
-              Console.WriteLine(
-                " Process {0}(pid {1} was started by Process {2}(Pid {3})", 
-                p.ProcessName, 
-                p.Id, 
-                parent.ProcessName, 
-                parent.ProcessId);
-        }
-    }
 
     struct MyProcInfo
     {

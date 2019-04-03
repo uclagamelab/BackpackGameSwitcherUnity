@@ -280,7 +280,7 @@ public class MenuVisualsGeneric : MonoBehaviour
             {
                 GameData currentGameData = currentlySelectedGame;//this.allGames[gameIdx];
                                                                  //print("________________________" + currentGameData.appFile);
-                ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, currentGameData.commandLineArguments, currentGameData.joyToKeyConfig);
+                ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, ""/*currentGameData.commandLineArguments*/, currentGameData.joyToKeyConfig);
                 BackgroundDisplay.Instance.stopAllVideos();
             }
 
