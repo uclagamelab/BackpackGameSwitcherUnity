@@ -27,7 +27,7 @@ public class GameInfoUI : MonoBehaviour {
             _cachedCurrentGameData = MenuVisualsGeneric.Instance.currentlySelectedGame;
 
             this.titleText.text = _cachedCurrentGameData.title;
-            this.creditText.text = _cachedCurrentGameData.author;
+            this.creditText.text = _cachedCurrentGameData.designers;
             this.descriptionText.text = _cachedCurrentGameData.description;
 
             if (joystickLabel != null)

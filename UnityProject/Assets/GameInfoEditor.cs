@@ -138,7 +138,23 @@ public class GameInfoEditor : MonoBehaviour
         }
     }
 
+    public void CopyFromLegacyJson()
+    {
+        string legacyJson = XuFileSystemUtil.LoadTextFromDisk(Path.Combine(currentSelectedGame.rootFolder.FullName, "gameInfo.json"));
+        if (legacyJson != null)
+        {
+            JSONObject job = new JSONObject(legacyJson);
+            job.GetField(ref currentSelectedGame.title, "title");
+            job.GetField(ref currentSelectedGame.designers, "designers");
+            job.GetField(ref currentSelectedGame.description, "description");
+            job.GetField(ref currentSelectedGame.joyToKeyConfig_singlePlayer, "joytokey cfg");
+            job.GetField(ref currentSelectedGame.windowTitle, "window title");
+            _ezEditor.UpdateWithGame(currentSelectedGame);
+            //currentSelectedGame.flushChangesToJson();
+        }
+    }
 
+    
 
 
     public class Events
@@ -206,9 +222,9 @@ public class GameInfoEditor : MonoBehaviour
         {
             _currentGame = game;
             _titleField.text = game.title;
-            _authorField.text = game.author;
+            _authorField.text = game.designers;
             _windowTitleField.text = game.windowTitle;
-            _joyToKeyField.text = game.joyToKeyConfigFile;
+            _joyToKeyField.text = game.joyToKeyConfig;
             _descriptionField.text = game.description;
             _exePathField.text = game.exePath;
         }
@@ -221,12 +237,14 @@ public class GameInfoEditor : MonoBehaviour
             }
         }
 
+
+
         void flushToGame(GameData game)
         {
             game.title = _titleField.text;
-            game.author = _authorField.text;
+            game.designers = _authorField.text;
             game.windowTitle = _windowTitleField.text;
-            game.joyToKeyConfigFile = _joyToKeyField.text;
+            game.joyToKeyConfig = _joyToKeyField.text;
             game.description = _descriptionField.text;
             //game.exePath.isAbsolute = false;
             game.exePath = _exePathField.text;

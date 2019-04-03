@@ -17,6 +17,9 @@ public class GameData
     public FileInfo rootFolder => _gameFolder;
 
     [System.NonSerialized]
+    public string image;
+
+    [System.NonSerialized]
     public string videoUrl = null;
 
     [System.NonSerialized]
@@ -28,17 +31,17 @@ public class GameData
 
     public string title;
 
-    public string author;
+    public string designers;
     public string description;
 
     public string windowTitle = null;
 
-    public string _joyToKeyConfigFile = null;
+    public string joyToKeyConfig_singlePlayer = null;
 
     
     public string exePath;
 
-    // Dictionary<string, string> controllerLabels;
+
     string[] controlLabels; // convention is '0' is joystick, 1-6 are buttons
     public string joystickLabel
     {
@@ -185,7 +188,8 @@ public class GameData
     {
         //UGH
         GameObject nob = new GameObject();
-        nob.AddComponent<Irrepsonsible>().StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
+        
+        GameCatalog.Instance.StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
     }
 
     IEnumerator setUpInstructionsOverlayRoutine(FileInfo gameFolder)
@@ -300,23 +304,23 @@ public class GameData
         }
     }
 
-    public string joyToKeyConfigFile
+    public string joyToKeyConfig
     {
         get
         {
-            if (_joyToKeyConfigFile == null || _joyToKeyConfigFile == "")
+            if (joyToKeyConfig_singlePlayer == null || joyToKeyConfig_singlePlayer == "")
             {
                 return "default.cfg";
             }
             else
             {
-                return _joyToKeyConfigFile;
+                return joyToKeyConfig_singlePlayer;
             }
         }
 
         set
         {
-            _joyToKeyConfigFile = value;
+            joyToKeyConfig_singlePlayer = value;
         }
     }
 
@@ -339,12 +343,6 @@ public class GameData
         }
     }
 
-
-    public string image;
-    public bool isUnityApp;
-
-    //public string previewImgPath;
-
     public string commandLineArguments;
 
     public Texture previewImg;
@@ -359,35 +357,9 @@ public class GameData
     {
         title = "";
         executable = "";
-        author = "";
+        designers = "";
         description = "";
-        isUnityApp = true;
-
     }
-
-
-
-    void customStopAction()
-    {
-        //string  stop= "call sendKeys.bat \"Gmaeish\" \"%{f4}\"";
-    }
-
-    public void stopGame(System.IntPtr processId)
-    {
-
-    }
-
-    void stopViaAlt4(string windowTitle)
-    {
-        string sendkeyscall = "call " + Application.streamingAssetsPath + "\\~Special\\sendKeys.bat \"Gmaeish\" \"%{ f4}\"";
-        /**/
-    }
-
-    void recursiveKillProcess(System.IntPtr processId)
-    {
-        //TerminateProcessTree(_runningProcess.Handle, (uint) _runningProcess.Id, 0);
-    }
-
 
     List<string> GetFilesMultipleSearchPattern(string path, string[] searchPatterns)
     {
@@ -416,10 +388,5 @@ public class GameData
 
         this.previewImg = textureReq.texture;
     }
-
-}
-
-class Irrepsonsible : MonoBehaviour
-{
 
 }

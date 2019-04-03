@@ -146,12 +146,11 @@ public class Menu : MonoBehaviour
 			Descriptionbox dboxScript = dBox.GetComponent<Descriptionbox>();
 
 			dboxScript.title = g.title;
-			dboxScript.author = g.author;
+			dboxScript.author = g.designers;
 			dboxScript.description = g.description;
 			dboxScript.executable = g.executable;
 			dboxScript.directory = g.directory;
 			dboxScript.image = g.image;
-			dboxScript.isUnityApp = g.isUnityApp;
 			if(!dboxScript.isUnityApp)
 				UnityEngine.Debug.Log("falseness detected spawning description boxes");
 

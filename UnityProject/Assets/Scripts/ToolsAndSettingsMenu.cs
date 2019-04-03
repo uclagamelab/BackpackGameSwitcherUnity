@@ -168,12 +168,12 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
             sb.Append("AppLinkData\n46\n0\n\n");
             foreach (GameData dat in GameCatalog.Instance.games)
             {
-                if (!string.IsNullOrEmpty(dat.exePath) && !string.IsNullOrEmpty(dat.joyToKeyConfigFile))
+                if (!string.IsNullOrEmpty(dat.exePath) && !string.IsNullOrEmpty(dat.joyToKeyConfig))
                 {
                     //System.IO.Path.GetFileName();
                     sb.Append(dat.title);
                     sb.Append('|');
-                    string j2kFile = dat.joyToKeyConfigFile;
+                    string j2kFile = dat.joyToKeyConfig;
                     if (j2kFile.EndsWith(".cfg"))
                     {
                         j2kFile = j2kFile.Substring(0, j2kFile.Length - ".cfg".Length);
@@ -227,13 +227,13 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
                 _auditStringBuilder.AppendLine(dat.title + ", no file found at specified exe path");
             }
 
-            if (string.IsNullOrEmpty(dat.joyToKeyConfigFile))
+            if (string.IsNullOrEmpty(dat.joyToKeyConfig))
             {
                 _auditStringBuilder.AppendLine(dat.title + " doesn't specify joy to key config");
             }
-            else if (!System.IO.File.Exists(Path.Combine(GameCatalog.Instance.joyToKeyData.directory, dat.joyToKeyConfigFile)))
+            else if (!System.IO.File.Exists(Path.Combine(GameCatalog.Instance.joyToKeyData.directory, dat.joyToKeyConfig)))
             {
-                _auditStringBuilder.AppendLine(dat.title + ", joytokey config: ;" + dat.joyToKeyConfigFile + "' not found");
+                _auditStringBuilder.AppendLine(dat.title + ", joytokey config: ;" + dat.joyToKeyConfig + "' not found");
             }
             _auditStringBuilder.AppendLine();
         }

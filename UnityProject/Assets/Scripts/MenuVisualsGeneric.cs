@@ -211,7 +211,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         gameInfoUI.titleText.text = currentGameData.title;
         //gameInfoUI.descriptionText.text = currentGameData.description;
             
-            gameInfoUI.creditText.text = "by " + currentGameData.author + "";
+            gameInfoUI.creditText.text = "by " + currentGameData.designers + "";
 
         //gameInfoUI.previewImage.texture = currentGameData.previewImg;
         if (currentGameData.videoUrl != null)
@@ -280,7 +280,7 @@ public class MenuVisualsGeneric : MonoBehaviour
             {
                 GameData currentGameData = currentlySelectedGame;//this.allGames[gameIdx];
                                                                  //print("________________________" + currentGameData.appFile);
-                ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, currentGameData.commandLineArguments, currentGameData.joyToKeyConfigFile);
+                ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, currentGameData.commandLineArguments, currentGameData.joyToKeyConfig);
                 BackgroundDisplay.Instance.stopAllVideos();
             }
 
