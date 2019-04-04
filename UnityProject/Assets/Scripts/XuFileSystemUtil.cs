@@ -72,7 +72,10 @@ static class XuFileSystemUtil
 
     public static void WriteStringToFile(string jsonData, string absoluteFilePath)
     {
-        StreamWriter sr = new StreamWriter(new FileStream(absoluteFilePath, FileMode.OpenOrCreate));
+        FileStream fs = new FileStream(absoluteFilePath, FileMode.OpenOrCreate);
+        fs.SetLength(0);
+        StreamWriter sr = new StreamWriter(fs);
+        
         sr.Write(jsonData);
         sr.Close();
     }
