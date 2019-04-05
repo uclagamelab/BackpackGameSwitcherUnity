@@ -30,9 +30,12 @@ public class GameInfoEditor : MonoBehaviour
     GameObject _jsonEditorPanel;
     [SerializeField]
     GameObject _ezEditorPanel;
+    [SerializeField]
+    LaunchSettingsEditor _startUpSettingsPanel;
 
     [SerializeField]
     EzEditor _ezEditor;
+ 
 
     [Header("Buttons")]
     [SerializeField]
@@ -41,8 +44,14 @@ public class GameInfoEditor : MonoBehaviour
     [SerializeField]
     Button _ezEditModeButton;
 
+    //[SerializeField]
+    //Button _saveRawJsonButton;
+
     [SerializeField]
-    Button _saveRawJsonButton;
+    Button _startupSettingsButton;
+
+    public Button _applyButton;
+    
 
 
 
@@ -58,21 +67,17 @@ public class GameInfoEditor : MonoBehaviour
 
 
         // -- If in raw json edit mode --------------------------
-        if (_jsonEditorPanel.activeInHierarchy)
-        {
+        //if (_jsonEditorPanel.activeInHierarchy)
+        //{
             updateJsonEditorWithGame(nuSelection);
-        }
+        //}
 
-        if (_ezEditorPanel.activeInHierarchy)
-        {
-            updateEzEditorWithGame(nuSelection);
-        }
+        //if (_ezEditorPanel.activeInHierarchy)
+        //{
+            _ezEditor.UpdateWithGame(nuSelection);
+        //}
     }
 
-    void updateEzEditorWithGame(GameData nuSelection)
-    {
-        _ezEditor.UpdateWithGame(nuSelection);
-    }
 
     void updateJsonEditorWithGame(GameData nuSelection)
     {
@@ -92,27 +97,56 @@ public class GameInfoEditor : MonoBehaviour
         instance = this;
 
 
-        _ezEditModeButton.onClick.AddListener(OnEzEditModeButtonPressed);
-        _rawJsonModeButton.onClick.AddListener(OnRawJSONEditModeButtonPressed);
+        _ezEditModeButton.onClick.AddListener(()=>ShowPanel(_ezEditorPanel));
+        _rawJsonModeButton.onClick.AddListener(
+            ()=>
+            {
+                ShowPanel(_jsonEditorPanel);
+                if (currentSelectedGame != null)
+                {
+                    updateJsonEditorWithGame(currentSelectedGame);
+                }
+            }
+            );
+        _startupSettingsButton.onClick.AddListener(() => ShowPanel(_startUpSettingsPanel));
+
+        _applyButton.onClick.AddListener(() =>
+        {
+            if (_jsonEditorPanel.activeInHierarchy)
+            {
+                onSaveRawJsonButtonClicked();
+            }
+            else
+            {
+                if (_ezEditorPanel.activeInHierarchy)
+                {
+
+                    _ezEditor.ApplyChangesToGameDataInMemory();
+                }
+                else if (_startUpSettingsPanel.gameObject.activeInHierarchy)
+                {
+                    _startUpSettingsPanel.ApplyChangesToGameDataInMemory();
+
+                }
+                GameInfoEditor.instance.currentSelectedGame.flushChangesToJson();
+            }
+          
+            });
+        
+
         _ezEditor.SetUp();
 
-        _saveRawJsonButton.onClick.AddListener(onSaveRawJsonButtonClicked);
+        //_saveRawJsonButton.onClick.AddListener();
     }
 
-
-    void OnEzEditModeButtonPressed()
+    public void ShowPanel(object panel)
     {
-        _ezEditorPanel.SetActive(true);
-
-        _jsonEditorPanel.SetActive(false);
+        this._ezEditorPanel.SetActive(_ezEditorPanel == panel);
+        this._jsonEditorPanel.SetActive(_jsonEditorPanel == panel);
+        this._startUpSettingsPanel.gameObject.SetActive(_startUpSettingsPanel == panel);
     }
 
-    void OnRawJSONEditModeButtonPressed()
-    {
-        _jsonEditorPanel.SetActive(true);
 
-        _ezEditorPanel.SetActive(false);
-    }
 
     void onSaveRawJsonButtonClicked()
     {
@@ -174,7 +208,7 @@ public class GameInfoEditor : MonoBehaviour
         public InputField _exePathField;
         public Button _exeBrowseFileButton;
         public InputField _descriptionField;
-        public Button _saveChangesButton;
+
 
         //public InputField _exeNameField;
 
@@ -182,12 +216,18 @@ public class GameInfoEditor : MonoBehaviour
 
         public void SetUp()
         {
-            _saveChangesButton.onClick.AddListener(()=>flushToGame(GameInfoEditor.instance.currentSelectedGame));
 
             FileSelectorButton j2kFsb = _joyToKeyField.transform.parent.GetComponentInChildren<FileSelectorButton>();
             if (j2kFsb != null)
             {
-                j2kFsb.OnValidPathChosen += (dontCare)=> flushCurrentGame();
+                j2kFsb.OnValidPathChosen += (dontCare)=>
+                {
+                    if (_currentGame != null)
+                    {
+                        ApplyChangesToGameDataInMemory();
+                        _currentGame.flushChangesToJson();
+                    }
+                };
             }
 
             _exeBrowseFileButton.onClick.AddListener(OnClickChooseExeButton);
@@ -196,11 +236,19 @@ public class GameInfoEditor : MonoBehaviour
             //{
             //    exeFsb.OnValidPathChosen += OnExeForGameChosen;
             //}
-        }
 
+            //_titleField.onEndEdit.AddListener((s)=> ApplyChangesToGameDataInMemory());
+            //_authorField.onEndEdit.AddListener((s) => ApplyChangesToGameDataInMemory());
+            //_windowTitleField.onEndEdit.AddListener((s) => ApplyChangesToGameDataInMemory());
+            //_descriptionField.onEndEdit.AddListener((s) => ApplyChangesToGameDataInMemory());
+        }
+        static readonly Crosstales.FB.ExtensionFilter[] exeFilters = new Crosstales.FB.ExtensionFilter[]{
+
+            new Crosstales.FB.ExtensionFilter("exe", "exe", "bat", "lnk")
+        };
         void OnClickChooseExeButton()
         {
-            string exeFullPath = Crosstales.FB.FileBrowser.OpenSingleFile("Select Exe", _currentGame.rootFolder.FullName, "exe,bat,lnk");
+            string exeFullPath = Crosstales.FB.FileBrowser.OpenSingleFile("Select Exe", _currentGame.rootFolder.FullName, exeFilters);
             if (!string.IsNullOrEmpty(exeFullPath))
             {
                 _exePathField.text = exeFullPath;
@@ -214,7 +262,7 @@ public class GameInfoEditor : MonoBehaviour
                 Debug.Log(finalRelPath);
                 _exePathField.text = finalRelPath;
 
-                flushCurrentGame();
+                ApplyChangesToGameDataInMemory();
             }
 
         }
@@ -230,18 +278,14 @@ public class GameInfoEditor : MonoBehaviour
             _exePathField.text = game.exePath;
         }
 
-        void flushCurrentGame()
+
+        public void ApplyChangesToGameDataInMemory()
         {
-            if (_currentGame != null)
+            if (_currentGame == null)
             {
-                flushToGame(_currentGame);
+                return;
             }
-        }
-
-
-
-        void flushToGame(GameData game)
-        {
+            GameData game = _currentGame;
             game.title = _titleField.text;
             game.designers = _authorField.text;
             game.windowTitle = _windowTitleField.text;

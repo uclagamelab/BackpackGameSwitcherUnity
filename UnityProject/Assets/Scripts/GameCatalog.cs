@@ -19,7 +19,7 @@ public class GameCatalog : MonoBehaviour
 
     public IList<GameData> games
     {
-        get { return allGames.AsReadOnly(); }
+        get { return allGames; }
     }
 
     public int gameCount
@@ -49,10 +49,7 @@ public class GameCatalog : MonoBehaviour
 	{
         
 	}
-
-
-	
-   
+    
     public void repopulateCatalog(string gamesFolderPath)
     {
         this.joyToKeyData = new GameData();

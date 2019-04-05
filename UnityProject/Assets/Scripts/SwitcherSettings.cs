@@ -25,6 +25,7 @@ public class SwitcherSettings
         }
     }
 
+
     public static string JoyToKeyFolder
     {
         get
@@ -44,6 +45,27 @@ public class SwitcherSettings
             PlayerPrefs.SetString("JoyToKeyFolder", value);
         }
     }
+
+    public static string BGMusicFolder
+    {
+        get
+        {
+            if (PlayerPrefs.HasKey("BGMusicFolder"))
+            {
+                return PlayerPrefs.GetString("BGMusicFolder");
+            }
+            else
+            {
+                return Application.streamingAssetsPath + "/BGMusicFolder";
+            }
+        }
+
+        set
+        {
+            PlayerPrefs.SetString("BGMusicFolder", value);
+        }
+    }
+
 
     public static bool AttractMusicOn;
 

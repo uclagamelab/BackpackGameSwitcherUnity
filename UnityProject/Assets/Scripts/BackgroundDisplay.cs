@@ -175,7 +175,7 @@ public class BackgroundDisplay : MonoBehaviour {
     [SerializeField]
     VideoPlayer vid2;
 
-
+    Fadeable[] _allFadeables;
 
     //Showable video;
     //Showable image;
@@ -205,6 +205,8 @@ public class BackgroundDisplay : MonoBehaviour {
 
         this.videoPlayer1 = new FadeableVideo(vid1);
         this.videoPlayer2 = new FadeableVideo(vid2);
+
+        _allFadeables = new Fadeable[] { videoPlayer1, videoPlayer2, image1, image2 };
     }
     void blurUpdate()
     {
@@ -240,7 +242,7 @@ public class BackgroundDisplay : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        Fadeable[] allThings = {videoPlayer1, videoPlayer2, image1, image2};
+        
         /*System.Array.Sort<Fadeable>(allThings, (Fadeable a, Fadeable b) => {
             return a == thingToShow ? 0 : 1;
         });*/
@@ -295,7 +297,7 @@ public class BackgroundDisplay : MonoBehaviour {
                 //
         }
 
-        foreach (Fadeable f in allThings)
+        foreach (Fadeable f in _allFadeables)
             {
 
                 if (f == thingToShow)

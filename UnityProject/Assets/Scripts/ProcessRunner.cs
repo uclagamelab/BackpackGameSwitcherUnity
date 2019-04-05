@@ -17,12 +17,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.IO;
-
+using Debug = UnityEngine.Debug;
 
 public class ProcessRunner : MonoBehaviour
 {
     private string _currentJoyToKeyConfig = null;
     private readonly string SWITCHER_JOYTOKEY_CONFIG = "menuselect.cfg";
+
+    float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
     bool _switcherHasFocus = false;
     public bool switcherHasFocus
@@ -114,7 +116,8 @@ public class ProcessRunner : MonoBehaviour
 
 
 	Process _thisProcess = Process.GetCurrentProcess(); //The application switcher process?
-	Process _runningProcess = null; //the currently running game process
+    GameData _runningGame = null;
+    Process _runningProcess = null; //the currently running game process
 	Process _joy2KeyProcess = null;
 
 	
@@ -190,7 +193,13 @@ public class ProcessRunner : MonoBehaviour
 
     }
 
-    float lastFocusSwitchAttemptTime = float.NegativeInfinity;
+    private void Update()
+    {
+        if (_runningGame != null)
+        {
+            _runningGame.launchSettings.Runner().RunningUpdate();
+        }
+    }
 
     void setJoyToKeyConfigIfNotAlreadySet(string configFile)
     {
@@ -200,8 +209,7 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
-        //Not really used anymore, since joytokey does a good job on its own.
-        void setJoyToKeyConfig(string configFile)
+    void setJoyToKeyConfig(string configFile)
     {
         _currentJoyToKeyConfig = configFile;
 
@@ -216,26 +224,13 @@ public class ProcessRunner : MonoBehaviour
         startInfo.WorkingDirectory = @GameCatalog.Instance.joyToKeyData.directory; //"C:\\Users\\Garrett Johnson\\Desktop";
         startInfo.FileName = @GameCatalog.Instance.joyToKeyData.executable;
         startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
-        
 
         _joy2KeyProcess = Process.Start(startInfo);
     }
 
-    // Opens the given process
-    // Returns true if it worked, otherwise returns false if there was already a process running
-    public bool OpenProcess(string directory, string exe, string cmdArgs, string joyToKeyArgs)
+    public static Process StartProcess(string directory, string exe, string cmdArgs)
     {
-        //print(">>>>>>>>>>>>>>>>>>>>" + cmdArgs);
-        
-        ////////////////////
-        //Open Joy2Key with appropriate config file
-        ////////////////////
-        setJoyToKeyConfig(joyToKeyArgs);
-
-        ///////////////// End joy2key startup
-
         ProcessStartInfo startInfo = new ProcessStartInfo();
-
         // --- the working settings -----------------
         startInfo.CreateNoWindow = false;
         startInfo.WindowStyle = ProcessWindowStyle.Normal;
@@ -252,58 +247,33 @@ public class ProcessRunner : MonoBehaviour
             startInfo.UseShellExecute = true;
         }*/
 
-
         startInfo.WorkingDirectory = directory; //"C:\\Users\\Garrett Johnson\\Desktop";
         startInfo.FileName = exe;               //"angryBots.exe";
         if (cmdArgs != null)
         {
             startInfo.Arguments = cmdArgs; 			//"-popupwindow -screen-width 1920 -screen-height 1080";
         }
-       
-        
 
-        _runningProcess = Process.Start(startInfo);
-        //checkForChildProcesses();
+        return Process.Start(startInfo);
+    }
+
+    public void StartGame(GameData gameToStart)
+    {
+        //ProcessRunner.instance.OpenProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/, currentGameData.joyToKeyConfig);
+
+        _runningProcess = gameToStart.launchSettings.Runner().Launch();//StartProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/);
+        _runningGame = gameToStart;
+        setJoyToKeyConfig(gameToStart.joyToKeyConfig);
         currentProcessStartTime = Time.time;
+    }
 
 
-        //show loading screen for a bit
-        //BringRunningToForeground();
 
-        return true;
-	}
-
-
-	// Closes the process if one is running
-	void CloseProcess()
-	{
-        if ( _runningProcess != null )
-		{
-            UnityEngine.Debug.Log("CloseProcess called : " + _runningProcess.Id);
-            // do we need to use kill here?
-            //_runningProcess.Kill();
-            //ProcessUtility.KillTree(_runningProcess.Id);
-
-            KillAllNonSafeProcesses(_runningProcess.Handle, (uint) _runningProcess.Id, 0);
-
-			// Clear window associations
-			//_runningWindowHandles.Clear();
-			//_runningPrimaryWindow = IntPtr.Zero;
-
-			//TerminateProcessTreeOld (_joy2KeyProcess.Handle, (uint)_joy2KeyProcess.Id,0);
-            
-
-        }
-
-
-	}
 
     /*
-    
     The algorithm... as is... 
     assumes when the process is started, the correct window indeed comes to the front.
-    then you can save that window.
-        
+    then you can save that window.  
     */
 
 
@@ -397,13 +367,13 @@ public class ProcessRunner : MonoBehaviour
 
         //ForceBringToForeground(thisPrimaryWindow);
         string switcherWindowName = Application.productName;
-        sendKeysBatchFile(switcherWindowName);
+        SendKeyStrokesToWindow(switcherWindowName);
         setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
     }
 
     public void quitCurrentGame()
     {
-        CloseGame();
+        StopCurrentRunningGame();
         BringThisToForeground();
     }
 	
@@ -413,7 +383,7 @@ public class ProcessRunner : MonoBehaviour
         setJoyToKeyConfigIfNotAlreadySet(currentlySelectedGame.joyToKeyConfig);
         
 
-        bool useOldWay = overrideWindowTitle == null;
+        bool useOldWay = string.IsNullOrEmpty(overrideWindowTitle);
         if (useOldWay)
         {
             //orig way <<<<<<<<
@@ -423,30 +393,54 @@ public class ProcessRunner : MonoBehaviour
         else
         {
             string windowTitle = overrideWindowTitle;
-            UnityEngine.Debug.LogError("this way doesn't work! (can't get window title?)");
             //string windowTitle = "";
             /// Alt way <<<<<<<<<<<<<<<<
-            sendKeysBatchFile(windowTitle);
+            SendKeyStrokesToWindow(windowTitle);
             //>>>>>>>>>>>>>>>>
         }
 
 
     }
 
-    public void sendKeysBatchFile(string windowTitle)
+    static string lastSentWindow = null;
+    static string lastSentKeyStroke = null;
+    static System.Text.StringBuilder cmdBuilder = new System.Text.StringBuilder();
+    public static void SendKeyStrokesToWindow(string windowTitle, string key = "")
     {
-        string cmdText = "call \"" +  Application.streamingAssetsPath + "\\~Special" + "\\sendKeys.bat\" \"" + windowTitle + "\" \"\"";
+        //string cmdText = "call \"" +  Application.streamingAssetsPath + "\\~Special\\sendKeys.bat\" \"" + windowTitle + "\" \"" + key + "\"";
+        if (windowTitle != lastSentWindow || key != lastSentKeyStroke)
+        {
+            cmdBuilder.Clear();
+            cmdBuilder.Append("call \"");
+            cmdBuilder.Append(Application.streamingAssetsPath);
+            cmdBuilder.Append("\\~Special\\sendKeys.bat\" \"");
+            cmdBuilder.Append(windowTitle);
+            cmdBuilder.Append("\" \"");
+            cmdBuilder.Append(key);
+            cmdBuilder.Append("\"");
+        }
 
-        System.Diagnostics.Process process = new System.Diagnostics.Process();
-        System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+        //Debug.Log(cmdBuilder.ToString());
+        Process process = new System.Diagnostics.Process();
+        ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
         startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
         startInfo.FileName = "cmd.exe";
-        startInfo.Arguments = "/C " + cmdText;
+        startInfo.Arguments = "/C " + cmdBuilder.ToString();
         process.StartInfo = startInfo;
         process.Start();
     }
 
-	public void CloseGame(){ CloseProcess(); }
+	public void StopCurrentRunningGame()
+    {
+        _runningGame.launchSettings.Runner().LaunchCleanUp();
+        _runningGame = null;
+        if (_runningProcess != null)
+        {
+            UnityEngine.Debug.Log("CloseProcess called : " + _runningProcess.Id);
+
+            KillAllNonSafeProcesses(_runningProcess.Handle, (uint)_runningProcess.Id, 0);
+        }
+    }
 
 	///////////
 	// [StructLayout(LayoutKind.Sequential)]
@@ -588,7 +582,7 @@ public class ProcessRunner : MonoBehaviour
         }
         catch (ArgumentException)
         {
-            return new MyProcInfo() { ProcessId = -1, ProcessName = "No-longer existant process" };
+            return new MyProcInfo() { ProcessId = -1, ProcessName = "No-longer existent process" };
         }
     }
 }

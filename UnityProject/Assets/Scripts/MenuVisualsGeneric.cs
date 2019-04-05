@@ -273,18 +273,12 @@ public class MenuVisualsGeneric : MonoBehaviour
             l.onStartGame();
         }
 
-        this.varyWithT((float t) => {
-
-
-            if (t == 1)
-            {
-                GameData currentGameData = currentlySelectedGame;//this.allGames[gameIdx];
-                                                                 //print("________________________" + currentGameData.appFile);
-                ProcessRunner.instance.OpenProcess(@currentGameData.directory, currentGameData.appFile, ""/*currentGameData.commandLineArguments*/, currentGameData.joyToKeyConfig);
-                BackgroundDisplay.Instance.stopAllVideos();
-            }
-
-            }, .1f);
+        this.delayedFunction(() => 
+        {
+            GameData currentGameData = currentlySelectedGame;
+            ProcessRunner.instance.StartGame(currentGameData);
+            BackgroundDisplay.Instance.stopAllVideos();
+        }, .1f);
 
         return true;
     }

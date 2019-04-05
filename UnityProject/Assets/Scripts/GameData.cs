@@ -1,5 +1,6 @@
 ﻿/*
  This class also seems a little heavy...
+
  */
 
 using System.Collections;
@@ -7,24 +8,23 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-
 [System.Serializable]
 public class GameData
 {
     #region SERIALIZED --------------------------------------------------
     public string title;
 
-    //public string commandLineArguments;
-
     public string designers;
-    public string description;
-
+  
     public string windowTitle = null;
 
     public string joyToKeyConfig_singlePlayer = null;
-
-
+    
     public string exePath;
+
+    public string description;
+
+    public GameLaunchSettings launchSettings;// = new GameLaunchSettings();
     #endregion ---------------------------------------------------------
 
     #region --- UNSERIALIZED ------------------------------------------
@@ -197,7 +197,9 @@ public class GameData
         //--- set up video ---------------
         setUpVideo(_gameFolder);
 
-        setUpInstructionsOverlay(_gameFolder);    
+        setUpInstructionsOverlay(_gameFolder);
+
+        this.launchSettings.SetUpWithGame(this);
     }
 
     void setUpInstructionsOverlay(FileInfo gameFolder)
@@ -324,7 +326,7 @@ public class GameData
     {
         get
         {
-            if (joyToKeyConfig_singlePlayer == null || joyToKeyConfig_singlePlayer == "")
+            if (string.IsNullOrEmpty(joyToKeyConfig_singlePlayer))
             {
                 return "default.cfg";
             }
@@ -360,7 +362,29 @@ public class GameData
     }
 
 
+    public void Audit(System.Text.StringBuilder auditMsgStringBuilder)
+    {
+        GameData dat = this;
+        if (string.IsNullOrEmpty(dat.exePath))
+        {
+            auditMsgStringBuilder.AppendLine(dat.title + " has empty exe path");
+        }
+        else if (!System.IO.File.Exists(Path.Combine(dat.rootFolder.FullName, dat.exePath)))
+        {
+            auditMsgStringBuilder.AppendLine(dat.title + ", no file found at specified exe path");
+        }
 
+        if (string.IsNullOrEmpty(dat.joyToKeyConfig))
+        {
+            auditMsgStringBuilder.AppendLine(dat.title + " doesn't specify joy to key config");
+        }
+        else if (!System.IO.File.Exists(Path.Combine(GameCatalog.Instance.joyToKeyData.directory, dat.joyToKeyConfig)))
+        {
+            auditMsgStringBuilder.AppendLine(dat.title + ", joytokey config: ;" + dat.joyToKeyConfig + "' not found");
+        }
+
+        this.launchSettings.Audit(auditMsgStringBuilder);
+    }
 
 
     enum GameType

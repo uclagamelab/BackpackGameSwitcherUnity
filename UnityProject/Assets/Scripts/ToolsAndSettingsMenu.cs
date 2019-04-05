@@ -23,7 +23,11 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     InputField gamesDirInputField;
 
     [SerializeField]
-    InputField joyToKeyInputField;
+    [UnityEngine.Serialization.FormerlySerializedAs("joyToKeyInputField")]
+    InputField joyToKeyDirInputField;
+
+    [SerializeField]
+    InputField bgMusicDirInputField;
 
     [Header("Windows")]
     [SerializeField]
@@ -126,13 +130,15 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     void loadValuesFromSettings()
     {
         this.gamesDirInputField.text = SwitcherSettings.GamesFolder;
-        this.joyToKeyInputField.text = SwitcherSettings.JoyToKeyFolder;
+        this.joyToKeyDirInputField.text = SwitcherSettings.JoyToKeyFolder;
+        this.bgMusicDirInputField.text = SwitcherSettings.BGMusicFolder;
     }
 
     public void saveCurrentValuesToSettings()
     {
         SwitcherSettings.GamesFolder = this.gamesDirInputField.text;
-        SwitcherSettings.JoyToKeyFolder = this.joyToKeyInputField.text;
+        SwitcherSettings.JoyToKeyFolder = this.joyToKeyDirInputField.text;
+        SwitcherSettings.BGMusicFolder = this.bgMusicDirInputField.text;
 
         //Apply the settings
 
@@ -149,11 +155,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         {
             this.showSetup(!this.allMenu.gameObject.activeSelf);
         }
-    }
-
-    public void Audit()
-    {
-        resultMessage.text = "No problems found...\nbut didn't actually check.";
     }
 
     public void GenerateJoyToKeyExeAssociationFile()
@@ -218,23 +219,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         foreach (GameData dat in GameCatalog.Instance.games)
         {
 
-            if (string.IsNullOrEmpty(dat.exePath))
-            {
-                _auditStringBuilder.AppendLine(dat.title + " has empty exe path");
-            }
-            else if (!System.IO.File.Exists(Path.Combine(dat.rootFolder.FullName, dat.exePath)))
-            {
-                _auditStringBuilder.AppendLine(dat.title + ", no file found at specified exe path");
-            }
-
-            if (string.IsNullOrEmpty(dat.joyToKeyConfig))
-            {
-                _auditStringBuilder.AppendLine(dat.title + " doesn't specify joy to key config");
-            }
-            else if (!System.IO.File.Exists(Path.Combine(GameCatalog.Instance.joyToKeyData.directory, dat.joyToKeyConfig)))
-            {
-                _auditStringBuilder.AppendLine(dat.title + ", joytokey config: ;" + dat.joyToKeyConfig + "' not found");
-            }
+            dat.Audit(_auditStringBuilder);
             _auditStringBuilder.AppendLine();
         }
 
