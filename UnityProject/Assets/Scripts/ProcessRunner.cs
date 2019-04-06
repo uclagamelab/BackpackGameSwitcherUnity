@@ -26,27 +26,13 @@ public class ProcessRunner : MonoBehaviour
 
     float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
-    bool _switcherHasFocus = false;
-    public bool switcherHasFocus
-    {
-        get
-        {
-            return _switcherHasFocus;
-        }
-
-        private set
-        {
-            _switcherHasFocus = value;
-        }
-    }
-
     public string processStateHelper;
 
     public bool gameProcessIsRunning
     {
         get {
             //return _gameProcessIsRunning;
-            return (this._runningProcess != null && !this._runningProcess.HasExited);
+            return (this._currentRunningGameProcess != null && !this._currentRunningGameProcess.HasExited);
         }
         //set { _gameProcessIsRunning = value; }
     }
@@ -91,11 +77,22 @@ public class ProcessRunner : MonoBehaviour
 	[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 	private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr extraData);
 
+    [DllImport("USER32.DLL")]
+    private static extern IntPtr GetShellWindow();
 
 
-	[DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
 	//static extern IntPtr SetFocus(HandleRef hWnd);
 	static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("USER32.DLL")]
+    private static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder lpString, int nMaxCount);
+
+    [DllImport("USER32.DLL")]
+    private static extern int GetWindowTextLength(IntPtr hWnd);
+
+    [DllImport("USER32.DLL")]
+    private static extern bool IsWindowVisible(IntPtr hWnd);
 
 
     // Returnsthe process ID associated with the window
@@ -117,10 +114,12 @@ public class ProcessRunner : MonoBehaviour
 
 	Process _thisProcess = Process.GetCurrentProcess(); //The application switcher process?
     GameData _runningGame = null;
-    Process _runningProcess = null; //the currently running game process
+    Process _currentRunningGameProcess = null; //the currently running game process
 	Process _joy2KeyProcess = null;
 
-	
+
+
+
     IntPtr _thisPrimaryWindow = IntPtr.Zero;
     IntPtr thisPrimaryWindow
     {
@@ -148,12 +147,8 @@ public class ProcessRunner : MonoBehaviour
         get
         {
             List<IntPtr> _runningWindowHandles = new List<IntPtr>();
-            CollectProcessWindows(_runningProcess.Id, _runningWindowHandles);
+            CollectProcessWindows(_currentRunningGameProcess.Id, _runningWindowHandles);
 
-            foreach (IntPtr ihwnd in _runningWindowHandles)
-            {
-                //???
-            }
 
             if (_runningWindowHandles.Count > 0)
             {
@@ -166,14 +161,16 @@ public class ProcessRunner : MonoBehaviour
     IntPtr _joy2KeyPrimaryWindow = IntPtr.Zero;
 
 
-	
+    XUTimer _windowCheckTimers = new XUTimer(.3f);
+    System.Text.StringBuilder _sb = new System.Text.StringBuilder();
 
-	// Pressing the button opens up the game.
-	// Pressing CTRL - C brings this game to the foreground
+    // Pressing the button opens up the game.
+    // Pressing CTRL - C brings this game to the foreground
 
     void Awake()
     {
         _instance = this;
+        _windowCheckTimers.Start();
     }
 
 
@@ -192,13 +189,60 @@ public class ProcessRunner : MonoBehaviour
         }, 2);
 
     }
+    bool allWindowIter(IntPtr hWnd, IntPtr lParam)
+    {
+        //if (hWnd == shellWindow) return true;
+        if (!IsWindowVisible(hWnd)) return true;
 
+        if (!IsWindowVisible(hWnd)) return true;
+
+        int length = GetWindowTextLength(hWnd);
+        if (hWnd == IntPtr.Zero || length == 0) return true;
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder(256);
+        GetWindowText(hWnd, sb, 256);
+
+        _allWindowsCached.Add(sb.ToString());
+        return true;
+
+    }
+    public static HashSet<string> _allWindowsCached = new HashSet<string>();
     private void Update()
     {
+        //----------------------------------------------
+        if (_windowCheckTimers.expired)
+        {
+            _allWindowsCached.Clear();
+            _windowCheckTimers.Restart();
+            //foreach (Process p in Process.GetProcesses())
+            //{
+            //    if (!string.IsNullOrEmpty(p.MainWindowTitle))
+            //    {
+            //        _allWindowsCached.Add(p.MainWindowTitle);
+            //    }
+            //}
+            //IntPtr shellWindow = GetShellWindow();
+
+
+            //_allWindowsCached.Clear();
+
+            EnumWindows(allWindowIter, IntPtr.Zero);
+
+        }
+
+        
+
+        //----------------------------------------------
+
         if (_runningGame != null)
         {
             _runningGame.launchSettings.Runner().RunningUpdate();
         }
+    }
+
+    public static bool WindowIsPresent(string windowTitle)
+    {
+        return _allWindowsCached.Contains(windowTitle);
     }
 
     void setJoyToKeyConfigIfNotAlreadySet(string configFile)
@@ -261,7 +305,7 @@ public class ProcessRunner : MonoBehaviour
     {
         //ProcessRunner.instance.OpenProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/, currentGameData.joyToKeyConfig);
 
-        _runningProcess = gameToStart.launchSettings.Runner().Launch();//StartProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/);
+        _currentRunningGameProcess = gameToStart.launchSettings.Runner().Launch();//StartProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/);
         _runningGame = gameToStart;
         setJoyToKeyConfig(gameToStart.joyToKeyConfig);
         currentProcessStartTime = Time.time;
@@ -290,16 +334,19 @@ public class ProcessRunner : MonoBehaviour
 		return IntPtr.Zero;
 	}
 
+    
 	// Puts all windows existing associated with the processId in the bucket
 	void CollectProcessWindows(int processId, List<IntPtr> bucket)
 	{
-		if( processId == 0 ) return;
+        _allWindowsCached.Clear();
+
+        if ( processId == 0 ) return;
 
 		// look through all the windows
-		EnumWindows( delegate(IntPtr hWnd, IntPtr lParam){
-			
-			// add the handle to the bucket if it's associatd with the given process
-			if( DoesWindowMatchProcessId( hWnd, processId ) )
+		EnumWindows( delegate(IntPtr hWnd, IntPtr lParam)
+        {
+            // add the handle to the bucket if it's associatd with the given process
+            if ( DoesWindowMatchProcessId( hWnd, processId ) )
 			{
 				if( !bucket.Contains( hWnd ) )
 				{
@@ -360,7 +407,7 @@ public class ProcessRunner : MonoBehaviour
     //Add startup forgiveness timer, for games that change window
 	public bool IsGameRunning()
     {
-        return _runningProcess != null && !_runningProcess.HasExited;
+        return _currentRunningGameProcess != null && !_currentRunningGameProcess.HasExited;
     }
 	public void BringThisToForeground()
     {
@@ -404,6 +451,7 @@ public class ProcessRunner : MonoBehaviour
 
     static string lastSentWindow = null;
     static string lastSentKeyStroke = null;
+    static string cachedSendKeyCommand;
     static System.Text.StringBuilder cmdBuilder = new System.Text.StringBuilder();
     public static void SendKeyStrokesToWindow(string windowTitle, string key = "")
     {
@@ -411,13 +459,14 @@ public class ProcessRunner : MonoBehaviour
         if (windowTitle != lastSentWindow || key != lastSentKeyStroke)
         {
             cmdBuilder.Clear();
-            cmdBuilder.Append("call \"");
+            cmdBuilder.Append("/C call \"");
             cmdBuilder.Append(Application.streamingAssetsPath);
             cmdBuilder.Append("\\~Special\\sendKeys.bat\" \"");
             cmdBuilder.Append(windowTitle);
             cmdBuilder.Append("\" \"");
             cmdBuilder.Append(key);
             cmdBuilder.Append("\"");
+            cachedSendKeyCommand = cmdBuilder.ToString();
         }
 
         //Debug.Log(cmdBuilder.ToString());
@@ -425,7 +474,7 @@ public class ProcessRunner : MonoBehaviour
         ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
         startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
         startInfo.FileName = "cmd.exe";
-        startInfo.Arguments = "/C " + cmdBuilder.ToString();
+        startInfo.Arguments = cachedSendKeyCommand;
         process.StartInfo = startInfo;
         process.Start();
     }
@@ -434,11 +483,11 @@ public class ProcessRunner : MonoBehaviour
     {
         _runningGame.launchSettings.Runner().LaunchCleanUp();
         _runningGame = null;
-        if (_runningProcess != null)
+        if (_currentRunningGameProcess != null)
         {
-            UnityEngine.Debug.Log("CloseProcess called : " + _runningProcess.Id);
+            UnityEngine.Debug.Log("CloseProcess called : " + _currentRunningGameProcess.Id);
 
-            KillAllNonSafeProcesses(_runningProcess.Handle, (uint)_runningProcess.Id, 0);
+            KillAllNonSafeProcesses(_currentRunningGameProcess.Handle, (uint)_currentRunningGameProcess.Id, 0);
         }
     }
 
@@ -511,6 +560,8 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
+
+
     bool isSafeProcess(Process proc)
     {
         foreach(Process sp in safeProcesses)
@@ -556,15 +607,6 @@ public class ProcessRunner : MonoBehaviour
 		// Finally, termine the process itself:
 		TerminateProcess((uint)hProcess, exitCode);
 	}
-    /////////////////
-
-        //Was this a good way???
-    void OnApplicationFocus(bool hasFocus)
-    {
-        //this.gameProcessIsRunning = !hasFocus;
-        switcherHasFocus = hasFocus;
-    }
-
 
 
     struct MyProcInfo
