@@ -118,11 +118,12 @@ public class UnityExeRunner : AbstractGameRunner
 
     public override Process Launch()
     {
+        _foundResolutionWindow = false;
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
         if (hasResolutionSetupScreen)
         {
             //start with other args
-            _dialogWaitTimer.Restart(DialogWaitDuration);
+            _dialogWaitTimer.Restart(.25f);
             return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._hasResolutionDialogArgs);
         }
         else
@@ -134,15 +135,30 @@ public class UnityExeRunner : AbstractGameRunner
 
     public override void RunningUpdate()
     {
-        if (hasResolutionSetupScreen && !_foundResolutionWindow)
+        if (hasResolutionSetupScreen)
         {
-            if (ProcessRunner.WindowIsPresent(this.ResulotionDialogWindowTitle))//_dialogWaitTimer.expired)
+            bool needToSendKeys = false; 
+            if (!_foundResolutionWindow)
             {
-                _foundResolutionWindow = true;
-                _dialogWaitTimer.Stop();
-                //Send keys
-                ProcessRunner.SendKeyStrokesToWindow(this.ResulotionDialogWindowTitle, "{ENTER}");
+                if (ProcessRunner.WindowIsPresent(this.ResulotionDialogWindowTitle))
+                {
+                    _foundResolutionWindow = true;
+                    ProcessRunner.instance.delayedFunction(() =>
+                    {
+                        ProcessRunner.SendKeyStrokesToWindow(this.ResulotionDialogWindowTitle, "{ENTER}");
+                    }, .5f);
+                }
             }
+            //else 
+            //{
+            //    if (ProcessRunner.WindowIsPresent(this.ResulotionDialogWindowTitle) && _dialogWaitTimer.expired)
+            //    {
+            //        _dialogWaitTimer.Restart();
+            //        needToSendKeys = true;
+            //    }
+
+            //}
+
         }
     }
 
