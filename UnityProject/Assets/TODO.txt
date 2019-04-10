@@ -1,10 +1,27 @@
 ﻿REAL TODO:
-* Try to better automate skipping of unity resolution dialog
+* Add setup for exe -> Try to better automate skipping of unity resolution dialog ->  Autogenerate joytokey exe association file
 * Actually make joy2key configs for everything, where possible
 * check on website, and with tyler for missing games
-* Autogenerate joytokey exe association file
 * Better support/solution for shortcuts breaking when switching machines
 
+
+* Investigate default controls/resolutions in the startup dialogs, make saveable, transferrable between machines?
+
+* How to generalize startup info
+- Use the generic JSON thing, have multiple classes null for nothing 
+
+Unity :
+	- pass (fixed) arguments
+	- skip resolution dialog routine (wait for config window SENDKEY)
+Generic:
+	- pass arguments
+	- use specially formatted bat file?
+	
+'Quick navigate' Letter buckets 
+
+
++++ Things found +++
+https://github.com/AntiMicro/antimicro (joy to key alternative, open source, might be able to cannibalize)
 
 #### #### TODO #### #### #### #### #### #### 
 * need foreground lock applied to windows 7 too (don't check != 7 in tools/settings menu)

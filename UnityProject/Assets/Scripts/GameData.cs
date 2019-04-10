@@ -268,8 +268,15 @@ public class GameData
         string exeFolder = gameFolder.FullName + "/" + platform;
 
         //try to find a .lnk
+        bool exeFolderExists = Directory.Exists(exeFolder);
+        if (!exeFolderExists)
+        {
+            return;
+        }
+
         string[] shortcutsInGameDirectory = Directory.GetFiles(exeFolder, "*.lnk");
         string[] batchFilesInGameDirectory = Directory.GetFiles(exeFolder, "*.bat");
+
         if (batchFilesInGameDirectory.Length == 1)
         {
             this.executable = batchFilesInGameDirectory[0];
