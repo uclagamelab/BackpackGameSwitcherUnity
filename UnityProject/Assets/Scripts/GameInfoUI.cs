@@ -21,6 +21,7 @@ public class GameInfoUI : MonoBehaviour {
     }
 
     public ButtonGUIRefs[] buttonDisplays;
+    public Image joystickFill;
     public Text joystickLabel;
 
     GameData _cachedCurrentGameData = null;
@@ -52,6 +53,7 @@ public class GameInfoUI : MonoBehaviour {
             if (joystickLabel != null)
             {
                 this.joystickLabel.text = _cachedCurrentGameData.instructions.joystickInstructions;
+                this.joystickFill.enabled = !string.IsNullOrEmpty(_cachedCurrentGameData?.instructions?.joystickInstructions);
             }
 
 
