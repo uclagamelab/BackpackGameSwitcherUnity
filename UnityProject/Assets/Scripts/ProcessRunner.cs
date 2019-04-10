@@ -452,21 +452,21 @@ public class ProcessRunner : MonoBehaviour
     static string lastSentWindow = null;
     static string lastSentKeyStroke = null;
     static string cachedSendKeyCommand;
-    static System.Text.StringBuilder cmdBuilder = new System.Text.StringBuilder();
+    static System.Text.StringBuilder sendKeyStrokesCommandBuilder = new System.Text.StringBuilder();
     public static void SendKeyStrokesToWindow(string windowTitle, string key = "")
     {
         //string cmdText = "call \"" +  Application.streamingAssetsPath + "\\~Special\\sendKeys.bat\" \"" + windowTitle + "\" \"" + key + "\"";
         if (windowTitle != lastSentWindow || key != lastSentKeyStroke)
         {
-            cmdBuilder.Clear();
-            cmdBuilder.Append("/C call \"");
-            cmdBuilder.Append(Application.streamingAssetsPath);
-            cmdBuilder.Append("\\~Special\\sendKeys.bat\" \"");
-            cmdBuilder.Append(windowTitle);
-            cmdBuilder.Append("\" \"");
-            cmdBuilder.Append(key);
-            cmdBuilder.Append("\"");
-            cachedSendKeyCommand = cmdBuilder.ToString();
+            sendKeyStrokesCommandBuilder.Clear();
+            sendKeyStrokesCommandBuilder.Append("/C call \"");
+            sendKeyStrokesCommandBuilder.Append(Application.streamingAssetsPath);
+            sendKeyStrokesCommandBuilder.Append("\\~Special\\sendKeys.bat\" \"");
+            sendKeyStrokesCommandBuilder.Append(windowTitle);
+            sendKeyStrokesCommandBuilder.Append("\" \"");
+            sendKeyStrokesCommandBuilder.Append(key);
+            sendKeyStrokesCommandBuilder.Append("\"");
+            cachedSendKeyCommand = sendKeyStrokesCommandBuilder.ToString();
         }
 
         //Debug.Log(cmdBuilder.ToString());
@@ -479,7 +479,30 @@ public class ProcessRunner : MonoBehaviour
         process.Start();
     }
 
-	public void StopCurrentRunningGame()
+
+    static System.Text.StringBuilder _mousePosCommandBuilderCmdBuilder = new System.Text.StringBuilder();
+    public static void SetMousePosition(int x, int y, bool absolute = true)
+    {
+        _mousePosCommandBuilderCmdBuilder.Clear();
+        _mousePosCommandBuilderCmdBuilder.Append("/C call \"");
+        _mousePosCommandBuilderCmdBuilder.Append(Application.streamingAssetsPath);
+        _mousePosCommandBuilderCmdBuilder.Append("\\~Special\\mouse.bat\" moveTo ");
+        _mousePosCommandBuilderCmdBuilder.Append(x);
+        _mousePosCommandBuilderCmdBuilder.Append('x');
+        _mousePosCommandBuilderCmdBuilder.Append(y);
+        
+        Debug.Log(_mousePosCommandBuilderCmdBuilder.ToString());
+        Process process = new System.Diagnostics.Process();
+        ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+        startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+        startInfo.FileName = "cmd.exe";
+        startInfo.Arguments = _mousePosCommandBuilderCmdBuilder.ToString();
+        process.StartInfo = startInfo;
+        process.Start();
+    }
+
+
+    public void StopCurrentRunningGame()
     {
         _runningGame.launchSettings.Runner().LaunchCleanUp();
         _runningGame = null;
