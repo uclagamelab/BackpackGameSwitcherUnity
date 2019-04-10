@@ -24,6 +24,8 @@ public class GameData
 
     public string description;
 
+    public ControlInstructions instructions;
+
     public GameLaunchSettings launchSettings;// = new GameLaunchSettings();
     #endregion ---------------------------------------------------------
 
@@ -36,6 +38,9 @@ public class GameData
     [System.NonSerialized]
     public string image;
 
+    //[System.NonSerialized]
+    //public Texture2D overrideInstructionsImage = null;
+
     [System.NonSerialized]
     public string videoUrl = null;
 
@@ -43,18 +48,25 @@ public class GameData
     public string executable;
 
     [System.NonSerialized]
-    public Texture2D instructionsOverlay = null;
+    public Texture2D overrideInstructionsImage = null;
     [System.NonSerialized]
     public Texture previewImg;
     #endregion -----------------------------------------------
 
-
-
-    string[] controlLabels; // convention is '0' is joystick, 1-6 are buttons
-    public string joystickLabel
+    [System.Serializable]
+    public class ControlInstructions
     {
-        get { return controlLabels[0]; }
+        public string joystickInstructions;
+
+        public string[] buttonInstructions = new string[6];
+
+        public string getButtonLabel(int buttonIdx)
+        {
+            return buttonInstructions[buttonIdx - 1];
+        }
+
     }
+
 
     public string GetJSON(bool prettify = true)
     {
@@ -135,10 +147,7 @@ public class GameData
         XuFileSystemUtil.WriteStringToFile(newJson, this.jsonFilePath);
     }
 
-    public string getButtonLabel(int buttonIdx)
-    {
-        return controlLabels[buttonIdx];
-    }
+
 
     string jsonFilePath
     {
@@ -157,11 +166,6 @@ public class GameData
     {
         _gameFolder = new FileInfo(gameFolderPath);//IMPORTANT that this gets set immediately
 
-        controlLabels = new string[7];
-        for (int i = 0; i < controlLabels.Length; i++)
-        {
-            controlLabels[i] = null;
-        }
 
         // --- Find the JSON info file ---------
 
@@ -225,11 +229,11 @@ public class GameData
             {
                string ovlUrl = imgsInDirectory[0];
 
-                this.instructionsOverlay = new Texture2D(4, 4, TextureFormat.DXT5, false); //DXT5, assuming image is png
+                this.overrideInstructionsImage = new Texture2D(4, 4, TextureFormat.DXT5, false); //DXT5, assuming image is png
                 WWW instOvlWww = new WWW(ovlUrl);
                 yield return instOvlWww;
 
-                instOvlWww.LoadImageIntoTexture(this.instructionsOverlay);
+                instOvlWww.LoadImageIntoTexture(this.overrideInstructionsImage);
 
                 //GameObject sp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 //sp.GetComponent<Renderer>().material.mainTexture = this.instructionsOverlay;

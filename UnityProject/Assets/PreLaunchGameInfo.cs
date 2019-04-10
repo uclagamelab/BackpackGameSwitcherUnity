@@ -16,9 +16,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
     GameObject _highlightedObject;
 
     [SerializeField]
-    RawImage _rawImg;
-
-    [SerializeField]
     RawImage _dimmer;
     Color _dimmerFullColor;
 
@@ -47,11 +44,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        //_rawImg = this.GetComponent<RawImage>();
-        if (_rawImg != null)
-        {
-            _rawImg.enabled = false;
-        }
+
         _dimmer.enabled = false;
         _dimmerFullColor = _dimmer.color;
         _highlightImg = _buttonHighlight.GetComponentInChildren<Image>();
@@ -66,11 +59,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
         int idx = MenuVisualsGeneric.Instance.gameIdx;
         //idx = Mathf.Clamp(idx, 0, this.overlays.Length - 1);
         //Texture newTexture = this.overlays[idx];
-
-        if (_rawImg != null)
-        {
-            this._rawImg.texture = MenuVisualsGeneric.Instance.currentlySelectedGame.instructionsOverlay;// newTexture;
-        }
         
 
         /*if (Input.GetKeyDown("y"))
@@ -172,10 +160,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
 
         animating = true;
         open = forward;
-        if (_rawImg != null)
-        {
-            _rawImg.enabled = true;
-        }
       
         //bgBlurrer.enabled = true;
         _dimmer.enabled = true;

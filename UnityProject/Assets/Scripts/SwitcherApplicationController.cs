@@ -74,9 +74,6 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     // Update is called once per frame
     void Update()
     {
-
-
-
         //Don't focus steal while menu is open
         if (ToolsAndSettingsMenu.isOpen)
         {

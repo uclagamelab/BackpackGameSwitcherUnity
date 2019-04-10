@@ -14,11 +14,16 @@ using UnityEngine.UI;
 
 public class MenuVisualsGeneric : MonoBehaviour
 {
+
+
     public static MenuVisualsGeneric Instance
     {
         get;
         private set;
     }
+
+    public Text _titleText;
+        public Text _creditText;
 
     public delegate void OnCloseInfoCB(bool open);
     public OnCloseInfoCB OnOpenCloseInfo = (open) => { };
@@ -71,7 +76,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void selectRandomGame()
     {
-        gameIdx = Random.Range(0, GameCatalog.Instance.games.Count);
+        gameIdx = 0;// Random.Range(0, GameCatalog.Instance.games.Count);
         this.updateInfoDisplay(this.currentlySelectedGame, 0);
     }
 
@@ -208,10 +213,10 @@ public class MenuVisualsGeneric : MonoBehaviour
         BackgroundDisplay.Instance.visible = true;
 
         //TODO : should move into GameInfoUi
-        gameInfoUI.titleText.text = currentGameData.title;
+        _titleText.text = currentGameData.title.Replace('\n', ' '); ;
         //gameInfoUI.descriptionText.text = currentGameData.description;
-            
-            gameInfoUI.creditText.text = "by " + currentGameData.designers + "";
+
+        _creditText.text = "by " + currentGameData.designers + "";
 
         //gameInfoUI.previewImage.texture = currentGameData.previewImg;
         if (currentGameData.videoUrl != null)
