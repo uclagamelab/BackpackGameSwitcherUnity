@@ -37,10 +37,14 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     float idleTimeout = 6 * 60;
     float attractAutoCycleDuration = 2;
 
+    bool _defaultIsFullScreen = true;
+    Resolution _defaultResolution;
 
     // Use this for initialization
     void Awake () {
         gameMenu = this.GetComponent<MenuVisualsGeneric>();
+        _defaultResolution = Screen.currentResolution;
+        _defaultIsFullScreen = Screen.fullScreen;
     }
 
     void Start()
@@ -56,9 +60,23 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         GenericSettings.TryGetValue("idle_cycle_duration", out attractAutoCycleDuration, 90);
     }
 
+    public void ResetToDefaultResolutionIfDifferent()
+    {
+        #if !UNITY_EDITOR
+        if (Screen.width != _defaultResolution.width || Screen.height != _defaultResolution.height)
+        {
+            Screen.SetResolution(_defaultResolution.width, _defaultResolution.height, _defaultIsFullScreen);
+        }
+        #endif
+    }
+
+
     // Update is called once per frame
     void Update()
     {
+
+
+
         //Don't focus steal while menu is open
         if (ToolsAndSettingsMenu.isOpen)
         {
@@ -80,6 +98,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
                 this.gameMenu.onQuitGame();
 
             }
+            ResetToDefaultResolutionIfDifferent();
 
             gotAnExitCombo = false;
         }
