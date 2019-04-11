@@ -26,7 +26,8 @@ public class GameCatalog : MonoBehaviour
     {
         get { return games.Count; }
     }
-    
+
+    public static Callbacks Events = new Callbacks();
 
     static GameCatalog _instance;
     public static GameCatalog Instance
@@ -49,6 +50,7 @@ public class GameCatalog : MonoBehaviour
 	{
         
 	}
+    
     
     public void repopulateCatalog(string gamesFolderPath)
     {
@@ -107,7 +109,7 @@ public class GameCatalog : MonoBehaviour
             }*/
         }
 
-
+        Events.OnRepopulated.Invoke();
     }
 
 
@@ -128,6 +130,11 @@ public class GameCatalog : MonoBehaviour
             }
         }
     }*/
+
+    public class Callbacks
+    {
+        public System.Action OnRepopulated = ()=>{};
+    }
 }
 
 
