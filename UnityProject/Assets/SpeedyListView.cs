@@ -62,7 +62,7 @@ public class SpeedyListView : MonoBehaviour
 
 
     float speedAccumulator = 0; 
-    const float normalSpeed = 6;
+    const float normalSpeed = 5;
     const float quickSpeed = 11;
 
     void switchToCurrentGame()
@@ -72,7 +72,7 @@ public class SpeedyListView : MonoBehaviour
         MenuVisualsGeneric.Instance.cycleToNextGame(setIdx - MenuVisualsGeneric.Instance.gameIdx, false, false);
     }
 
-    void Update()
+    void LateUpdate()
     {
         float speed = Mathf.Lerp(normalSpeed, quickSpeed, Mathf.InverseLerp(.25f, 1,speedAccumulator));
         float lastFuzz = fuzzyIdx;
@@ -135,7 +135,7 @@ public class SpeedyListView : MonoBehaviour
 
         float fuzzIdxOffset = fuzzyIdx % 1;
         container.anchoredPosition = startAp + Vector2.up * fuzzIdxOffset * height;
-        UpdateTextViz();
+       
 
         int gameIdx = Mathf.CeilToInt((fuzzyIdx + middleIdxOffset) % _things.Count);
         if (gameIdx >= 0 && gameIdx < _things.Count)
@@ -155,6 +155,8 @@ public class SpeedyListView : MonoBehaviour
         char firstLetter = currentGame.title[0];
         firstLetter = char.IsLetter(firstLetter) ? char.ToUpper(firstLetter) : '#';
         _alphaHelper.text = "" + firstLetter;
+
+        UpdateTextViz();
     }
 
     void UpdateTextViz()
