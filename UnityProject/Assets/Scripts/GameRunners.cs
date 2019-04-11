@@ -93,8 +93,7 @@ public class UnityExeRunner : AbstractGameRunner
     #endregion --------------------------------------------------------
 
     #region NON-SERIALIZED --------------------------------------------
-    bool _foundResolutionWindow = false;
-    XUTimer _dialogWaitTimer = new XUTimer();
+    //XUTimer _dialogWaitTimer = new XUTimer();
 
     static float DialogWaitDuration = 5;
     #endregion --------------------------------------------------------
@@ -118,12 +117,12 @@ public class UnityExeRunner : AbstractGameRunner
 
     public override Process Launch()
     {
-        _foundResolutionWindow = false;
+        _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
         if (hasResolutionSetupScreen)
         {
             //start with other args
-            _dialogWaitTimer.Restart(.25f);
+            //_dialogWaitTimer.Restart(.25f);
             return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._hasResolutionDialogArgs);
         }
         else
@@ -133,20 +132,44 @@ public class UnityExeRunner : AbstractGameRunner
         }
     }
 
+    enum DialogSkipState
+    {
+        WaitingForDialogToAppear,
+        DialogHasAppeared,
+        DialogHasClosed
+    }
+    DialogSkipState _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
+
+    float _lastResDialogKeySend = float.NegativeInfinity;
+
+    void SendKeyToResDialog()
+    {
+        _lastResDialogKeySend = Time.time;
+        ProcessRunner.SendKeyStrokesToWindow(this.ResulotionDialogWindowTitle, "{ENTER}");
+    }
+
     public override void RunningUpdate()
     {
         if (hasResolutionSetupScreen)
         {
             bool needToSendKeys = false; 
-            if (!_foundResolutionWindow)
+            if (_resDiaSkipState == DialogSkipState.WaitingForDialogToAppear)
             {
                 if (ProcessRunner.WindowIsPresent(this.ResulotionDialogWindowTitle))
                 {
-                    _foundResolutionWindow = true;
-                    ProcessRunner.instance.delayedFunction(() =>
-                    {
-                        ProcessRunner.SendKeyStrokesToWindow(this.ResulotionDialogWindowTitle, "{ENTER}");
-                    }, .5f);
+                    _resDiaSkipState = DialogSkipState.DialogHasAppeared;
+                }
+            }
+            else if (_resDiaSkipState == DialogSkipState.DialogHasAppeared)
+            {
+                if (!ProcessRunner.WindowIsPresent(this.ResulotionDialogWindowTitle))
+                {
+                    _resDiaSkipState = DialogSkipState.DialogHasClosed;
+                }
+                else if (Time.time - _lastResDialogKeySend > .5f)
+                {
+                    Debug.Log("Sending");
+                    SendKeyToResDialog();
                 }
             }
             //else 
