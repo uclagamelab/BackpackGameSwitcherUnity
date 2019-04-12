@@ -15,6 +15,8 @@ using UnityEngine.UI;
 public class MenuVisualsGeneric : MonoBehaviour
 {
 
+    [SerializeField]
+    CanvasGroup _slideshowTitleTabCanvasGroup;
 
     public static MenuVisualsGeneric Instance
     {
@@ -175,14 +177,14 @@ public class MenuVisualsGeneric : MonoBehaviour
 
             this.varyWithT((float t) =>
             {
-                this.gameInfoUI.GetComponent<CanvasGroup>().alpha = 1 - t;
+                _slideshowTitleTabCanvasGroup.alpha = 1 - t;
                 if (t == 1)
                 {
                     this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
                     this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx], selectionDirection);
                     this.varyWithT((float t2) =>
                     {
-                        this.gameInfoUI.GetComponent<CanvasGroup>().alpha = t2;
+                        _slideshowTitleTabCanvasGroup.alpha = t2;
                         if (t2 == 1)
                         {
                             animating = false;

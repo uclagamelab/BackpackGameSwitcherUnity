@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class SpeedyListView : MonoBehaviour
 {
-
+    [SerializeField]
+    int _centerIdxOffset = 0;
     struct PersonalGameThing
     {
         public string cleanTitle;
@@ -18,6 +19,11 @@ public class SpeedyListView : MonoBehaviour
         }
     }
 
+    [SerializeField]
+    Color _defaultItemColor = Color.black;
+    [SerializeField]
+    Color _selectedItemColor = Color.magenta;
+
     List<PersonalGameThing> _things = new List<PersonalGameThing>();
 
     [SerializeField]
@@ -26,6 +32,7 @@ public class SpeedyListView : MonoBehaviour
 
     [SerializeField]
     TextMeshProUGUI _alphaHelper;
+    CanvasGroup _alphaHelperCanvasGroup;
 
     RectTransform container;
     Vector2 startAp;
@@ -42,7 +49,8 @@ public class SpeedyListView : MonoBehaviour
         container = _texts[0].transform.parent.GetComponent<RectTransform>();
         startAp = container.anchoredPosition;
         height = _texts[0].GetComponent<RectTransform>().sizeDelta.y;
-        middleIdxOffset = _texts.Count / 2;
+        middleIdxOffset = (_texts.Count / 2) + _centerIdxOffset;
+        _alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
     }
     void Start()
     {
@@ -127,6 +135,10 @@ public class SpeedyListView : MonoBehaviour
             }
         }
 
+        _alphaHelperCanvasGroup.alpha = Mathf.MoveTowards(_alphaHelperCanvasGroup.alpha, 
+            (keyHeld ? 1 : 0), 
+            (keyHeld ? Time.deltaTime * 4 : Time.deltaTime * .5f));
+
         if ((int)lastFuzz != (int)fuzzyIdx)
         {
             idx = (int)fuzzyIdx;
@@ -170,7 +182,7 @@ public class SpeedyListView : MonoBehaviour
             float rawDiff = Mathf.Abs(i - offsetSkew - middleIdxOffset);
             float scaleFactor = Mathf.InverseLerp(listHeightHalf, 0, rawDiff); 
             _texts[i].transform.localScale = Vector3.one * Mathf.Lerp(.8f, 1.45f, Mathf.Pow(scaleFactor, 2));
-            _texts[i].color = Color.Lerp(Color.red, new Color(1,.5f, 1), Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2));
+            _texts[i].color = Color.Lerp(_defaultItemColor, _selectedItemColor, Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2));
 
            //_texts[i].transform.localEulerAngles = Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
 
