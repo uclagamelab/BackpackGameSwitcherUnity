@@ -182,9 +182,10 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     float timeOfNextAttractAutoCyle = 0;
 
+    public static System.Action OnAttractCycleNextGame = () => { };
+
     void autoCycleGamesIfNoInput()
     {
-
 
         if (!ProcessRunner.instance.IsGameRunning())
         {
@@ -195,7 +196,8 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
                 gameMenu.setAttractMode(true);
                 if (Time.time > timeOfNextAttractAutoCyle)
                 {
-                    gameMenu.onCycleButtonPressed(1, false);
+                    //gameMenu.onCycleButtonPressed(1, false);
+                    OnAttractCycleNextGame.Invoke();
                     timeOfNextAttractAutoCyle = Time.time + attractAutoCycleDuration;
                 }
 
