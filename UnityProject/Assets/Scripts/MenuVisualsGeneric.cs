@@ -97,7 +97,7 @@ public class MenuVisualsGeneric : MonoBehaviour
             }
             else
             {
-                cycleToNextGame(-selectionDirection, false, fromUser);
+                //cycleToNextGame(-selectionDirection, false, fromUser);
             }
         }
     }
@@ -319,7 +319,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         
         if (state == MenuState.LaunchGame)
         {
-            this.cycleToNextGame(1);
+            //this.cycleToNextGame(1);
             if (Screen.width != 1920)
             {
                 Screen.SetResolution(1920, 1080, true);

@@ -32,6 +32,8 @@ public class SpeedyListView : MonoBehaviour
 
     [SerializeField]
     TextMeshProUGUI _alphaHelper;
+
+    [SerializeField]
     CanvasGroup _alphaHelperCanvasGroup;
 
     RectTransform container;
@@ -50,7 +52,8 @@ public class SpeedyListView : MonoBehaviour
         startAp = container.anchoredPosition;
         height = _texts[0].GetComponent<RectTransform>().sizeDelta.y;
         middleIdxOffset = (_texts.Count / 2) + _centerIdxOffset;
-        _alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
+        //_alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
+        SwitcherApplicationController.OnAttractCycleNextGame += AttractCycleNextGame;
     }
     void Start()
     {
@@ -58,6 +61,13 @@ public class SpeedyListView : MonoBehaviour
     }
     int dir = 0;
     // Update is called once per frame
+
+    float autoKeyCounter = 0;
+
+    void AttractCycleNextGame()
+    {
+        autoKeyCounter = .1f;
+    }
 
     GameData currentGame
     {
@@ -82,13 +92,22 @@ public class SpeedyListView : MonoBehaviour
 
     void LateUpdate()
     {
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            AttractCycleNextGame();
+        }
         float speed = Mathf.Lerp(normalSpeed, quickSpeed, Mathf.InverseLerp(.25f, 1,speedAccumulator));
         float lastFuzz = fuzzyIdx;
         bool keyHeld = false;
 
+        bool autoRight = autoKeyCounter > 0;
+        bool autoLeft = autoKeyCounter < 0;
+        autoKeyCounter = Mathf.MoveTowards(autoKeyCounter, 0, Time.deltaTime);
 
-        
-        if (Input.GetKey(KeyCode.RightArrow))
+
+        if (!PreLaunchGameInfo.Instance.open)
+        {
+        if (Input.GetKey(KeyCode.RightArrow) || autoRight)
         {
             dir = 1;
             keyHeld = true;
@@ -97,7 +116,7 @@ public class SpeedyListView : MonoBehaviour
             //idx = (idx + 1) % GameCatalog.Instance.gameCount;
             //OnRepopulated();
         }
-        else if (Input.GetKey(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.LeftArrow) || autoLeft)
         {
             dir = -1;
             keyHeld = true;
@@ -105,6 +124,7 @@ public class SpeedyListView : MonoBehaviour
            
             //idx = (idx - 1 + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
             //OnRepopulated();
+        }
         }
 
         fuzzyIdx %= GameCatalog.Instance.gameCount;
@@ -137,7 +157,7 @@ public class SpeedyListView : MonoBehaviour
 
         _alphaHelperCanvasGroup.alpha = Mathf.MoveTowards(_alphaHelperCanvasGroup.alpha, 
             (keyHeld ? 1 : 0), 
-            (keyHeld ? Time.deltaTime * 4 : Time.deltaTime * .5f));
+            (keyHeld ? Time.deltaTime * 2 : Time.deltaTime * 1f));
 
         if ((int)lastFuzz != (int)fuzzyIdx)
         {
