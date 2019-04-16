@@ -5,9 +5,14 @@ using UnityEngine.UI;
 
 public class SizeByText : MonoBehaviour {
 
+    [SerializeField]
+    float _speed = 0;
+
     //21, 300
     [SerializeField]
     ObservedText[] _srcTexts;
+
+    public ObservedText[] srcTexts => _srcTexts;
 
     RectTransform rt;
 	// Use this for initialization
@@ -23,21 +28,42 @@ public class SizeByText : MonoBehaviour {
         float finalSize = -1;
         foreach (ObservedText obt in _srcTexts)
         {
-            float newSize= (obt.refText.text.Length * obt.sizeFac) + obt.padding;
+            float newSize= (obt.Length * obt.sizeFac) + obt.padding;
             finalSize = Mathf.Max(newSize, finalSize);
         }
         if (finalSize > 0)
         {
-            rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, finalSize);
+
+            if (_speed == 0)
+            {
+                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, finalSize);
+            }
+            else
+            {
+                
+                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Lerp(rt.sizeDelta.x, finalSize, _speed * Time.deltaTime));
+            }
         }
 
     }
 
     [System.Serializable]
-    class ObservedText
+    public class ObservedText
     {
         public Text refText;
+        public TMPro.TextMeshProUGUI refText_Tmp;
+
+        public int Length
+        {
+            get
+            {
+                return refText != null ? refText.text.Length : refText_Tmp.text.Length;
+            }
+        }
+
         public float sizeFac = 40;
         public float padding = 0;
+
+
     }
 }

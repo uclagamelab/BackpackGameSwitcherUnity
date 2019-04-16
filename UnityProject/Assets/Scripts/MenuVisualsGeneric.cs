@@ -221,19 +221,40 @@ public class MenuVisualsGeneric : MonoBehaviour
         _creditText.text = "by " + currentGameData.designers + "";
 
         //gameInfoUI.previewImage.texture = currentGameData.previewImg;
-        if (currentGameData.videoUrl != null)
-        {
-            BackgroundDisplay.Instance.setVideo(currentGameData.videoUrl, updateDirection);
-        }
-        else
-        {
-            Debug.Log("only an image");
-            BackgroundDisplay.Instance.setImage(currentGameData.previewImg, updateDirection);
-        }
+        //if (currentGameData.videoUrl != null)
+        //{
+        //    BackgroundDisplay.Instance.setVideo(currentGameData.videoUrl, updateDirection);
+        //}
+        //else
+        //{
+        //    Debug.Log("only an image");
+        //    BackgroundDisplay.Instance.setImage(currentGameData.previewImg, updateDirection);
+        //}
 
     }
 
+    GameData _lastAppliedGameData = null;
+    int _lastVidMoveDirection = 1;
+    void UpdateBackground()
+    {
+        if (currentlySelectedGame != _lastAppliedGameData && !BackgroundDisplay.Instance.animating)
+        {
+            _lastAppliedGameData = currentlySelectedGame;
+            if (currentlySelectedGame.videoUrl != null)
+            {
+                BackgroundDisplay.Instance.setVideo(currentlySelectedGame.videoUrl, _lastVidMoveDirection);
+            }
+            else
+            {
+                BackgroundDisplay.Instance.setImage(currentlySelectedGame.previewImg, _lastVidMoveDirection);
+            }
+        }
+    }
 
+    private void Update()
+    {
+        UpdateBackground();
+    }
 
     //returns if accepted press
     public bool onStartGameButtonPress()

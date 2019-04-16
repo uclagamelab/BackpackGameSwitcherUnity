@@ -27,9 +27,10 @@ public class SpeedyListView : MonoBehaviour
     List<PersonalGameThing> _things = new List<PersonalGameThing>();
 
     [SerializeField]
-    List<TextMeshProUGUI> _texts;
+    List<SpeedyListItem> _listItems;
     int idx = 3;
 
+    [Space(10)]
     [SerializeField]
     TextMeshProUGUI _alphaHelper;
 
@@ -48,10 +49,10 @@ public class SpeedyListView : MonoBehaviour
     private void Awake()
     {
         GameCatalog.Events.OnRepopulated += OnRepopulated;
-        container = _texts[0].transform.parent.GetComponent<RectTransform>();
+        container = _listItems[0].transform.parent.GetComponent<RectTransform>();
         startAp = container.anchoredPosition;
-        height = _texts[0].GetComponent<RectTransform>().sizeDelta.y;
-        middleIdxOffset = (_texts.Count / 2) + _centerIdxOffset;
+        height = _listItems[0].GetComponent<RectTransform>().sizeDelta.y;
+        middleIdxOffset = (_listItems.Count / 2) + _centerIdxOffset;
         //_alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
         SwitcherApplicationController.OnAttractCycleNextGame += AttractCycleNextGame;
     }
@@ -184,9 +185,12 @@ public class SpeedyListView : MonoBehaviour
             speedAccumulator = Mathf.MoveTowards(speedAccumulator, 0,  Time.deltaTime * 2f);
         }
 
-        char firstLetter = currentGame.title[0];
-        firstLetter = char.IsLetter(firstLetter) ? char.ToUpper(firstLetter) : '#';
-        _alphaHelper.text = "" + firstLetter;
+        if (currentGame != null)
+        {
+            char firstLetter = currentGame.title[0];
+            firstLetter = char.IsLetter(firstLetter) ? char.ToUpper(firstLetter) : '#';
+            _alphaHelper.text = "" + firstLetter;
+        }
 
         UpdateTextViz();
     }
@@ -194,19 +198,22 @@ public class SpeedyListView : MonoBehaviour
     void UpdateTextViz()
     {
 
-        float listHeightHalf = _texts.Count / 2;
+        float listHeightHalf = _listItems.Count / 2;
 
-        for (int i = 0; i < _texts.Count; i++)
+        for (int i = 0; i < _listItems.Count; i++)
         {
             float offsetSkew = fuzzyIdx % 1;
-            float rawDiff = Mathf.Abs(i - offsetSkew - middleIdxOffset);
-            float scaleFactor = Mathf.InverseLerp(listHeightHalf, 0, rawDiff); 
-            _texts[i].transform.localScale = Vector3.one * Mathf.Lerp(.8f, 1.45f, Mathf.Pow(scaleFactor, 2));
-            _texts[i].color = Color.Lerp(_defaultItemColor, _selectedItemColor, Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2));
+            float rawDiffSigned = i - offsetSkew - middleIdxOffset;
+            float rawDiff = Mathf.Abs(rawDiffSigned);
+            float scaleFactor = Mathf.InverseLerp(listHeightHalf * .4f, 0, rawDiff); 
+            _listItems[i].transform.localScale = Vector3.one * Mathf.Lerp(.5f, 1f, Mathf.Pow(scaleFactor, 2));
+            _listItems[i].color = Color.Lerp(_defaultItemColor, _selectedItemColor, Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2));
 
-           //_texts[i].transform.localEulerAngles = Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
+            _listItems[i].transform.localEulerAngles = 30 * Mathf.InverseLerp(0, 1.1f, -rawDiffSigned) * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
 
-            _texts[i].transform.localPosition = _texts[i].transform.localPosition.withX((1-Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * 1.25f, 0, rawDiff), 2)) * 75);
+            float postSelectedPenalty = Mathf.InverseLerp(1, .1f, rawDiffSigned);
+            _listItems[i].color = _listItems[i].color.withAlpha(postSelectedPenalty);
+            //_texts[i].transform.localPosition = _texts[i].transform.localPosition.withX((1-Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * 1.25f, 0, rawDiff), 2)) * 35);
         }
     }
 
@@ -220,12 +227,12 @@ public class SpeedyListView : MonoBehaviour
         //_things.Sort((a, b) => string.Compare(a.cleanTitle, b.cleanTitle ));
 
         int selectedIdx = 5;
-        for (int i = 0; i < _texts.Count; i++)
+        for (int i = 0; i < _listItems.Count; i++)
         {
-
             int effIdx = (idx + i + _things.Count) % _things.Count;
 
-            _texts[i].text = _things[effIdx].cleanTitle;
+            _listItems[i].title = _things[effIdx].cleanTitle;
+            _listItems[i].gameData = _things[effIdx].data;
 
         }
     }
@@ -233,6 +240,6 @@ public class SpeedyListView : MonoBehaviour
     [ContextMenu("Get Texts")]
     void popTexts()
     {
-        this.GetComponentsInChildren(_texts);
+        this.GetComponentsInChildren(_listItems);
     }
 }

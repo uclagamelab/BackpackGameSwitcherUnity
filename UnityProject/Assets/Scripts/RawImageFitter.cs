@@ -8,6 +8,7 @@ public class RawImageFitter : MonoBehaviour {
 
     public Vector2 offset;
 
+    public Vector2 sz = Vector2.zero;
 
     public enum Mode
     {
@@ -30,15 +31,18 @@ public class RawImageFitter : MonoBehaviour {
     }
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
         rt = this.GetComponent<RectTransform>();
         //ri = this.GetComponent<RawImage>();
         //v.texture.wi
 
-	}
+        //sz = this.rt.sizeDelta;
+    }
 	
 	// Update is called once per frame
-	void LateUpdate () {
+	void LateUpdate ()
+    {
 		if (tex != null)
         {
             //rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, )
@@ -47,7 +51,7 @@ public class RawImageFitter : MonoBehaviour {
             //sizeDelta.x = rt.sizeDelta.y * (ri.texture.width / ri.texture.height);
             //rt.sizeDelta = sizeDelta;
 
-            Vector2 containerSize = new Vector2(Screen.width, Screen.height);
+            Vector2 containerSize = sz;//new Vector2(Screen.width, Screen.height);
             if (this.transform.parent.GetComponent<Canvas>() == null)
             {
                 containerSize = RectTransformUtility.PixelAdjustRect(this.transform.parent.GetComponentInParent<RectTransform>(), this.GetComponentInParent<Canvas>()).size;//
@@ -86,17 +90,6 @@ public class RawImageFitter : MonoBehaviour {
                 rt.sizeDelta = new Vector2(containerSize.x, matchWidthHeight);
             }
             rt.anchoredPosition += offset;
-
-            /*if (horiz)//!fitHorizontally)
-            { 
-                float y = RectTransformUtility.PixelAdjustRect(rt, this.GetComponentInParent<Canvas>()).height;
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Abs(y * ri.texture.width / ri.texture.height));
-            }
-            else
-            {
-                float x = RectTransformUtility.PixelAdjustRect(rt, this.GetComponentInParent<Canvas>()).width;
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Abs(x * ri.texture.height / ri.texture.width));
-            }*/
         }
 	}
 }
