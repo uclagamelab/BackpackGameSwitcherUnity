@@ -206,14 +206,14 @@ public class SpeedyListView : MonoBehaviour
             float rawDiffSigned = i - offsetSkew - middleIdxOffset;
             float rawDiff = Mathf.Abs(rawDiffSigned);
             float scaleFactor = Mathf.InverseLerp(listHeightHalf * .4f, 0, rawDiff); 
-            _listItems[i].transform.localScale = Vector3.one * Mathf.Lerp(.5f, 1f, Mathf.Pow(scaleFactor, 2));
+            _listItems[i].transform.localScale = Vector3.one * Mathf.Lerp(.75f, 1f, Mathf.Pow(scaleFactor, 2));
             _listItems[i].color = Color.Lerp(_defaultItemColor, _selectedItemColor, Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2));
 
             _listItems[i].transform.localEulerAngles = 30 * Mathf.InverseLerp(0, 1.1f, -rawDiffSigned) * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
 
             float postSelectedPenalty = Mathf.InverseLerp(1, .1f, rawDiffSigned);
             _listItems[i].color = _listItems[i].color.withAlpha(postSelectedPenalty);
-            //_texts[i].transform.localPosition = _texts[i].transform.localPosition.withX((1-Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * 1.25f, 0, rawDiff), 2)) * 35);
+            //_listItems[i].transform.localPosition = _listItems[i].transform.localPosition.withX((Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * 1.25f, 0, rawDiff), 2)) * 35);
         }
     }
 
@@ -231,8 +231,8 @@ public class SpeedyListView : MonoBehaviour
         {
             int effIdx = (idx + i + _things.Count) % _things.Count;
 
-            _listItems[i].title = _things[effIdx].cleanTitle;
             _listItems[i].gameData = _things[effIdx].data;
+            _listItems[i].title = _things[effIdx].cleanTitle;
 
         }
     }

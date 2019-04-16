@@ -6,32 +6,48 @@ using TMPro;
 public class SpeedyListItem : MonoBehaviour {
 
     [SerializeField]
-    TextMeshProUGUI _text;
-    public GameData gameData = null;
+    TextMeshProUGUI _titleText;
+
+    [SerializeField]
+    TextMeshProUGUI _designerText;
+
+    GameData _gameData = null;
+
+    public GameData gameData
+    {
+        get { return _gameData; }
+        set
+        {
+            _gameData = value;
+            title = gameData?.title;
+            _designerText.text = gameData?.designers;
+        }
+    }
 
     public string title
     {
         get
         {
-            return _text.text;
+            return _titleText.text;
         }
 
         set
         {
-            _text.text = value;
+            _titleText.text = value;
         }
     }
+
 
     public Color color
     {
         get
         {
-            return _text.color;
+            return _titleText.color;
         }
 
         set
         {
-            _text.color = value;
+            _titleText.color = value;
         }
     }
 
