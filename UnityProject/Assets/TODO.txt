@@ -1,23 +1,36 @@
-﻿REAL TODO:
-* Add setup for exe -> Try to better automate skipping of unity resolution dialog ->  Autogenerate joytokey exe association file
-* Actually make joy2key configs for everything, where possible
-* check on website, and with tyler for missing games
-* Better support/solution for shortcuts breaking when switching machines
+﻿DESIGN NOTES:
+* more space below the selected bottom tab 
+* More space above the selected tab
+* "dim" the unselected tabs
+* extend the bottom gradient, or build shadows into those tabs
 
 
-* Investigate default controls/resolutions in the startup dialogs, make saveable, transferrable between machines?
 
-* How to generalize startup info
-- Use the generic JSON thing, have multiple classes null for nothing 
+BUGS:
+* Fix current selection to not be based on video, but list position, make sure list stops when detail screen opened
+* Smaller numbers of games
 
-Unity :
-	- pass (fixed) arguments
-	- skip resolution dialog routine (wait for config window SENDKEY)
-Generic:
-	- pass arguments
-	- use specially formatted bat file?
-	
-'Quick navigate' Letter buckets 
+ADMIN ISSUES:
+* Needing to restart when you change folders, other settings?
+* Bugs with applying changes.
+
+GAME ISSUES:
+* Games that won't run full screen, don't have 1080p resolution (which ones?)
+* Games that need their registrys set 
+	(can record initial setup, but hard to get right on the first try)
+	(Make Unity specific solution?  Programatically set the registry?)
+	(Possible to suppress gamepad output? in joytokey, the other one?)
+* Mouse issues:
+	Add default mouse position to startup options
+
+* Preserve JSON data not explicitly included in the class
+
+
+FANCINESS:
+* About section
+* Sort by creator
+* Image galleries
+* Video player (for non-playable projects, etc...)
 
 
 +++ Things found +++

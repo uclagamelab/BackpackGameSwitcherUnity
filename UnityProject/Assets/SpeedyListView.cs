@@ -6,8 +6,11 @@ using UnityEngine;
 
 public class SpeedyListView : MonoBehaviour
 {
-    [SerializeField]
-    int _centerIdxOffset = 0;
+   public static SpeedyListView instance
+    {
+        get;
+        private set;
+    }
     struct PersonalGameThing
     {
         public string cleanTitle;
@@ -18,17 +21,22 @@ public class SpeedyListView : MonoBehaviour
             this.cleanTitle = dat.title.Replace('\n', ' ');
         }
     }
-
+    [Range(0, 1)]
+    public float _attractAmt = 0;
     [SerializeField]
     Color _defaultItemColor = Color.black;
     [SerializeField]
     Color _selectedItemColor = Color.magenta;
 
+
+
     List<PersonalGameThing> _things = new List<PersonalGameThing>();
 
     [SerializeField]
     List<SpeedyListItem> _listItems;
-    int idx = 3;
+
+    int _selectedTopIndex = 0;
+
 
     [Space(10)]
     [SerializeField]
@@ -37,22 +45,35 @@ public class SpeedyListView : MonoBehaviour
     [SerializeField]
     CanvasGroup _alphaHelperCanvasGroup;
 
-    RectTransform container;
-    Vector2 startAp;
+    RectTransform _container;
+    Vector2 _startAp;
 
-    float fuzzyIdx = 0;
-    float fuzzIdxSelectionOffetted => (fuzzyIdx + middleIdxOffset) % _things.Count;
+    float _fuzzyIdx = 0;
+    float fuzzIdxSelectionOffsetted => (_fuzzyIdx + _onScreenSelectionOffset) % _things.Count;
 
-    float height;
+    float _height;
     // Start is called before the first frame update
-    float timeOfLastSwitch = 0;
+    float _timeOfLastSwitch = 0;
+
+    int _scrollMomentumDirection = 0;
+
+    float _autoKeyCounter = 0;
+
+    [SerializeField]
+    int _onScreenSelectionOffset = 8;
+    
+    float _speedAccumulator = 0;
+    const float _normalSpeed = 5;
+    const float _quickSpeed = 11;
+
     private void Awake()
     {
+        instance = this;
         GameCatalog.Events.OnRepopulated += OnRepopulated;
-        container = _listItems[0].transform.parent.GetComponent<RectTransform>();
-        startAp = container.anchoredPosition;
-        height = _listItems[0].GetComponent<RectTransform>().sizeDelta.y;
-        middleIdxOffset = (_listItems.Count / 2) + _centerIdxOffset;
+        _container = _listItems[0].transform.parent.GetComponent<RectTransform>();
+        _startAp = _container.anchoredPosition;
+        _height = _listItems[0].GetComponent<RectTransform>().sizeDelta.y;
+
         //_alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
         SwitcherApplicationController.OnAttractCycleNextGame += AttractCycleNextGame;
     }
@@ -60,129 +81,131 @@ public class SpeedyListView : MonoBehaviour
     {
         OnRepopulated();
     }
-    int dir = 0;
-    // Update is called once per frame
-
-    float autoKeyCounter = 0;
-
+    
     void AttractCycleNextGame()
     {
-        autoKeyCounter = .1f;
+        _autoKeyCounter = .1f;
     }
 
-    GameData currentGame
+    public GameData currentGame
     {
-        get;
-         set;
+        get
+        {
+            if (_things.Count > 0)
+            {
+                int effIdx = (_selectedTopIndex + _onScreenSelectionOffset) % _things.Count;
+                if (effIdx < _things.Count)
+                {
+                    return _things[effIdx].data;
+                }
+            }
 
+            return null;
+        }
     }
-
-    int middleIdxOffset = 1;
-
-
-    float speedAccumulator = 0; 
-    const float normalSpeed = 5;
-    const float quickSpeed = 11;
-
+    
     void switchToCurrentGame()
     {
        
-        int setIdx =  Mathf.FloorToInt(fuzzIdxSelectionOffetted);
+        int setIdx =  Mathf.FloorToInt(fuzzIdxSelectionOffsetted);
         MenuVisualsGeneric.Instance.cycleToNextGame(setIdx - MenuVisualsGeneric.Instance.gameIdx, false, false);
     }
 
+    float _keyHeldTimer = 0;
+
     void LateUpdate()
     {
+
+       
+
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {
             AttractCycleNextGame();
         }
-        float speed = Mathf.Lerp(normalSpeed, quickSpeed, Mathf.InverseLerp(.25f, 1,speedAccumulator));
-        float lastFuzz = fuzzyIdx;
+        float speed = Mathf.Lerp(_normalSpeed, _quickSpeed, Mathf.InverseLerp(.25f, 1,_speedAccumulator));
+        float lastFuzz = _fuzzyIdx;
         bool keyHeld = false;
 
-        bool autoRight = autoKeyCounter > 0;
-        bool autoLeft = autoKeyCounter < 0;
-        autoKeyCounter = Mathf.MoveTowards(autoKeyCounter, 0, Time.deltaTime);
+        bool autoRight = _autoKeyCounter > 0;
+        bool autoLeft = _autoKeyCounter < 0;
+        _autoKeyCounter = Mathf.MoveTowards(_autoKeyCounter, 0, Time.deltaTime);
 
 
         if (!PreLaunchGameInfo.Instance.open)
         {
         if (Input.GetKey(KeyCode.RightArrow) || autoRight)
         {
-            dir = 1;
+            _scrollMomentumDirection = 1;
             keyHeld = true;
-            fuzzyIdx += Time.deltaTime * speed;
+            _fuzzyIdx += Time.deltaTime * speed;
  
             //idx = (idx + 1) % GameCatalog.Instance.gameCount;
             //OnRepopulated();
         }
         else if (Input.GetKey(KeyCode.LeftArrow) || autoLeft)
         {
-            dir = -1;
+            _scrollMomentumDirection = -1;
             keyHeld = true;
-            fuzzyIdx -= Time.deltaTime * speed;
+            _fuzzyIdx -= Time.deltaTime * speed;
            
             //idx = (idx - 1 + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
             //OnRepopulated();
         }
         }
 
-        fuzzyIdx %= GameCatalog.Instance.gameCount;
+        _fuzzyIdx %= GameCatalog.Instance.gameCount;
 
-        if (fuzzyIdx < 0)
+        if (_fuzzyIdx < 0)
         {
-            fuzzyIdx += GameCatalog.Instance.gameCount;
+            _fuzzyIdx += GameCatalog.Instance.gameCount;
+        }
+
+
+        int lastSelectedIdx = _selectedTopIndex;
+        _selectedTopIndex = Mathf.CeilToInt(_fuzzyIdx);
+        if (_scrollMomentumDirection < 0)
+        {
+            _selectedTopIndex = Mathf.FloorToInt(_fuzzyIdx);
         }
 
 
         if (!keyHeld)
-        {
-            int closestInt = Mathf.CeilToInt(fuzzyIdx);
-            if (dir < 0)
-            {
-                closestInt = Mathf.FloorToInt(fuzzyIdx);
-            }
-            
-            fuzzyIdx = Mathf.MoveTowards(fuzzyIdx, closestInt, Time.deltaTime * speed);
+        {          
+            _fuzzyIdx = Mathf.MoveTowards(_fuzzyIdx, _selectedTopIndex, Time.deltaTime * speed);
 
-            if (fuzzIdxSelectionOffetted == (int)fuzzIdxSelectionOffetted && fuzzIdxSelectionOffetted != MenuVisualsGeneric.Instance.gameIdx)
+            if (fuzzIdxSelectionOffsetted == (int)fuzzIdxSelectionOffsetted && fuzzIdxSelectionOffsetted != MenuVisualsGeneric.Instance.gameIdx)
             {
-                if (Time.time > timeOfLastSwitch + 1)
+                if (Time.time > _timeOfLastSwitch + 1)
                 {
-                    timeOfLastSwitch = Time.time;
+                    _timeOfLastSwitch = Time.time;
                     switchToCurrentGame();
                 }
             }
         }
 
+        bool shoulShowAlphaHelper = keyHeld && _keyHeldTimer > .5f;
         _alphaHelperCanvasGroup.alpha = Mathf.MoveTowards(_alphaHelperCanvasGroup.alpha, 
-            (keyHeld ? 1 : 0), 
+            (shoulShowAlphaHelper ? 1 : 0), 
             (keyHeld ? Time.deltaTime * 2 : Time.deltaTime * 1f));
 
-        if ((int)lastFuzz != (int)fuzzyIdx)
+        if (lastSelectedIdx != _selectedTopIndex)
         {
-            idx = (int)fuzzyIdx;
             OnRepopulated();
         }
 
-        float fuzzIdxOffset = fuzzyIdx % 1;
-        container.anchoredPosition = startAp + Vector2.up * fuzzIdxOffset * height;
+        float fuzzIdxOffset = _fuzzyIdx % 1;
+        _container.anchoredPosition = _startAp + Vector2.up * fuzzIdxOffset * _height;
        
-
-        int gameIdx = Mathf.CeilToInt((fuzzyIdx + middleIdxOffset) % _things.Count);
-        if (gameIdx >= 0 && gameIdx < _things.Count)
-        {
-            currentGame = _things[gameIdx].data;
-        }
 
         if (keyHeld)
         {
-            speedAccumulator = Mathf.MoveTowards(speedAccumulator, 1, Time.deltaTime  / 1.75f);
+            _keyHeldTimer += Time.deltaTime;
+            _speedAccumulator = Mathf.MoveTowards(_speedAccumulator, 1, Time.deltaTime  / 1.75f);
         }
         else
         {
-            speedAccumulator = Mathf.MoveTowards(speedAccumulator, 0,  Time.deltaTime * 2f);
+            _keyHeldTimer = Mathf.Max(0, _keyHeldTimer - Time.deltaTime);
+            _speedAccumulator = Mathf.MoveTowards(_speedAccumulator, 0,  Time.deltaTime * 2f);
         }
 
         if (currentGame != null)
@@ -202,18 +225,34 @@ public class SpeedyListView : MonoBehaviour
 
         for (int i = 0; i < _listItems.Count; i++)
         {
-            float offsetSkew = fuzzyIdx % 1;
-            float rawDiffSigned = i - offsetSkew - middleIdxOffset;
+            float offsetSkew = _fuzzyIdx % 1;
+            float rawDiffSigned = i - offsetSkew - _onScreenSelectionOffset;
             float rawDiff = Mathf.Abs(rawDiffSigned);
             float scaleFactor = Mathf.InverseLerp(listHeightHalf * .4f, 0, rawDiff); 
-            _listItems[i].transform.localScale = Vector3.one * Mathf.Lerp(.75f, 1f, Mathf.Pow(scaleFactor, 2));
-            _listItems[i].color = Color.Lerp(_defaultItemColor, _selectedItemColor, Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2));
+            _listItems[i].transform.localScale = Vector3.one * Mathf.Lerp(.5f, 1f, Mathf.Pow(scaleFactor, 2));
+            _listItems[i].titleColor = Color.Lerp(_defaultItemColor, _selectedItemColor, Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2));
 
-            _listItems[i].transform.localEulerAngles = 30 * Mathf.InverseLerp(0, 1.1f, -rawDiffSigned) * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
+
+            float rotationAmount = Mathf.Clamp(-rawDiffSigned / 4.5f, -1, 1);
+            _listItems[i].transform.localEulerAngles = 30 * rotationAmount * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
 
             float postSelectedPenalty = Mathf.InverseLerp(1, .1f, rawDiffSigned);
-            _listItems[i].color = _listItems[i].color.withAlpha(postSelectedPenalty);
-            //_listItems[i].transform.localPosition = _listItems[i].transform.localPosition.withX((Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * 1.25f, 0, rawDiff), 2)) * 35);
+            _listItems[i].alpha = postSelectedPenalty;
+
+            //_listItems[i].darkenedAmount = Mathf.InverseLerp(0, .75f, rawDiff);
+
+
+            //Lift the tabs up a little bit as they approach the selected tab, to give it some extra margin
+            float finalApproach =
+                rawDiffSigned < -1 ?
+                Mathf.InverseLerp(-4.5f, -1,  rawDiffSigned)
+                :
+                Mathf.InverseLerp(-.25f, -1, rawDiffSigned);
+            Vector3 upwardsBump = finalApproach * 50 * Vector3.up;
+            _listItems[i].transform.localPosition =
+                upwardsBump
+                +
+                _listItems[i].initialPosition.withX(Mathf.Pow(Mathf.InverseLerp(0, 1.1f, rawDiff), 2) * -35 + Mathf.Lerp(0, -800, rawDiff * _attractAmt));
         }
     }
 
@@ -226,10 +265,9 @@ public class SpeedyListView : MonoBehaviour
         }
         //_things.Sort((a, b) => string.Compare(a.cleanTitle, b.cleanTitle ));
 
-        int selectedIdx = 5;
         for (int i = 0; i < _listItems.Count; i++)
         {
-            int effIdx = (idx + i + _things.Count) % _things.Count;
+            int effIdx = (_selectedTopIndex + i + _things.Count) % _things.Count;
 
             _listItems[i].gameData = _things[effIdx].data;
             _listItems[i].title = _things[effIdx].cleanTitle;

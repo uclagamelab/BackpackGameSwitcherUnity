@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class SizeByText : MonoBehaviour {
 
+    public bool manualOnly = false;
     [SerializeField]
     float _speed = 0;
 
@@ -15,16 +16,26 @@ public class SizeByText : MonoBehaviour {
     public ObservedText[] srcTexts => _srcTexts;
 
     RectTransform rt;
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Awake() {
         rt = this.GetComponent<RectTransform>();
+        if (manualOnly)
+        {
+            this.enabled = false;
+        }
 
     }
-	
-	// Update is called once per frame
-	void Update ()
-    {
 
+    public void ForceUpdate()
+    {
+        LateUpdate();
+    }
+
+	// Update is called once per frame
+	void LateUpdate ()
+    {
+       
         float finalSize = -1;
         foreach (ObservedText obt in _srcTexts)
         {
@@ -57,7 +68,7 @@ public class SizeByText : MonoBehaviour {
         {
             get
             {
-                return refText != null ? refText.text.Length : refText_Tmp.text.Length;
+                return refText != null ? refText.text.Length : refText_Tmp != null ? refText_Tmp.text.Length : 0;
             }
         }
 

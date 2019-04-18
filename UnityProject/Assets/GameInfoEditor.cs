@@ -88,7 +88,7 @@ public class GameInfoEditor : MonoBehaviour
         }
         else
         {
-            _jsonEditor.text = nuSelection.GetJSON();
+            _jsonEditor.text = nuSelection.GetInfoJSON();
         }
     }
 

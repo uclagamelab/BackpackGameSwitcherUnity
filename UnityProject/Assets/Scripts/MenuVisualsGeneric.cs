@@ -65,11 +65,12 @@ public class MenuVisualsGeneric : MonoBehaviour
     {
         get
         {
-            if (gameIdx >= GameCatalog.Instance.gameCount)
-            {
-                return null;
-            }
-            return GameCatalog.Instance.games[gameIdx];
+            return SpeedyListView.instance.currentGame;
+            //if (gameIdx >= GameCatalog.Instance.gameCount)
+            //{
+            //    return null;
+            //}
+            //return GameCatalog.Instance.games[gameIdx];
         }
     }
 

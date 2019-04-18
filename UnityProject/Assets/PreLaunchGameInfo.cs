@@ -109,6 +109,10 @@ public class PreLaunchGameInfo : MonoBehaviour {
 
     void setHighlighted(RectTransform toHighlight)
     {
+        bool hightlightBackButton = toHighlight == _backButton || toHighlight == null;
+        _playButton.GetComponentInChildren<Text>().color = !hightlightBackButton ? Color.yellow : Color.white;
+        _backButton.GetComponentInChildren<Text>().color = hightlightBackButton ? Color.yellow : Color.white;
+
         if (toHighlight == null)
         {
             _highlightImg.color = Color.white.withAlpha(0);
@@ -120,7 +124,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
             _buttonHighlight.anchoredPosition = _playButton.anchoredPosition;
         }
 
-        if (toHighlight == _backButton || toHighlight == null)
+        if (hightlightBackButton)
         {
             _highlightedObject = _backButton.gameObject;
             _buttonHighlight.anchoredPosition = _backButton.anchoredPosition;

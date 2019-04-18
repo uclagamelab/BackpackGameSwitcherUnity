@@ -26,8 +26,8 @@ public class TextCopyCat : MonoBehaviour {
         this.transform.position = _textToCopy.transform.position;
         this.transform.rotation = _textToCopy.transform.rotation;
         this.transform.localScale = _textToCopy.transform.localScale;
-        _text.color = _text.color.withAlpha(_textToCopy.color.a);
-        _authorText.color = _authorText.color.withAlpha(_textToCopy.color.a);
+        _text.color = _text.color.withAlpha(_textToCopy.titleColor.a);
+        _authorText.color = _authorText.color.withAlpha(_textToCopy.titleColor.a);
         
         if (_textToCopy.title != _lastAppliedText)
         {
