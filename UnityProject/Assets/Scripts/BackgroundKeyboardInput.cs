@@ -38,7 +38,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         get { return _instance; }
     }
 
-    float _timeOfLastInput = float.PositiveInfinity;
+    float _timeOfLastInput = -420;// float.PositiveInfinity;
     public float timeOfLastInput
     {
         get

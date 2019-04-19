@@ -9,7 +9,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardInput.Listener {
+public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardInput.Listener
+{
     MenuVisualsGeneric gameMenu;
 
     bool gotAnExitCombo = false; //consumable event
@@ -34,7 +35,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
     }
 
 
-    float idleTimeout = 6 * 60;
+    static float idleTimeout = 3;//6 * 60;
     float attractAutoCycleDuration = 2;
 
     bool _defaultIsFullScreen = true;
@@ -56,7 +57,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     void OnSettingsUpdated()
     {
-        GenericSettings.TryGetValue("idle_timeout", out idleTimeout, 6 * 60);
+        GenericSettings.TryGetValue("idle_timeout", out idleTimeout, 2 * 60);
         GenericSettings.TryGetValue("idle_cycle_duration", out attractAutoCycleDuration, 90);
     }
 
@@ -184,13 +185,22 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     public static System.Action OnAttractCycleNextGame = () => { };
 
+    public static bool isIdle
+    {
+        get
+        {
+            bool ret = Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout;
+            return ret;
+        }
+    }
+
     void autoCycleGamesIfNoInput()
     {
 
         if (!ProcessRunner.instance.IsGameRunning())
         {
 
-            if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout)
+            if (isIdle)
             {
                 //Debug.Log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
                 gameMenu.setAttractMode(true);

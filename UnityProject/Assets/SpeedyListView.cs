@@ -134,7 +134,11 @@ public class SpeedyListView : MonoBehaviour
 
     void LateUpdate()
     {
-
+        int targetIdleOpacity = SwitcherApplicationController.isIdle ? 1 : 0;
+        if (this._attractAmt != targetIdleOpacity)
+        {
+            this._attractAmt = Mathf.MoveTowards(this._attractAmt, targetIdleOpacity, Time.deltaTime);
+        }
        
 
         if (Input.GetKeyDown(KeyCode.Alpha0))
@@ -249,8 +253,10 @@ public class SpeedyListView : MonoBehaviour
             float rotationAmount = Mathf.Clamp(-rawDiffSigned / 4.5f, -1, 1);
             _listItems[i].transform.localEulerAngles = 30 * rotationAmount * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
 
+            float attractModePenalty = Mathf.Lerp(1, Mathf.InverseLerp(.95f ,.15f, rawDiff),_attractAmt);
+
             float postSelectedPenalty = Mathf.InverseLerp(1, .1f, rawDiffSigned);
-            _listItems[i].alpha = postSelectedPenalty;
+            _listItems[i].alpha = postSelectedPenalty * attractModePenalty;
 
             //_listItems[i].darkenedAmount = Mathf.InverseLerp(0, .75f, rawDiff);
 
@@ -265,7 +271,8 @@ public class SpeedyListView : MonoBehaviour
             _listItems[i].transform.localPosition =
                 upwardsBump
                 +
-                _listItems[i].initialPosition.withX(Mathf.Pow(Mathf.InverseLerp(0, 1.1f, rawDiff), 2) * -35 + Mathf.Lerp(0, -800, rawDiff * _attractAmt));
+                _listItems[i].initialPosition.withX(Mathf.Pow(Mathf.InverseLerp(0, 1.1f, rawDiff), 2) * -35);
+            //+ Mathf.Lerp(0, -800, rawDiff * _attractAmt));
         }
     }
 

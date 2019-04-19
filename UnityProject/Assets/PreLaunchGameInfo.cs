@@ -107,16 +107,21 @@ public class PreLaunchGameInfo : MonoBehaviour {
         return accepted;
     }
 
-    void setHighlighted(RectTransform toHighlight)
+    void setHighlighted(RectTransform toHighlightRaw)
     {
+        RectTransform toHighlight = toHighlightRaw;
+        if (toHighlight == null)
+        {
+            toHighlight = _backButton;
+        }
+
         bool hightlightBackButton = toHighlight == _backButton || toHighlight == null;
         _playButton.GetComponentInChildren<Text>().color = !hightlightBackButton ? Color.yellow : Color.white;
         _backButton.GetComponentInChildren<Text>().color = hightlightBackButton ? Color.yellow : Color.white;
+        _playButton.transform.localScale = (!hightlightBackButton ? 1 : .8f) * Vector3.one;
+        _backButton.transform.localScale = ( hightlightBackButton ? 1 : .8f) * Vector3.one;
 
-        if (toHighlight == null)
-        {
-            _highlightImg.color = Color.white.withAlpha(0);
-        }
+
 
         if (toHighlight == _playButton)
         {
