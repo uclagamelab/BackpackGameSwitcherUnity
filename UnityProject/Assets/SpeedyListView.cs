@@ -285,7 +285,7 @@ public class SpeedyListView : MonoBehaviour
             _things.Add(new PersonalGameThing(gd, gidx));
             gidx++;
         }
-        //_things.Sort((a, b) => string.Compare(a.cleanTitle, b.cleanTitle ));
+        _things.Sort((a, b) => string.Compare(a.cleanTitle, b.cleanTitle ));
        // int fuzzFloored = (int)_fuzzyIdx;
         for (int i = 0; i < _listItems.Count; i++)
         {
