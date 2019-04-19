@@ -238,7 +238,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     int _lastVidMoveDirection = 1;
     void UpdateBackground()
     {
-        if (currentlySelectedGame != _lastAppliedGameData && !BackgroundDisplay.Instance.animating)
+        if (!SpeedyListView.instance.keyHeld && currentlySelectedGame != _lastAppliedGameData && !BackgroundDisplay.Instance.animating)
         {
             _lastAppliedGameData = currentlySelectedGame;
             if (currentlySelectedGame.videoUrl != null)

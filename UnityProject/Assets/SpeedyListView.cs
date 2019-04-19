@@ -37,7 +37,18 @@ public class SpeedyListView : MonoBehaviour
     [SerializeField]
     List<SpeedyListItem> _listItems;
 
-    int _selectedTopIndex = 0;
+    int _selectedTopIndex
+    {
+        get
+        {
+            int ret = Mathf.CeilToInt(_fuzzyIdx);
+            if (_scrollMomentumDirection < 0)
+            {
+                ret = Mathf.FloorToInt(_fuzzyIdx);
+            }
+            return ret;
+        }
+    }
 
 
     [Space(10)]
@@ -106,7 +117,7 @@ public class SpeedyListView : MonoBehaviour
         }
     }
     
-    void switchToCurrentGame()
+    void UpdateVideoToCurrentGame()
     {
        
         int setIdx =  Mathf.FloorToInt(fuzzIdxSelectionOffsetted);
@@ -114,6 +125,12 @@ public class SpeedyListView : MonoBehaviour
     }
 
     float _keyHeldTimer = 0;
+
+    public bool keyHeld
+    {
+        get;
+        private set;
+    }
 
     void LateUpdate()
     {
@@ -126,7 +143,7 @@ public class SpeedyListView : MonoBehaviour
         }
         float speed = Mathf.Lerp(_normalSpeed, _quickSpeed, Mathf.InverseLerp(.25f, 1,_speedAccumulator));
         float lastFuzz = _fuzzyIdx;
-        bool keyHeld = false;
+        keyHeld = false;
 
         bool autoRight = _autoKeyCounter > 0;
         bool autoLeft = _autoKeyCounter < 0;
@@ -164,12 +181,6 @@ public class SpeedyListView : MonoBehaviour
 
 
         int lastSelectedIdx = _selectedTopIndex;
-        _selectedTopIndex = Mathf.CeilToInt(_fuzzyIdx);
-        if (_scrollMomentumDirection < 0)
-        {
-            _selectedTopIndex = Mathf.FloorToInt(_fuzzyIdx);
-        }
-
 
         if (!keyHeld)
         {          
@@ -180,7 +191,7 @@ public class SpeedyListView : MonoBehaviour
                 if (Time.time > _timeOfLastSwitch + 1)
                 {
                     _timeOfLastSwitch = Time.time;
-                    switchToCurrentGame();
+                    //UpdateVideoToCurrentGame();
                 }
             }
         }
@@ -190,7 +201,7 @@ public class SpeedyListView : MonoBehaviour
             (shoulShowAlphaHelper ? 1 : 0), 
             (keyHeld ? Time.deltaTime * 2 : Time.deltaTime * 1f));
 
-        if (lastSelectedIdx != _selectedTopIndex)
+        if ((int)lastFuzz != (int)_fuzzyIdx)
         {
             OnRepopulated();
         }
@@ -261,18 +272,18 @@ public class SpeedyListView : MonoBehaviour
     void OnRepopulated()
     {
         _things.Clear();
-        int idx = 0;
+        int gidx = 0;
         foreach (GameData gd in GameCatalog.Instance.games)
         {
-            _things.Add(new PersonalGameThing(gd, idx));
-            idx++;
+            _things.Add(new PersonalGameThing(gd, gidx));
+            gidx++;
         }
         //_things.Sort((a, b) => string.Compare(a.cleanTitle, b.cleanTitle ));
-
+       // int fuzzFloored = (int)_fuzzyIdx;
         for (int i = 0; i < _listItems.Count; i++)
         {
-            int effIdx = (_selectedTopIndex + i + _things.Count) % _things.Count;
-
+            int effIdx = ((int) _fuzzyIdx + i + _things.Count) % _things.Count;
+            _listItems[i].SetTabFlipIndex(_things[effIdx].realIdx);
             _listItems[i].gameData = _things[effIdx].data;
             _listItems[i].title = _things[effIdx].cleanTitle;
 

@@ -24,6 +24,20 @@ public class SpeedyListItem : MonoBehaviour {
 
     CanvasGroup _canvasGroup;
 
+    readonly Vector3[] _scaleFlips = new Vector3[]
+    {
+        new Vector3( 1, 1, 1),
+        new Vector3(-1,-1, 1),
+        new Vector3(-1, 1, 1),
+        new Vector3( 1,-1, 1),
+
+    };
+
+    public void SetTabFlipIndex(int i)
+    {
+        this._tabImage.transform.localScale = _scaleFlips[i % _scaleFlips.Length]; 
+    }
+
     public GameData gameData
     {
         get { return _gameData; }
