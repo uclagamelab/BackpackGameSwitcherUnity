@@ -14,9 +14,11 @@ public class SpeedyListView : MonoBehaviour
     struct PersonalGameThing
     {
         public string cleanTitle;
+        public int realIdx;
         public GameData data;
-        public PersonalGameThing(GameData dat)
+        public PersonalGameThing(GameData dat, int idx)
         {
+            realIdx = idx;
             this.data = dat;
             this.cleanTitle = dat.title.Replace('\n', ' ');
         }
@@ -259,9 +261,11 @@ public class SpeedyListView : MonoBehaviour
     void OnRepopulated()
     {
         _things.Clear();
+        int idx = 0;
         foreach (GameData gd in GameCatalog.Instance.games)
         {
-            _things.Add(new PersonalGameThing(gd));
+            _things.Add(new PersonalGameThing(gd, idx));
+            idx++;
         }
         //_things.Sort((a, b) => string.Compare(a.cleanTitle, b.cleanTitle ));
 
