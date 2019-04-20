@@ -200,7 +200,7 @@ public class SpeedyListView : MonoBehaviour
             }
         }
 
-        bool shoulShowAlphaHelper = keyHeld && _keyHeldTimer > .5f;
+        bool shoulShowAlphaHelper = keyHeld && _keyHeldTimer > .75f;
         _alphaHelperCanvasGroup.alpha = Mathf.MoveTowards(_alphaHelperCanvasGroup.alpha, 
             (shoulShowAlphaHelper ? 1 : 0), 
             (keyHeld ? Time.deltaTime * 2 : Time.deltaTime * 1f));
@@ -221,7 +221,7 @@ public class SpeedyListView : MonoBehaviour
         }
         else
         {
-            _keyHeldTimer = Mathf.Max(0, _keyHeldTimer - Time.deltaTime);
+            _keyHeldTimer = Mathf.Max(0, _keyHeldTimer - 2*Time.deltaTime);
             _speedAccumulator = Mathf.MoveTowards(_speedAccumulator, 0,  Time.deltaTime * 2f);
         }
 

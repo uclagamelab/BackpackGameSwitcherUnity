@@ -24,10 +24,12 @@ public class PreLaunchGameInfo : MonoBehaviour {
     Image _highlightImg;
 
     [SerializeField]
-    RectTransform _backButton;
+    PreLaunchButtons _backButton;
 
     [SerializeField]
-    RectTransform _playButton;
+    PreLaunchButtons _playButton;
+
+
 
     public bool open
     {
@@ -95,12 +97,12 @@ public class PreLaunchGameInfo : MonoBehaviour {
 
         if (backButtonHighighted && direction == 1)
         {
-            setHighlighted(_playButton);
+            setHighlighted(_playButton.rt);
             accepted = true;
         }
         else if (!backButtonHighighted && direction == -1)
         {
-            setHighlighted(_backButton);
+            setHighlighted(_backButton.rt);
             accepted = true;
         }
 
@@ -112,27 +114,30 @@ public class PreLaunchGameInfo : MonoBehaviour {
         RectTransform toHighlight = toHighlightRaw;
         if (toHighlight == null)
         {
-            toHighlight = _backButton;
+            toHighlight = _backButton.rt;
         }
 
-        bool hightlightBackButton = toHighlight == _backButton || toHighlight == null;
-        _playButton.GetComponentInChildren<Text>().color = !hightlightBackButton ? Color.yellow : Color.white;
-        _backButton.GetComponentInChildren<Text>().color = hightlightBackButton ? Color.yellow : Color.white;
-        _playButton.transform.localScale = (!hightlightBackButton ? 1 : .8f) * Vector3.one;
-        _backButton.transform.localScale = ( hightlightBackButton ? 1 : .8f) * Vector3.one;
+        bool hightlightBackButton = toHighlight == _backButton.rt || toHighlight == null;
+        _playButton.rt.GetComponentInChildren<Text>().color = !hightlightBackButton ? Color.yellow : Color.white;
+        _backButton.rt.GetComponentInChildren<Text>().color = hightlightBackButton ? Color.yellow : Color.white;
 
+        _playButton.rt.transform.localScale = (!hightlightBackButton ? 1 : .8f) * Vector3.one;
+        _backButton.rt.transform.localScale = ( hightlightBackButton ? 1 : .8f) * Vector3.one;
 
+        _playButton.jitter.on = !hightlightBackButton;
+        _backButton.jitter.on =  hightlightBackButton;
 
-        if (toHighlight == _playButton)
+        if (toHighlight == _playButton.rt)
         {
-            _highlightedObject = _playButton.gameObject;
-            _buttonHighlight.anchoredPosition = _playButton.anchoredPosition;
+            _highlightedObject = _playButton.rt.gameObject;
+            _buttonHighlight.anchoredPosition = _playButton.rt.anchoredPosition;
+            
         }
 
         if (hightlightBackButton)
         {
-            _highlightedObject = _backButton.gameObject;
-            _buttonHighlight.anchoredPosition = _backButton.anchoredPosition;
+            _highlightedObject = _backButton.rt.gameObject;
+            _buttonHighlight.anchoredPosition = _backButton.rt.anchoredPosition;
         }
     }
 
@@ -140,7 +145,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
     {
         get
         {
-            return getHighlighted() == _playButton.gameObject;
+            return getHighlighted() == _playButton.rt.gameObject;
         }
     }
 
@@ -148,7 +153,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
     {
         get
         {
-            return getHighlighted() == null || getHighlighted() == _backButton.gameObject;
+            return getHighlighted() == null || getHighlighted() == _backButton.rt.gameObject;
         }
     }
 
@@ -175,7 +180,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
         if (forward)
         {
 
-            setHighlighted(_backButton);
+            setHighlighted(_backButton.rt);
         }
        this.varyWithT((rawT) =>
         {
@@ -201,7 +206,12 @@ public class PreLaunchGameInfo : MonoBehaviour {
                 animating = false;
             }
         }, .5f);
+    }
 
-        
+    [System.Serializable]
+    public class PreLaunchButtons
+    {
+        public RectTransform rt;
+        public GentleJitterAnim jitter;
     }
 }
