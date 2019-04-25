@@ -9,6 +9,11 @@ using Debug = UnityEngine.Debug;
 
 public class ExternalOverlay : MonoBehaviour {
 
+    static ExternalOverlay _instance;
+    private void Awake()
+    {
+        _instance = this;
+    }
     static void ShowOverlay()
     {
         //"C:\Program Files\Rainmeter\Rainmeter.exe"[!ActivateConfig "CrockoDial\Main" "Main.ini"][!Move "448" "0"][!Draggable 0]
@@ -32,6 +37,22 @@ public class ExternalOverlay : MonoBehaviour {
         process.StartInfo = startInfo;
         process.Start();
     }
+
+   static bool _okToShow = true;
+    public static void DoShowAndHide()
+    {
+        if (_okToShow)
+        {
+            _okToShow = false;
+            ShowOverlay();
+            _instance.delayedFunction(()=>
+            {
+                HideOverlay();
+                _okToShow = true;
+            }, 5);
+        }
+    }
+
     bool showed = false;
     private void Update()
     {

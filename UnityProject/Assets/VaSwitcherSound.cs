@@ -195,7 +195,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
                
                currentBgMusicIdx = (currentBgMusicIdx + 1) % bgMusicList.Count;
             LoadNewSong(currentBgMusicIdx);
-            Debug.Log(currentBgMusicIdx + " / " + (bgMusicList.Count - 1));
+            //Debug.Log(currentBgMusicIdx + " / " + (bgMusicList.Count - 1));
         }
 
         this.bgMusicSource.volume =  Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume, .35f * Time.deltaTime);

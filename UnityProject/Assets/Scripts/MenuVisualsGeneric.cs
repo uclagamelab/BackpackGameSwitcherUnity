@@ -301,6 +301,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             l.onStartGame();
         }
+        ExternalOverlay.DoShowAndHide();
 
         this.delayedFunction(() => 
         {
