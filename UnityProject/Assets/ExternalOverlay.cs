@@ -18,7 +18,7 @@ public class ExternalOverlay : MonoBehaviour {
     {
         //"C:\Program Files\Rainmeter\Rainmeter.exe"[!ActivateConfig "CrockoDial\Main" "Main.ini"][!Move "448" "0"][!Draggable 0]
         ProcessStartInfo startInfo = new ProcessStartInfo("C:\\Program Files\\Rainmeter\\Rainmeter.exe");
-        startInfo.Arguments ="[!ActivateConfig \"CrockoDial\\Main\" \"Main.ini\"][!Move \"448\" \"0\"][!Draggable 0]";
+        startInfo.Arguments = "[!ActivateConfig \"CrockoDial\\Main\" \"Main.ini\"][!Move \"260\" \"0\"][!Draggable 0]";
         //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 
         Process process = new System.Diagnostics.Process();
