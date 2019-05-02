@@ -10,12 +10,23 @@ using Debug = UnityEngine.Debug;
 public class ExternalOverlay : MonoBehaviour {
 
     static ExternalOverlay _instance;
+    static bool on = true;
     private void Awake()
     {
         _instance = this;
+
+        on = !CommandLineArguments.AdminMode;
     }
+
+   
+
     static void ShowOverlay()
     {
+        if (!on)
+        {
+            return;
+        }
+
         //"C:\Program Files\Rainmeter\Rainmeter.exe"[!ActivateConfig "CrockoDial\Main" "Main.ini"][!Move "448" "0"][!Draggable 0]
         ProcessStartInfo startInfo = new ProcessStartInfo("C:\\Program Files\\Rainmeter\\Rainmeter.exe");
         startInfo.Arguments = "[!ActivateConfig \"CrockoDial\\Main\" \"Main.ini\"][!Move \"260\" \"0\"][!Draggable 0]";
@@ -28,6 +39,10 @@ public class ExternalOverlay : MonoBehaviour {
 
     static void HideOverlay()
     {
+        if (!on)
+        {
+            return;
+        }
         //"C:\Program Files\Rainmeter\Rainmeter.exe"[!ActivateConfig "CrockoDial\Main" "Main.ini"][!Move "448" "0"][!Draggable 0]
         ProcessStartInfo startInfo = new ProcessStartInfo("C:\\Program Files\\Rainmeter\\Rainmeter.exe");
         startInfo.Arguments = "[!DeactivateConfig \"CrockoDial\\Main\" \"Main.ini\"]";
@@ -50,24 +65,6 @@ public class ExternalOverlay : MonoBehaviour {
                 HideOverlay();
                 _okToShow = true;
             }, 5);
-        }
-    }
-
-    bool showed = false;
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Y))
-        {
-            showed = !showed;
-            if (showed)
-            {
-                ShowOverlay();
-            }
-            else
-            {
-                HideOverlay();
-            }
-            
         }
     }
 }
