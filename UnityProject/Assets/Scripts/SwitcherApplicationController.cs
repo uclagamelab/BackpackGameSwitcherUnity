@@ -149,12 +149,12 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         }
 
         //--- LEGACY INPUT STYLE, JUST SLIDING THE BACKGROUND -----------------------
-        //int selectionDirection = 0;
-        //selectionDirection = CrockoInput.NoListVersion.GetNextGameDown() ? 1 : CrockoInput.NoListVersion.GetPreviousGameDown() ? -1 : 0;
-        //if (selectionDirection != 0)
-        //{
-        //    gameMenu.onCycleButtonPressed(selectionDirection);
-        //}
+        int selectionDirection = 0;
+        selectionDirection = CrockoInput.NoListVersion.GetNextGameDown() ? 1 : CrockoInput.NoListVersion.GetPreviousGameDown() ? -1 : 0;
+        if (selectionDirection != 0)
+        {
+            gameMenu.onCycleButtonPressed(selectionDirection);
+        }
         //----------------------------------------------------------------------------
 
 

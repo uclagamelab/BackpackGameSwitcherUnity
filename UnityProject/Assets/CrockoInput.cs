@@ -4,40 +4,48 @@ using UnityEngine;
 
 public class CrockoInput : MonoBehaviour
 {
+    static readonly bool USE_TRACKBALL_INPUT = false;
     public static bool GetOpenGameButtonDown()
     {
         return 
-            Input.GetMouseButtonDown(0) || //Trackball version
+            !ToolsAndSettingsMenu.isOpen &&
+            (USE_TRACKBALL_INPUT && Input.GetMouseButtonDown(0)) || //Trackball version
             Input.GetKeyDown(KeyCode.UpArrow);
     }
 
     public static bool GetListScrollForward(ButtonPhase phase)
     {
-        return GetKeyState(KeyCode.LeftArrow, phase);
+        return !ToolsAndSettingsMenu.isOpen && GetKeyState(KeyCode.LeftArrow, phase);
     }
 
     public static bool GetListScrollBack(ButtonPhase phase)
     {
-        return GetKeyState(KeyCode.RightArrow, phase);
+        return !ToolsAndSettingsMenu.isOpen && GetKeyState(KeyCode.RightArrow, phase);
     }
 
     public static float GetListScroll()
     {
         float ret = 0;
-        if (GetListScrollForward(ButtonPhase.Held))
+        if (!ToolsAndSettingsMenu.isOpen)
         {
-            ret = 1;
-        }
-        else if (GetListScrollBack(ButtonPhase.Held))
-        {
-            ret = -1;
-        }
+            if (GetListScrollForward(ButtonPhase.Held))
+            {
+                ret = 1;
+            }
+            else if (GetListScrollBack(ButtonPhase.Held))
+            {
+                ret = -1;
+            }
 
-        float mouseDelta = Input.GetAxis("MouseDelta");
-        if (Mathf.Abs(mouseDelta) > 1)
-        {
-            float clampedMouseDelta = Mathf.Clamp(mouseDelta * .125f, -1, 1);
-            ret += clampedMouseDelta;
+            if (USE_TRACKBALL_INPUT)
+            {
+                float mouseDelta = Input.GetAxis("MouseDelta");
+                if (Mathf.Abs(mouseDelta) > 1)
+                {
+                    float clampedMouseDelta = Mathf.Clamp(mouseDelta * .125f, -1, 1);
+                    ret += clampedMouseDelta;
+                }
+            }
         }
         return ret;
     }
@@ -51,12 +59,13 @@ public class CrockoInput : MonoBehaviour
     {
         public static bool GetNextGameDown()
         {
-            return Input.GetKeyDown(KeyCode.W);
+          
+                return !ToolsAndSettingsMenu.isOpen && Input.GetKeyDown(KeyCode.W);
         }
 
         public static bool GetPreviousGameDown()
         {
-            return Input.GetKeyDown(KeyCode.S);
+            return !ToolsAndSettingsMenu.isOpen && Input.GetKeyDown(KeyCode.S);
         }
     }
 
