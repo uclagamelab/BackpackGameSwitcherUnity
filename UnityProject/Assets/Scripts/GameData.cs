@@ -23,6 +23,7 @@ public class GameData
     public string exePath;
 
     public string description;
+    public string howToPlay;
 
     public ControlInstructions instructions;
 
@@ -202,6 +203,7 @@ public class GameData
 
 
         this.description = diskDescription;
+        this.howToPlay = diskInstructions;
             
 
         if (string.IsNullOrEmpty(this.title))
