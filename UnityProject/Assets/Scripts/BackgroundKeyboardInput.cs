@@ -76,7 +76,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
                 continue;
             }
 
-            bool gotMouseInput = Input.GetAxis("MouseDelta") != 0;
+            bool gotMouseInput = Input.GetAxis("MouseDeltaX") != 0 || Input.GetAxis("MouseDeltaY") != 0;
 
             if (GetAsyncKeyState(i) != 0 || gotMouseInput)
             {

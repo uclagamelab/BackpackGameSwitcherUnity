@@ -4,12 +4,24 @@ using UnityEngine;
 
 public class CrockoInput : MonoBehaviour
 {
-    static readonly bool USE_TRACKBALL_INPUT = false;
+    static bool USE_TRACKBALL_INPUT = false;
+    private void Awake()
+    {
+        string[] args = System.Environment.GetCommandLineArgs();
+        foreach (string arg in args)
+        {
+            if (arg == "-trackball_input")
+            {
+                USE_TRACKBALL_INPUT = true;
+            }
+        }
+    }
+    
     public static bool GetOpenGameButtonDown()
     {
         return 
             !ToolsAndSettingsMenu.isOpen &&
-            (USE_TRACKBALL_INPUT && Input.GetMouseButtonDown(0)) || //Trackball version
+            CrockoInput.trackBallSubmitDown || //Trackball version
             Input.GetKeyDown(KeyCode.UpArrow);
     }
 
@@ -39,7 +51,7 @@ public class CrockoInput : MonoBehaviour
 
             if (USE_TRACKBALL_INPUT)
             {
-                float mouseDelta = Input.GetAxis("MouseDelta");
+                float mouseDelta = Input.GetAxis("MouseDeltaY");
                 if (Mathf.Abs(mouseDelta) > 1)
                 {
                     float clampedMouseDelta = Mathf.Clamp(mouseDelta * .125f, -1, 1);
@@ -59,14 +71,38 @@ public class CrockoInput : MonoBehaviour
     {
         public static bool GetNextGameDown()
         {
-          
-                return !ToolsAndSettingsMenu.isOpen && Input.GetKeyDown(KeyCode.W);
+
+            bool ret = false;
+            ret |= GetMouseSwipe(1);
+            ret |= Input.GetKeyDown(KeyCode.W);
+            return !ToolsAndSettingsMenu.isOpen && ret;
         }
 
         public static bool GetPreviousGameDown()
         {
-            return !ToolsAndSettingsMenu.isOpen && Input.GetKeyDown(KeyCode.S);
+            bool ret = false;
+            ret |= GetMouseSwipe(-1);
+            ret |= Input.GetKeyDown(KeyCode.S);
+            return !ToolsAndSettingsMenu.isOpen && ret;
         }
+    }
+
+    static bool GetMouseSwipe(int sign)
+    {
+        bool ret = false;
+        if (USE_TRACKBALL_INPUT)
+        {
+            if (_mouseSwipeCoolDown == 0)
+            {
+                float mouseDelta = Input.GetAxis("MouseDeltaX");
+                if (sign * mouseDelta > 3)
+                {
+                    _mouseSwipeCoolDown = .65f;//cooldown;
+                    ret = true;
+                }
+            }
+        }
+        return ret;
     }
 
     static bool GetKeyState(KeyCode kc, ButtonPhase phase)
@@ -84,6 +120,41 @@ public class CrockoInput : MonoBehaviour
             return Input.GetKeyUp(kc);
         }
 
+    }
+
+    static float _mouseSwipeCoolDown = 0;
+    static float _mouseSubmitCoolDown = 0;
+
+    static bool trackBallSubmitDown = false;
+    private void Update()
+    {
+        if (USE_TRACKBALL_INPUT)
+        {
+            trackBallSubmitDown = false;
+            if (_mouseSwipeCoolDown > 0)
+            {
+                _mouseSwipeCoolDown -= Time.deltaTime;
+                if (_mouseSwipeCoolDown < 0)
+                {
+                    _mouseSwipeCoolDown = 0;
+                }
+            }
+
+            if (_mouseSubmitCoolDown > 0)
+            {
+                _mouseSubmitCoolDown -= Time.deltaTime;
+                if (_mouseSubmitCoolDown < 0)
+                {
+                    _mouseSubmitCoolDown = 0;
+                }
+            }
+
+            if (_mouseSubmitCoolDown == 0 && Input.GetMouseButtonDown(0))
+            {
+                trackBallSubmitDown = true;
+                _mouseSubmitCoolDown = .75f;
+            }
+        }
     }
 }
 public enum ButtonPhase

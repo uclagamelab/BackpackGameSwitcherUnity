@@ -168,34 +168,6 @@ public class SpeedyListView : MonoBehaviour
                 keyHeld = true;
                 _fuzzyIdx += scrollAmount * Time.deltaTime * speed;
             }
-
-            //    float mouseDelta = Input.GetAxis("MouseDelta");
-            //    if (Mathf.Abs(mouseDelta) > 0)
-            //    {
-            //        float clampedMouseDelta = Mathf.Clamp(mouseDelta * .125f, -1, 1);
-            //        _scrollMomentumDirection = clampedMouseDelta < 0 ? -1 : 1;
-            //        keyHeld = true;
-            //        _fuzzyIdx += clampedMouseDelta * Time.deltaTime * speed;
-            //    }
-
-            //    if (CrockoInput.GetListScrollForward(ButtonPhase.Held) || autoRight)
-            //{
-            //    _scrollMomentumDirection = 1;
-            //    keyHeld = true;
-            //    _fuzzyIdx += Time.deltaTime * speed;
-
-            //    //idx = (idx + 1) % GameCatalog.Instance.gameCount;
-            //    //OnRepopulated();
-            //}
-            //else if (CrockoInput.GetListScrollBack(ButtonPhase.Held) || autoLeft)
-            //{
-            //    _scrollMomentumDirection = -1;
-            //    keyHeld = true;
-            //    _fuzzyIdx -= Time.deltaTime * speed;
-
-            //    //idx = (idx - 1 + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
-            //    //OnRepopulated();
-            //}
         }
 
 
