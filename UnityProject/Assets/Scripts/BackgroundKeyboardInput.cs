@@ -76,7 +76,9 @@ public class BackgroundKeyboardInput : MonoBehaviour {
                 continue;
             }
 
-            if (GetAsyncKeyState(i) != 0)
+            bool gotMouseInput = Input.GetAxis("MouseDelta") != 0;
+
+            if (GetAsyncKeyState(i) != 0 || gotMouseInput)
             {
                 //print("gotSOmethning : " + i.ToString("0x00"));
                 _timeOfLastInput = Time.time;

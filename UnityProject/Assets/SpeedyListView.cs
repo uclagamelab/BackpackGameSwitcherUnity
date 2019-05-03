@@ -141,10 +141,12 @@ public class SpeedyListView : MonoBehaviour
         }
        
 
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            AttractCycleNextGame();
-        }
+        //Test attract cycling of games
+        //if (Input.GetKeyDown(KeyCode.Alpha0))
+        //{
+        //    AttractCycleNextGame();
+        //}
+
         float speed = Mathf.Lerp(_normalSpeed, _quickSpeed, Mathf.InverseLerp(.25f, 1,_speedAccumulator));
         float lastFuzz = _fuzzyIdx;
         keyHeld = false;
@@ -156,25 +158,47 @@ public class SpeedyListView : MonoBehaviour
 
         if (!PreLaunchGameInfo.Instance.open)
         {
-        if (Input.GetKey(KeyCode.RightArrow) || autoRight)
-        {
-            _scrollMomentumDirection = 1;
-            keyHeld = true;
-            _fuzzyIdx += Time.deltaTime * speed;
- 
-            //idx = (idx + 1) % GameCatalog.Instance.gameCount;
-            //OnRepopulated();
+
+            float scrollAmount = CrockoInput.GetListScroll();
+
+            if (Mathf.Abs(scrollAmount) > 0)
+            {
+     
+                _scrollMomentumDirection = scrollAmount < 0 ? -1 : 1;
+                keyHeld = true;
+                _fuzzyIdx += scrollAmount * Time.deltaTime * speed;
+            }
+
+            //    float mouseDelta = Input.GetAxis("MouseDelta");
+            //    if (Mathf.Abs(mouseDelta) > 0)
+            //    {
+            //        float clampedMouseDelta = Mathf.Clamp(mouseDelta * .125f, -1, 1);
+            //        _scrollMomentumDirection = clampedMouseDelta < 0 ? -1 : 1;
+            //        keyHeld = true;
+            //        _fuzzyIdx += clampedMouseDelta * Time.deltaTime * speed;
+            //    }
+
+            //    if (CrockoInput.GetListScrollForward(ButtonPhase.Held) || autoRight)
+            //{
+            //    _scrollMomentumDirection = 1;
+            //    keyHeld = true;
+            //    _fuzzyIdx += Time.deltaTime * speed;
+
+            //    //idx = (idx + 1) % GameCatalog.Instance.gameCount;
+            //    //OnRepopulated();
+            //}
+            //else if (CrockoInput.GetListScrollBack(ButtonPhase.Held) || autoLeft)
+            //{
+            //    _scrollMomentumDirection = -1;
+            //    keyHeld = true;
+            //    _fuzzyIdx -= Time.deltaTime * speed;
+
+            //    //idx = (idx - 1 + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
+            //    //OnRepopulated();
+            //}
         }
-        else if (Input.GetKey(KeyCode.LeftArrow) || autoLeft)
-        {
-            _scrollMomentumDirection = -1;
-            keyHeld = true;
-            _fuzzyIdx -= Time.deltaTime * speed;
-           
-            //idx = (idx - 1 + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
-            //OnRepopulated();
-        }
-        }
+
+
 
         _fuzzyIdx %= GameCatalog.Instance.gameCount;
 

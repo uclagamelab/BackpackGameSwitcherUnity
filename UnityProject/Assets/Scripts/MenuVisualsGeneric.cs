@@ -6,6 +6,7 @@
  }
  */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -343,10 +344,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         if (state == MenuState.LaunchGame)
         {
             //this.cycleToNextGame(1);
-            if (Screen.width != 1920)
-            {
-                Screen.SetResolution(1920, 1080, true);
-            }
+            fixResolution();
 
             foreach (Listener l in this.listners)
             {
@@ -362,6 +360,14 @@ public class MenuVisualsGeneric : MonoBehaviour
        
 
    
+    }
+
+    private void fixResolution()
+    {
+        if (!CommandLineArguments.AdminMode && Screen.width != 1920)
+        {
+            Screen.SetResolution(1920, 1080, true);
+        }
     }
 
     public interface Listener

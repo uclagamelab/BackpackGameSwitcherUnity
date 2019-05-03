@@ -148,15 +148,17 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
             return;
         }
 
-        int selectionDirection = 0;
-        selectionDirection = Input.GetKeyDown(KeyCode.W) ? 1 : Input.GetKeyDown(KeyCode.S) ? -1 : 0;
-        if (selectionDirection != 0)
-        {
-            gameMenu.onCycleButtonPressed(selectionDirection);
-        }
+        //--- LEGACY INPUT STYLE, JUST SLIDING THE BACKGROUND -----------------------
+        //int selectionDirection = 0;
+        //selectionDirection = CrockoInput.NoListVersion.GetNextGameDown() ? 1 : CrockoInput.NoListVersion.GetPreviousGameDown() ? -1 : 0;
+        //if (selectionDirection != 0)
+        //{
+        //    gameMenu.onCycleButtonPressed(selectionDirection);
+        //}
+        //----------------------------------------------------------------------------
 
 
-        if (Input.GetKeyDown(KeyCode.UpArrow))
+        if (CrockoInput.GetOpenGameButtonDown())
         {
 
             bool accepted = this.gameMenu.onStartGameButtonPress();

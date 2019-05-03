@@ -112,25 +112,6 @@ public class GameCatalog : MonoBehaviour
         Events.OnRepopulated.Invoke();
     }
 
-
-    /*void setCustomGamesFolderIfInCommandlineArgs()
-    {
-        string[] args = System.Environment.GetCommandLineArgs();
-
-        for (int i = 0; i < args.Length; i++)
-        {
-            if (args[i] == "-games-folder")
-            {
-                this.gamesFolderPath = args[i + 1];
-            }
-
-            if (args[i] == "-joytokey-folder")
-            {
-                this.joyToKeyFolderPath = args[i + 1];
-            }
-        }
-    }*/
-
     public class Callbacks
     {
         public System.Action OnRepopulated = ()=>{};

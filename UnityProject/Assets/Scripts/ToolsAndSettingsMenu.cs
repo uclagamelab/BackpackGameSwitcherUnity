@@ -151,7 +151,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     void Update()
     {
-        if ( (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.K))
+        if (CrockoInput.GetAdminMenuKeyComboDown())
         {
             this.showSetup(!this.allMenu.gameObject.activeSelf);
         }

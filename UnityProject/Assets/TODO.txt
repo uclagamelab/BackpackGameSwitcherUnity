@@ -1,4 +1,6 @@
-﻿DESIGN NOTES:
+﻿
+
+DESIGN NOTES:
 * more space below the selected bottom tab 
 * More space above the selected tab
 * "dim" the unselected tabs
@@ -11,6 +13,10 @@ BUGS:
 * Smaller numbers of games
 
 ADMIN ISSUES:
+* Add commandline arg for no focus stealing
+* Add commandline arg to not fix resolution/fullscreen
+* Add commandline argument to now show rainmeter
+
 * Needing to restart when you change folders, other settings?
 * Bugs with applying changes.
 

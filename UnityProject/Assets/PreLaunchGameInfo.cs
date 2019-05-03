@@ -63,22 +63,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
         //Texture newTexture = this.overlays[idx];
         
 
-        /*if (Input.GetKeyDown("y"))
-        {
-
-            AnimateOpen(!open);
-        }*/
-
-        /*if (Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            TakeDirectionInput(-1);
-        }
-
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            TakeDirectionInput(1);
-        }*/
-
         if (!animating && open && MenuVisualsGeneric.Instance.state == MenuVisualsGeneric.MenuState.ChooseGame)
         {
             this.AnimateOpen(false);

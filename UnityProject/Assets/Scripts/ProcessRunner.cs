@@ -202,11 +202,24 @@ public class ProcessRunner : MonoBehaviour
         System.Text.StringBuilder sb = new System.Text.StringBuilder(256);
         GetWindowText(hWnd, sb, 256);
 
-        _allWindowsCached.Add(sb.ToString());
+        string windowTitle = sb.ToString();
+        if (!_allWindowsCached.ContainsKey(windowTitle))
+        {
+            _allWindowsCached.Add(sb.ToString(), hWnd);
+        }
+        else
+        {
+            //TODO : support duplicate window names
+            //Dictionary<string, HashSet<IntPtr>>
+            #if UNITY_EDITOR
+            //Debug.LogError("Multiple windows with title: " + windowTitle);
+            #endif
+        }
+        
         return true;
 
     }
-    public static HashSet<string> _allWindowsCached = new HashSet<string>();
+    public static Dictionary<string, IntPtr> _allWindowsCached = new Dictionary<string, IntPtr>();
     private void Update()
     {
         //----------------------------------------------
@@ -242,7 +255,18 @@ public class ProcessRunner : MonoBehaviour
 
     public static bool WindowIsPresent(string windowTitle)
     {
-        return _allWindowsCached.Contains(windowTitle);
+        return _allWindowsCached.ContainsKey(windowTitle);
+    }
+
+    public static IntPtr GetWindowByTitle(string windowTitle)
+    {
+        IntPtr ret = IntPtr.Zero;
+        if (_allWindowsCached.ContainsKey(windowTitle))
+        {
+            ret = _allWindowsCached[windowTitle];
+        }
+
+        return ret;
     }
 
     void setJoyToKeyConfigIfNotAlreadySet(string configFile)
