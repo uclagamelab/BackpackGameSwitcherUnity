@@ -7,25 +7,44 @@ using System.Runtime.InteropServices;
 using System.IO;
 using Debug = UnityEngine.Debug;
 
-public class ExternalOverlay : MonoBehaviour {
+public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
+{
 
     static ExternalOverlay _instance;
-    static bool on = true;
+    float _autoTimeout = 0;
+    const float MAX_OVERLAY_ON_TIME = 10;
+    static bool _overlayAllowed = true;
+
+    bool _overlayShowing = false;
+
     private void Awake()
     {
         _instance = this;
 
-        on = !CommandLineArguments.AdminMode;
+        _overlayAllowed = !CommandLineArguments.AdminMode;
     }
 
-   
-
-    static void ShowOverlay()
+    private void Start()
     {
-        if (!on)
+        MenuVisualsGeneric.Instance.addListener(this);
+    }
+
+
+    static void ShowOverlay(float displayDuration = MAX_OVERLAY_ON_TIME)
+    {
+        if (!_overlayAllowed) //-------- Don't show if disabled ---------------
         {
             return;
         }
+
+        if (_instance._overlayShowing) //--- Don't show if already showing ----
+        {
+            return;
+        }
+
+        _instance._overlayShowing = true;
+
+        _instance._autoTimeout = displayDuration;
 
         //"C:\Program Files\Rainmeter\Rainmeter.exe"[!ActivateConfig "CrockoDial\Main" "Main.ini"][!Move "448" "0"][!Draggable 0]
         ProcessStartInfo startInfo = new ProcessStartInfo("C:\\Program Files\\Rainmeter\\Rainmeter.exe");
@@ -39,7 +58,7 @@ public class ExternalOverlay : MonoBehaviour {
 
     static void HideOverlay()
     {
-        if (!on)
+        if (!_overlayAllowed)
         {
             return;
         }
@@ -51,20 +70,59 @@ public class ExternalOverlay : MonoBehaviour {
         Process process = new System.Diagnostics.Process();
         process.StartInfo = startInfo;
         process.Start();
+        _instance._overlayShowing = false;
+        _instance._autoTimeout = 0;//doesn't really matter
     }
 
-   static bool _okToShow = true;
-    public static void DoShowAndHide()
+    private void Update()
     {
-        if (_okToShow)
+        if (!_overlayAllowed)
         {
-            _okToShow = false;
-            ShowOverlay();
-            _instance.delayedFunction(()=>
+            return;
+        }
+        //--- AUTO TURN OFF OVERLAY if open too long ------------
+        if (_overlayShowing && _autoTimeout > 0)
+        {
+            _autoTimeout -= Time.deltaTime;
+
+            if (_autoTimeout <= 0)
             {
+                _autoTimeout = 0;
                 HideOverlay();
-                _okToShow = true;
-            }, 5);
+            }
+        }
+ 
+        
+    }
+
+
+    void MenuVisualsGeneric.Listener.onLeaveAttract()
+    {
+
+    }
+
+    void MenuVisualsGeneric.Listener.onEnterAttract()
+    {
+
+    }
+
+    void MenuVisualsGeneric.Listener.onCycleGame(int direction, bool userInitiated)
+    {
+
+    }
+
+    void MenuVisualsGeneric.Listener.onStartGame()
+    {
+        //TODO: handle overlay differently, depending on game
+        float defaultOverlayShowDuration = 5;
+        ShowOverlay(defaultOverlayShowDuration);
+    }
+
+    void MenuVisualsGeneric.Listener.onQuitGame()
+    {
+        if (_overlayShowing)
+        {
+            HideOverlay();
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿/*
  
 Collects input from gamepads, keyboard etc... and controls the menu
+
+BAD ADDITIONS : 
+- fixes resolution
  
  */
 
@@ -61,18 +64,18 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
         GenericSettings.TryGetValue("idle_cycle_duration", out attractAutoCycleDuration, 90);
     }
 
+    //TODO: Move this to process runner
     public void ResetToDefaultResolutionIfDifferent()
     {
         #if !UNITY_EDITOR
-        if (Screen.width != _defaultResolution.width || Screen.height != _defaultResolution.height)
+        bool resolutionDifferent = Screen.width != _defaultResolution.width || Screen.height != _defaultResolution.height;
+        if (!CommandLineArguments.AdminMode && resolutionDifferent)
         {
             Screen.SetResolution(_defaultResolution.width, _defaultResolution.height, _defaultIsFullScreen);
         }
         #endif
     }
 
-
-    // Update is called once per frame
     void Update()
     {
         //Don't focus steal while menu is open

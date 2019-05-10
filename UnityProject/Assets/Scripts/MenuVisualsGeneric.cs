@@ -302,7 +302,6 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             l.onStartGame();
         }
-        ExternalOverlay.DoShowAndHide();
 
         this.delayedFunction(() => 
         {
@@ -344,7 +343,6 @@ public class MenuVisualsGeneric : MonoBehaviour
         if (state == MenuState.LaunchGame)
         {
             //this.cycleToNextGame(1);
-            fixResolution();
 
             foreach (Listener l in this.listners)
             {
@@ -362,13 +360,6 @@ public class MenuVisualsGeneric : MonoBehaviour
    
     }
 
-    private void fixResolution()
-    {
-        if (!CommandLineArguments.AdminMode && Screen.width != 1920)
-        {
-            Screen.SetResolution(1920, 1080, true);
-        }
-    }
 
     public interface Listener
     {
