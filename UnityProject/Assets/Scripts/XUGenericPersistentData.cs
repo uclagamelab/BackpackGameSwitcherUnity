@@ -144,7 +144,7 @@ public class XUGenericPersistentData<T> : MonoBehaviour where T : new()
             _currentSaveData = new T();
         }
 
-        string loadedSaveDataJson = XuFileSystemUtil.LoadTextFromDisk(saveDataPath);
+        string loadedSaveDataJson = XuFileSystemUtil.ReadText(saveDataPath);
         if (loadedSaveDataJson != null)
         {
             //This is a little naive longerterm, would be better to use SimpleJSON instead and get a more generic object
@@ -179,7 +179,7 @@ public class XUGenericPersistentData<T> : MonoBehaviour where T : new()
     {
         if (!_suppresSaves || !Application.isPlaying) //allow saves outside play mode
         {
-            XuFileSystemUtil.WriteStringToFile(JsonUtility.ToJson(this._currentSaveData, true), saveDataPath);
+            XuFileSystemUtil.WriteText(JsonUtility.ToJson(this._currentSaveData, true), saveDataPath);
         }
         events.OnSaveDataUpdated.Invoke();
     }

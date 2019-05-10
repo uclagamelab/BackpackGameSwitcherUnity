@@ -175,7 +175,7 @@ public class GameInfoEditor : MonoBehaviour
 
     public void CopyFromLegacyJson()
     {
-        string legacyJson = XuFileSystemUtil.LoadTextFromDisk(Path.Combine(currentSelectedGame.rootFolder.FullName, "gameInfo.json"));
+        string legacyJson = XuFileSystemUtil.ReadText(Path.Combine(currentSelectedGame.rootFolder.FullName, "gameInfo.json"));
         if (legacyJson != null)
         {
             JSONObject job = new JSONObject(legacyJson);

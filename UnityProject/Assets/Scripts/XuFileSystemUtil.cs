@@ -39,7 +39,49 @@ static class XuFileSystemUtil
             ProcessAllFilesRecursive(startDirectory, fileMatchPattern, fileAction);
         }
     }
+    public static bool DeleteFileOrDirectory(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            else if (Directory.Exists(path))
+            {
+                Directory.Delete(path);
+            }
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error deleting file at path : " + path + "\n" + e);
+        }
 
+
+        return false;
+    }
+
+    public static bool MoveFileOrDirectory(string originalPath, string desiredPath)
+    {
+        try
+        {
+            if (File.Exists(originalPath))
+            {
+                File.Move(originalPath, desiredPath);
+            }
+            else if (Directory.Exists(originalPath))
+            {
+                Directory.Move(originalPath, desiredPath);
+            }
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error move file at path : '" + originalPath + "' to '" + desiredPath + "'\n" + e);
+        }
+        return false;
+    }
     public static void ProcessAllFilesRecursive(string startDirectory, System.Action<string> fileAction)
     {
         ProcessAllFilesRecursive(startDirectory, "*", fileAction);
@@ -58,7 +100,7 @@ static class XuFileSystemUtil
         }
     }
 
-    public static string LoadTextFromDisk(string filePath)
+    public static string ReadText(string filePath)
     {
         string text = null;
         if (System.IO.File.Exists(filePath))
@@ -70,13 +112,13 @@ static class XuFileSystemUtil
         return text;
     }
 
-    public static void WriteStringToFile(string jsonData, string absoluteFilePath)
+    public static void WriteText(string text, string absoluteFilePath)
     {
         FileStream fs = new FileStream(absoluteFilePath, FileMode.OpenOrCreate);
         fs.SetLength(0);
         StreamWriter sr = new StreamWriter(fs);
         
-        sr.Write(jsonData);
+        sr.Write(text);
         sr.Close();
     }
 

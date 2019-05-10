@@ -199,7 +199,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
                 }
                 File.Move(finalPath, backupPath);
             }
-            XuFileSystemUtil.WriteStringToFile(sb.ToString(), finalPath);
+            XuFileSystemUtil.WriteText(sb.ToString(), finalPath);
         }
 
         //resultMessage.text = "Done!, \n\nsaved existing file as : <nothing yet>";
