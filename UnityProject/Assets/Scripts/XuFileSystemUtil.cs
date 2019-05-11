@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -30,6 +31,17 @@ static class XuFileSystemUtil
     public static void ProcessAllFilesRecursive(IEnumerable<string> startDirectories, System.Action<string> fileAction)
     {
         ProcessAllFilesRecursive(startDirectories, "*", fileAction);
+    }
+
+    public static string ComputeRelativePath(string exeFullPath, string relativeToPath)//_currentGame.rootFolder.FullName
+    {
+        Uri exeUri = new Uri(exeFullPath);
+        Uri gameDirPath = new Uri(relativeToPath);
+        Uri relPathUri = gameDirPath.MakeRelativeUri(exeUri);
+        string relPath = Uri.UnescapeDataString(relPathUri.ToString());//HttpUtility.HtmlDecode(relPathUri.ToString());
+        int rootFolderPortion = (new DirectoryInfo(relativeToPath).Name.Length + 1);
+        string finalRelPath = relPath.Substring(rootFolderPortion, relPath.Length - rootFolderPortion);
+        return finalRelPath; 
     }
 
     public static void ProcessAllFilesRecursive(IEnumerable<string> startDirectories, string fileMatchPattern, System.Action<string> fileAction)

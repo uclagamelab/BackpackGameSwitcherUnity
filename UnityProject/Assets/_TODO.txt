@@ -1,4 +1,4 @@
-﻿
+﻿TODO:
 
 DESIGN NOTES:
 * more space below the selected bottom tab 
@@ -9,8 +9,6 @@ DESIGN NOTES:
 
 
 BUGS:
-* Fix current selection to not be based on video, but list position, make sure list stops when detail screen opened
-* Smaller numbers of games
 
 ADMIN ISSUES:
 * Add commandline arg for no focus stealing

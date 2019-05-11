@@ -21,9 +21,8 @@ public class GameData
     public string joyToKeyConfig_singlePlayer = null;
     
     public string exePath;
+    
 
-    public string description;
-    public string howToPlay;
 
     public ControlInstructions instructions;
 
@@ -31,6 +30,11 @@ public class GameData
     #endregion ---------------------------------------------------------
 
     #region --- UNSERIALIZED ------------------------------------------
+
+    [System.NonSerialized]
+    public string description;  //not included in JSON (has dedicated separate file)
+    [System.NonSerialized]
+    public string howToPlay;    //not included in JSON (has dedicated separate file)
 
     [System.NonSerialized]
     DirectoryInfo _gameFolder = null;
@@ -213,7 +217,11 @@ public class GameData
         }
 
         // --- Find the exe ------------------------
-        setUpExe(_gameFolder);
+        setUpExe_LEGACY(_gameFolder);
+        if (!File.Exists(this.exePath))
+        {
+            autoFindAndAssignAppropriateExe();
+        }
 
         // --- Find the preview images ------------------------
         setUpImages(_gameFolder);
@@ -232,7 +240,26 @@ public class GameData
     {
         GameCatalog.Instance.StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
     }
+    void autoFindAndAssignAppropriateExe()
+    {
+        string chosenPath = null;
+        XuFileSystemUtil.ProcessAllFilesRecursive(this._gameFolder.FullName, (path) => 
+        {
+            if (chosenPath == null)
+            {
+                FileInfo fi = new FileInfo(path);
+                if (fi.Extension == ".exe" && fi.Name != "UnityCrashHandler64.exe")
+                {
+                    chosenPath = XuFileSystemUtil.ComputeRelativePath(fi.FullName, _gameFolder.FullName);
+                }
+            }
+        });
 
+        if (chosenPath != null)
+        {
+            this.exePath = chosenPath;
+        }
+    }
     IEnumerator setUpInstructionsOverlayRoutine(DirectoryInfo gameFolder)
     {
         string instructionsFolder = gameFolder.FullName + "/instructions";
@@ -284,7 +311,7 @@ public class GameData
         }
 
     }
-    void setUpExe(DirectoryInfo gameFolder)
+    void setUpExe_LEGACY(DirectoryInfo gameFolder)
     {
         string platform = "windows";
 
@@ -381,16 +408,6 @@ public class GameData
             return fi.Directory.FullName;
         }
     }
-
-    public string appFile
-    {
-        get
-        {
-            FileInfo fi = new FileInfo(executable);
-            return fi.Name;
-        }
-    }
-
 
     public void Audit(System.Text.StringBuilder auditMsgStringBuilder)
     {
