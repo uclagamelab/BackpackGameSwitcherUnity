@@ -248,7 +248,13 @@ public class GameData
             if (chosenPath == null)
             {
                 FileInfo fi = new FileInfo(path);
-                if (fi.Extension == ".exe" && fi.Name != "UnityCrashHandler64.exe")
+                bool seeminglyAppropriateExe = fi.Extension == ".exe" 
+                && 
+                fi.Name != "UnityCrashHandler64.exe"
+                && 
+                !fi.Name.StartsWith("."); //mac drives generate a bunch of duplicate files that start with '.'
+
+                if (seeminglyAppropriateExe)
                 {
                     chosenPath = XuFileSystemUtil.ComputeRelativePath(fi.FullName, _gameFolder.FullName);
                 }
