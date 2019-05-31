@@ -1,4 +1,10 @@
 ﻿TODO:
+pressing:
+* make sure works without image folder (seems to?)
+* Add 'hidden' property to game, 'show hidden' to overall settings
+* auto-start artifacts I
+
+less important:
 * Clean up the settings menu
 * Ditch the command line arguments, and make changeable via settings menu (?)
 * finish making work with restart on crash
@@ -28,6 +34,8 @@ GAME ISSUES:
 
 
 FANCINESS:
+* Add notes to game folders
+* Make totally portable deploy (no installs required)
 * Refactor, (rewrite?)
 * Be able to create games from within Tools menu (relatively easy)
 * About section

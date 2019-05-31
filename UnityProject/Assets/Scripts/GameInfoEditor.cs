@@ -128,7 +128,7 @@ public class GameInfoEditor : MonoBehaviour
                     _startUpSettingsPanel.ApplyChangesToGameDataInMemory();
 
                 }
-                GameInfoEditor.instance.currentSelectedGame.flushChangesToJson();
+                GameInfoEditor.instance.currentSelectedGame.flushChangesToDisk();
             }
           
             });
@@ -207,7 +207,10 @@ public class GameInfoEditor : MonoBehaviour
         public InputField _joyToKeyField;
         public InputField _exePathField;
         public Button _exeBrowseFileButton;
+
         public InputField _descriptionField;
+        public InputField _instructionsField;
+        public InputField _notesField;
 
 
         //public InputField _exeNameField;
@@ -225,7 +228,7 @@ public class GameInfoEditor : MonoBehaviour
                     if (_currentGame != null)
                     {
                         ApplyChangesToGameDataInMemory();
-                        _currentGame.flushChangesToJson();
+                        _currentGame.flushChangesToDisk();
                     }
                 };
             }
@@ -274,7 +277,11 @@ public class GameInfoEditor : MonoBehaviour
             _authorField.text = game.designers;
             _windowTitleField.text = game.windowTitle;
             _joyToKeyField.text = game.joyToKeyConfig;
+
             _descriptionField.text = game.description;
+            _instructionsField.text = game.howToPlay;
+            _notesField.text = game.notes;
+
             _exePathField.text = game.exePath;
         }
 
@@ -290,10 +297,13 @@ public class GameInfoEditor : MonoBehaviour
             game.designers = _authorField.text;
             game.windowTitle = _windowTitleField.text;
             game.joyToKeyConfig = _joyToKeyField.text;
+
             game.description = _descriptionField.text;
-            //game.exePath.isAbsolute = false;
+            game.howToPlay = _instructionsField.text;
+            game.notes = _notesField.text;
+
             game.exePath = _exePathField.text;
-            game.flushChangesToJson();
+            game.flushChangesToDisk();
         }
     }
 

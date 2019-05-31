@@ -10,6 +10,7 @@ public class GameInfoUI : MonoBehaviour {
     public Text creditText;
     public Text descriptionText;
     public Text instructionsText;
+
     [Space(10)]
 
     public RawImage _overrideIntructionsImageImage;
@@ -52,6 +53,7 @@ public class GameInfoUI : MonoBehaviour {
             this.creditText.text = _cachedCurrentGameData.designers;
             this.descriptionText.text = _cachedCurrentGameData.description;
             this.instructionsText.text = _cachedCurrentGameData.howToPlay;
+
 
             if (joystickLabel != null)
             {
