@@ -97,13 +97,15 @@ public class XUGenericPersistentData<T> : MonoBehaviour where T : new()
         }
     }
 
+    protected virtual string fileName => this.GetType().ToString() + ".json";
+
     public virtual string saveDataPath 
         =>
-        #if UNITY_EDITOR && false
-        System.IO.Path.Combine(Application.streamingAssetsPath, this.GetType().ToString());
-        #else
+#if UNITY_EDITOR
+        System.IO.Path.Combine(Application.dataPath, fileName);
+#else
         //adjacent to exe
-        System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Application.dataPath), this.GetType().ToString());
+        System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Application.dataPath), fileName);
         #endif
 
     static Events _events = new Events();

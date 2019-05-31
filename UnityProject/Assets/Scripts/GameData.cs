@@ -217,7 +217,7 @@ public class GameData
         }
 
         // --- Find the exe ------------------------
-        setUpExe_LEGACY(_gameFolder);
+        //setUpExe_LEGACY(_gameFolder);
         if (!File.Exists(this.exePath))
         {
             autoFindAndAssignAppropriateExe();
@@ -311,61 +311,66 @@ public class GameData
         }
 
     }
-    void setUpExe_LEGACY(DirectoryInfo gameFolder)
-    {
-        string platform = "windows";
+    //void setUpExe_LEGACY(DirectoryInfo gameFolder)
+    //{
+    //    string platform = "windows";
 
-        string exeFolder = gameFolder.FullName + "/" + platform;
+    //    string exeFolder = gameFolder.FullName + "/" + platform;
 
-        //try to find a .lnk
-        bool exeFolderExists = Directory.Exists(exeFolder);
-        if (!exeFolderExists)
-        {
-            return;
-        }
+    //    //try to find a .lnk
+    //    bool exeFolderExists = Directory.Exists(exeFolder);
+    //    if (!exeFolderExists)
+    //    {
+    //        return;
+    //    }
 
-        string[] shortcutsInGameDirectory = Directory.GetFiles(exeFolder, "*.lnk");
-        string[] batchFilesInGameDirectory = Directory.GetFiles(exeFolder, "*.bat");
+    //    string[] shortcutsInGameDirectory = Directory.GetFiles(exeFolder, "*.lnk");
+    //    string[] batchFilesInGameDirectory = Directory.GetFiles(exeFolder, "*.bat");
 
-        if (batchFilesInGameDirectory.Length == 1)
-        {
-            this.executable = batchFilesInGameDirectory[0];
-        }
-        else if (shortcutsInGameDirectory.Length == 1) //use a shortcut
-        {
-            //TODO : need to think of something smarter... 
-            //optionally specify start file???
-            this.executable = shortcutsInGameDirectory[0];
+    //    if (batchFilesInGameDirectory.Length == 1)
+    //    {
+    //        this.executable = batchFilesInGameDirectory[0];
+    //    }
+    //    else if (shortcutsInGameDirectory.Length == 1) //use a shortcut
+    //    {
+    //        //TODO : need to think of something smarter... 
+    //        //optionally specify start file???
+    //        this.executable = shortcutsInGameDirectory[0];
 
-            //verify existence of link...
-
-
-
-
-        }
-        else //try to find an exe...
-        {
-            //string[] subdirectories = Directory.GetDirectories(gameFolder.FullName);
-            string[] exeFolderContents = Directory.GetFiles(exeFolder, "*.exe");
-
-            if (exeFolderContents.Length == 0)
-            {
-                Debug.Log("couldn't find an exe");
-                this.executable = "";
-            }
-            else if (exeFolderContents.Length > 1)
-            {
-                Debug.Log("Multiple exes in the folder, don't know which one to use!");
-            }
-            else //just 1
-            {
-                this.executable = exeFolderContents[0];
-            }
-        }
+    //        //verify existence of link...
 
 
 
-    }
+
+    //    }
+    //    else //try to find an exe...
+    //    {
+    //        //string[] subdirectories = Directory.GetDirectories(gameFolder.FullName);
+    //        string[] exeFolderContents = Directory.GetFiles(exeFolder, "*.exe");
+
+    //        if (exeFolderContents.Length == 0)
+    //        {
+    //            Debug.Log("couldn't find an exe");
+    //            this.executable = "";
+    //        }
+    //        else if (exeFolderContents.Length > 1)
+    //        {
+    //            string outString = "Multiple exes in the folder, don't know which one to use!";
+    //            foreach (string s in exeFolderContents)
+    //            {
+    //                outString += '\n' + s;
+    //            }
+    //            Debug.Log(outString);
+    //        }
+    //        else //just 1
+    //        {
+    //            this.executable = exeFolderContents[0];
+    //        }
+    //    }
+
+
+
+    //}
 
     void setUpImages(DirectoryInfo gameFolder)
     {

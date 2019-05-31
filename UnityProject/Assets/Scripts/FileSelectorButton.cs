@@ -44,11 +44,11 @@ public class FileSelectorButton : MonoBehaviour
         {
             if (_baseDirectory == BaseDirectoryType.GamesDirectory)
             {
-                startDirectory = SwitcherSettings.GamesFolder;
+                startDirectory = SwitcherSettings.Data.GamesFolder;
             }
             else if (_baseDirectory == BaseDirectoryType.JoyToKey)
             {
-                startDirectory = SwitcherSettings.JoyToKeyFolder;
+                startDirectory = SwitcherSettings.Data.JoyToKeyFolder;
             }
             else if (_baseDirectory == BaseDirectoryType.Other)
             {

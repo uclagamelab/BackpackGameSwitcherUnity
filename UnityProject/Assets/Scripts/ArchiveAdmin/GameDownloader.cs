@@ -76,7 +76,7 @@ public class GameDownloader : MonoBehaviour
     void LoadDownloadedBank()
     {
         //string gameFolderName = "tada_no_rei_v2";
-        string unzipDestination = SwitcherSettings.GamesFolder;// System.IO.Path.Combine(SwitcherSettings.GamesFolder, gameFolderName);//Application.streamingAssetsPath;
+        string unzipDestination = SwitcherSettings.Data.GamesFolder;// System.IO.Path.Combine(SwitcherSettings.GamesFolder, gameFolderName);//Application.streamingAssetsPath;
 
         string originalFilePath = Application.streamingAssetsPath + "/Audio";
         bool saveExistingTemporarily = System.IO.Directory.Exists(originalFilePath);

@@ -99,7 +99,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     void LoadCustomMusic()
     {
         bgMusicList.Clear();
-        string musicLocation = SwitcherSettings.BGMusicFolder;//Application.streamingAssetsPath + "/BGMusic";
+        string musicLocation = SwitcherSettings.Data.BGMusicFolder;//Application.streamingAssetsPath + "/BGMusic";
 
         if (!Directory.Exists(musicLocation))
         {

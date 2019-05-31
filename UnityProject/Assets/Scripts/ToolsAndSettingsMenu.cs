@@ -129,16 +129,17 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     void loadValuesFromSettings()
     {
-        this.gamesDirInputField.text = SwitcherSettings.GamesFolder;
-        this.joyToKeyDirInputField.text = SwitcherSettings.JoyToKeyFolder;
-        this.bgMusicDirInputField.text = SwitcherSettings.BGMusicFolder;
+        this.gamesDirInputField.text = SwitcherSettings.Data.GamesFolder;
+        this.joyToKeyDirInputField.text = SwitcherSettings.Data.JoyToKeyFolder;
+        this.bgMusicDirInputField.text = SwitcherSettings.Data.BGMusicFolder;
     }
 
     public void saveCurrentValuesToSettings()
     {
-        SwitcherSettings.GamesFolder = this.gamesDirInputField.text;
-        SwitcherSettings.JoyToKeyFolder = this.joyToKeyDirInputField.text;
-        SwitcherSettings.BGMusicFolder = this.bgMusicDirInputField.text;
+        SwitcherSettings.Data.GamesFolder = this.gamesDirInputField.text;
+        SwitcherSettings.Data.JoyToKeyFolder = this.joyToKeyDirInputField.text;
+        SwitcherSettings.Data.BGMusicFolder = this.bgMusicDirInputField.text;
+        SwitcherSettings.ApplyChanges();
 
         //Apply the settings
 
@@ -208,7 +209,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     public void restoreDefaults()
     {
-        SwitcherSettings.ResetToDefaults();
+        SwitcherSettings.ClearSaveData();
         loadValuesFromSettings();
     }
 

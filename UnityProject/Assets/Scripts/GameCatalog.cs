@@ -41,7 +41,7 @@ public class GameCatalog : MonoBehaviour
     private void Awake()
     {
         _instance = this;
-        string cleanPath = SwitcherSettings.GamesFolder;
+        string cleanPath = SwitcherSettings.Data.GamesFolder;
         cleanPath = cleanPath.Replace('\\', '/');
         repopulateCatalog(cleanPath);
     }
@@ -57,7 +57,7 @@ public class GameCatalog : MonoBehaviour
         this.joyToKeyData = new GameData();
 
         // directory = (Application.streamingAssetsPath + "\\JoyToKey"),
-        this.joyToKeyData.executable = SwitcherSettings.JoyToKeyFolder + "/JoyToKey.exe";//Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
+        this.joyToKeyData.executable = SwitcherSettings.Data.JoyToKeyFolder + "/JoyToKey.exe";//Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
         //this.joyToKeyData.commandLineArguments = ""; //does it actually need some???
 
         if (allGames == null)
