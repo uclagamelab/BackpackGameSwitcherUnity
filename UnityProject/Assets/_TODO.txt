@@ -1,4 +1,7 @@
 ﻿TODO:
+* Clean up the settings menu
+* Ditch the command line arguments, and make changeable via settings menu (?)
+* finish making work with restart on crash
 
 DESIGN NOTES:
 * more space below the selected bottom tab 
@@ -35,7 +38,9 @@ FANCINESS:
 * Sort by creator
 * Image galleries
 * Video player (for non-playable projects, etc...)
-
+* Ken Burns effect on images?
+* Make a couple different 'skins'
+* Support for 2 players
 
 +++ Things found +++
 https://github.com/AntiMicro/antimicro (joy to key alternative, open source, might be able to cannibalize)
@@ -43,33 +48,14 @@ https://github.com/AntiMicro/antimicro (joy to key alternative, open source, mig
 #### #### TODO #### #### #### #### #### #### 
 * need foreground lock applied to windows 7 too (don't check != 7 in tools/settings menu)
 * Create warning dialog if no games
-* Focus switching to switcher takes you out of attract mode
-* Put in some other games from.... http://games.ucla.edu/gamesBackup/games/
-* Figure out issue with itermittently tiny windows... (maybe fixed, but ok to have command line args for non-unity apps/shortcuts?)
-* Fix scroll window of messages in tools menu
-* Write a list of things to do in an audit..
-* Ken Burns effect on images?
-* Fix UI of folder selection
 * Be able to create games from within Tools menu
 * Auto generate joyToKey app associations file
-* Add support for if a game crashes... if the switcher crashes
-* Investigate how to make it start automatically on restart
-* Make a couple different 'skins'
-* Make the menu retake focus if nothing is running (!!!!)
-* Support for 2 players
-* Test on Lenovo computer
+
 * Hide cursor in switcher app... think about what to do for other games (auto reposition to upper right on staring a game?)
 * try with a browser game, a flashgame, others???
-
-* Test/fix when files/folders are missing/named incorrectly
-* Test/fix when json misformed
-* Refactor into something smarter... (Unity Events?)
-* Study the processing sketch, and figure out how it's different from this one.
 * Checking if a game has stalled???
 	https://stackoverflow.com/questions/3500634/how-to-check-if-process-is-not-responding
 	https://github.com/HeliosInteractive/OpenRoC
-
-* Attract mode should play random bits of videos from other games too, have big game lab logo
 
 #### #### What should exist for a game??? #### #### 
 An image gallery? (just cycle through nearly full screen images, light box style?)
@@ -79,10 +65,6 @@ game controls (standardized? custom image? Either or?)
 game credits (defer until later.)
 
 
-#### #### Bugs ##################
-- Rotato chipz would occasionally get the switchers music.  Switch to a more active form of focus checking?
-- Ocasionally, focus would not return to the switcher ("also throw in a send keys on the time out?")
-- Music not playing sometimes in attract mode. (something is happening on time-out)
 
 
 
@@ -129,7 +111,6 @@ Probably would also like an extended image gallery / longer description in some 
 - check general folder structure
 - check validity of joyToKeyFiles (all have exit button mapped)
 
-bulk edit joyToKeyFiles? (too hard?)
 
 #### #### Focus notes #### #### #### #### #### ####
 https://github.com/electron/electron/issues/2867
