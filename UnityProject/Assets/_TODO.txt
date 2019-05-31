@@ -2,6 +2,8 @@
 * Clean up the settings menu
 * Ditch the command line arguments, and make changeable via settings menu (?)
 * finish making work with restart on crash
+* ensure roughly robust to no games, corrupt json, bad files
+* package joytokey profiles in game directories, and copy to joytokey directory
 
 DESIGN NOTES:
 * more space below the selected bottom tab 
@@ -9,17 +11,9 @@ DESIGN NOTES:
 * "dim" the unselected tabs
 * extend the bottom gradient, or build shadows into those tabs
 
-
-
-BUGS:
-
-ADMIN ISSUES:
-* Add commandline arg for no focus stealing
-* Add commandline arg to not fix resolution/fullscreen
-* Add commandline argument to now show rainmeter
-
+BUGS
 * Needing to restart when you change folders, other settings?
-* Bugs with applying changes.
+* Bugs with applying changes.  
 
 GAME ISSUES:
 * Games that won't run full screen, don't have 1080p resolution (which ones?)
@@ -34,6 +28,8 @@ GAME ISSUES:
 
 
 FANCINESS:
+* Refactor, (rewrite?)
+* Be able to create games from within Tools menu (relatively easy)
 * About section
 * Sort by creator
 * Image galleries
@@ -41,31 +37,11 @@ FANCINESS:
 * Ken Burns effect on images?
 * Make a couple different 'skins'
 * Support for 2 players
-
-+++ Things found +++
-https://github.com/AntiMicro/antimicro (joy to key alternative, open source, might be able to cannibalize)
-
-#### #### TODO #### #### #### #### #### #### 
-* need foreground lock applied to windows 7 too (don't check != 7 in tools/settings menu)
-* Create warning dialog if no games
-* Be able to create games from within Tools menu
-* Auto generate joyToKey app associations file
-
-* Hide cursor in switcher app... think about what to do for other games (auto reposition to upper right on staring a game?)
-* try with a browser game, a flashgame, others???
+* Be able to optionally hide, or reskin cursor for games
+* Doublecheck audit, see what it's able to show you
 * Checking if a game has stalled???
 	https://stackoverflow.com/questions/3500634/how-to-check-if-process-is-not-responding
 	https://github.com/HeliosInteractive/OpenRoC
-
-#### #### What should exist for a game??? #### #### 
-An image gallery? (just cycle through nearly full screen images, light box style?)
-A preview video (just 1 for now?, just make part of image gallery?)
-A game description (keep in JSON for now)
-game controls (standardized? custom image? Either or?)
-game credits (defer until later.)
-
-
-
 
 
 #### #### Architecture Notes #### #### #### #### #### ####
@@ -111,6 +87,8 @@ Probably would also like an extended image gallery / longer description in some 
 - check general folder structure
 - check validity of joyToKeyFiles (all have exit button mapped)
 
+#### ####  Things found #### #### 
+https://github.com/AntiMicro/antimicro (joy to key alternative, open source, might be able to cannibalize)
 
 #### #### Focus notes #### #### #### #### #### ####
 https://github.com/electron/electron/issues/2867
