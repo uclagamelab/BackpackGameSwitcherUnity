@@ -173,6 +173,11 @@ public class GameInfoEditor : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        SetSelectedGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
+    }
+
     public void CopyFromLegacyJson()
     {
         string legacyJson = XuFileSystemUtil.ReadText(Path.Combine(currentSelectedGame.rootFolder.FullName, "gameInfo.json"));
