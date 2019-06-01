@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class LaunchSettingsEditor : MonoBehaviour
 {
-    
     public class Droption : Dropdown.OptionData
     {
         public GameLaunchType gameLaunchType
@@ -27,6 +26,9 @@ public class LaunchSettingsEditor : MonoBehaviour
     [SerializeField]
     Dropdown _typeDropDown;
 
+    [SerializeField]
+    Button _launchAndRecordMouseButton;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -40,8 +42,23 @@ public class LaunchSettingsEditor : MonoBehaviour
         _typeDropDown.ClearOptions();
         _typeDropDown.AddOptions(l);
         _typeDropDown.onValueChanged.AddListener(OnDifferentTypeChosen);
+        _launchAndRecordMouseButton.onClick.AddListener(LaunchAndRecordClicks);
     }
 
+    void LaunchAndRecordClicks()
+    {
+        ProcessRunner.instance.StartGame(GameInfoEditor.instance.currentSelectedGame);
+
+        AbstractGameRunner absRunner = GameInfoEditor.instance.currentSelectedGame.launchSettings.Runner() as AbstractGameRunner;
+        if (absRunner != null)
+        {
+
+            Debug.Log("Hiho!");
+            absRunner.mouseStartupOptions = new MouseStartUpOptions();
+            MouseRecorder.instance.StartRecording(absRunner.mouseStartupOptions);
+        }
+        
+    }
     private void Start()
     {
         GameInfoEditor.events.OnSelectedGameChanged += OnSelectedGameChanged;

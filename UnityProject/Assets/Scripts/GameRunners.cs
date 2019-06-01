@@ -75,6 +75,10 @@ public abstract class AbstractGameRunner : IGameRunner
     [System.NonSerialized]
     protected GameData _srcGame;
 
+    [SerializeField]
+    public MouseStartUpOptions mouseStartupOptions;
+
+
     public void SetUpWithGame(GameData game)
     {
         _srcGame = game;
@@ -84,6 +88,7 @@ public abstract class AbstractGameRunner : IGameRunner
     public abstract void LaunchCleanUp();
     public abstract void RunningUpdate();
 }
+
 
 [System.Serializable]
 public class UnityExeRunner : AbstractGameRunner
@@ -117,7 +122,11 @@ public class UnityExeRunner : AbstractGameRunner
 
     public override Process Launch()
     {
+        //------RESET STATE --------
         _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
+        _waitingForMainGameWindow = !string.IsNullOrEmpty(_srcGame.windowTitle);
+        //--------------------------
+
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
         if (hasResolutionSetupScreen)
         {
@@ -127,6 +136,11 @@ public class UnityExeRunner : AbstractGameRunner
         }
         else
         {
+            if (!_waitingForMainGameWindow)
+            {
+                Debug.Log("DING GDDO");
+                mouseStartupOptions.Perform();
+            }
             //start with args normally
             return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
         }
@@ -139,6 +153,7 @@ public class UnityExeRunner : AbstractGameRunner
         DialogHasClosed
     }
     DialogSkipState _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
+    bool _waitingForMainGameWindow = true;
 
     float _lastResDialogKeySend = float.NegativeInfinity;
 
@@ -150,9 +165,18 @@ public class UnityExeRunner : AbstractGameRunner
 
     public override void RunningUpdate()
     {
+        if (_waitingForMainGameWindow)
+        {
+            if (ProcessRunner.WindowIsPresent(_srcGame.windowTitle))
+            {
+                Debug.Log("Main Game Window Appeared");
+                _waitingForMainGameWindow = false;
+                mouseStartupOptions?.Perform();
+            }
+        }
+
         if (hasResolutionSetupScreen)
         {
-            bool needToSendKeys = false; 
             if (_resDiaSkipState == DialogSkipState.WaitingForDialogToAppear)
             {
                 if (ProcessRunner.WindowIsPresent(this.ResulotionDialogWindowTitle))
@@ -215,4 +239,55 @@ public class GenericExeRunner : AbstractGameRunner
     }
 }
 #endregion
+
+[System.Serializable]
+public class MouseStartUpOptions
+{
+    public float extraStartDelay = 0;
+    public AutoMouseEvent[] startUpRoutine;
+
+    [System.Serializable]
+    public class AutoMouseEvent
+    {
+        public ClickEventType clickType;
+        public float delay;
+        public Vector2 position;
+
+        public AutoMouseEvent(Vector2 position, ClickEventType clickType, float delay)
+        {
+            this.clickType = clickType;
+            this.delay = delay;
+            this.position = position;
+        }
+    }
+
+    public enum ClickEventType
+    {
+        None = 0, leftClick = 1
+    }
+
+    public void Perform()
+    {
+        ProcessRunner.instance?.StartCoroutine(routine());
+    }
+
+    IEnumerator routine()
+    {
+        if (startUpRoutine != null)
+        {
+            yield return new WaitForSeconds(extraStartDelay);
+            foreach (AutoMouseEvent ame in startUpRoutine)
+            {
+                yield return new WaitForSeconds(ame.delay);
+                ProcessRunner.SetMousePosition((int)ame.position.x, (int)ame.position.y);
+                if (ame.clickType == ClickEventType.leftClick)
+                {
+                    yield return new WaitForSeconds(.05f);
+                    ProcessRunner.MouseClick();
+                }
+            }
+        }
+    }
+}
+
 

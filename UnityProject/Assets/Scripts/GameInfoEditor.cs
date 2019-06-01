@@ -278,6 +278,12 @@ public class GameInfoEditor : MonoBehaviour
         public void UpdateWithGame(GameData game)
         {
             _currentGame = game;
+
+            if (game == null)
+            {
+                return;
+            }
+
             _titleField.text = game.title;
             _authorField.text = game.designers;
             _windowTitleField.text = game.windowTitle;

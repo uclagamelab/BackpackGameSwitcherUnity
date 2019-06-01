@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardInput.Listener
+public class SwitcherApplicationController : MonoBehaviour
 {
     MenuVisualsGeneric gameMenu;
 
@@ -53,7 +53,7 @@ public class SwitcherApplicationController : MonoBehaviour, BackgroundKeyboardIn
 
     void Start()
     {
-        BackgroundKeyboardInput.Instance.addListener(this);
+        BackgroundKeyboardInput.Events.onBackgroundKeyCombo += onBackgroundKeyCombo;
         GenericSettings.OnSettingsUpdated += OnSettingsUpdated;
         OnSettingsUpdated();
     }

@@ -514,6 +514,25 @@ public class ProcessRunner : MonoBehaviour
         _mousePosCommandBuilderCmdBuilder.Append(x);
         _mousePosCommandBuilderCmdBuilder.Append('x');
         _mousePosCommandBuilderCmdBuilder.Append(y);
+
+        #if UNITY_EDITOR
+        Debug.Log(_mousePosCommandBuilderCmdBuilder.ToString());
+        #endif
+        Process process = new System.Diagnostics.Process();
+        ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+        startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+        startInfo.FileName = "cmd.exe";
+        startInfo.Arguments = _mousePosCommandBuilderCmdBuilder.ToString();
+        process.StartInfo = startInfo;
+        process.Start();
+    }
+
+        public static void MouseClick()
+    {
+        _mousePosCommandBuilderCmdBuilder.Clear();
+        _mousePosCommandBuilderCmdBuilder.Append("/C call \"");
+        _mousePosCommandBuilderCmdBuilder.Append(Application.streamingAssetsPath);
+        _mousePosCommandBuilderCmdBuilder.Append("\\~Special\\mouse.bat\" click");
         
         Debug.Log(_mousePosCommandBuilderCmdBuilder.ToString());
         Process process = new System.Diagnostics.Process();
@@ -528,7 +547,7 @@ public class ProcessRunner : MonoBehaviour
 
     public void StopCurrentRunningGame()
     {
-        _runningGame.launchSettings.Runner().LaunchCleanUp();
+        _runningGame?.launchSettings.Runner()?.LaunchCleanUp();
         _runningGame = null;
         if (_currentRunningGameProcess != null)
         {

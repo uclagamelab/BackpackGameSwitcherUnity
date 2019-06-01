@@ -4,25 +4,51 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-
+using Debug = UnityEngine.Debug;
 
 public class BackgroundKeyboardInput : MonoBehaviour {
 
-    public interface Listener
+    #region MOUSE STUFF
+    /// <summary>
+    /// Struct representing a point.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
     {
-        Transform transform
-        {
-            get;
-        }
-        GameObject gameObject
-        {
-            get;
-        }
+        public int X;
+        public int Y;
 
-        void onBackgroundKeyCombo();
+        public static implicit operator Vector2(POINT point)
+        {
+            return new Vector2(point.X, point.Y);
+        }
     }
 
-    List<Listener> listeners;
+    /// <summary>
+    /// Retrieves the cursor's position, in screen coordinates.
+    /// </summary>
+    /// <see>See MSDN documentation for further information.</see>
+    [DllImport("user32.dll")]
+    public static extern bool GetCursorPos(out POINT lpPoint);
+
+    public static Vector2 GetCursorPosition()
+    {
+        POINT lpPoint;
+        GetCursorPos(out lpPoint);
+        //bool success = User32.GetCursorPos(out lpPoint);
+        // if (!success)
+
+        return lpPoint;
+    }
+    #endregion
+
+    public static class Events
+    {
+        public static System.Action onBackgroundKeyCombo = () => { };
+        public static System.Action onBackgroundMouseClick = () => { };
+    }
+    
+
 
     float _timeOfLastExitComboHit = float.NegativeInfinity;
     public float timeOfLastExitComboHit
@@ -53,20 +79,24 @@ public class BackgroundKeyboardInput : MonoBehaviour {
 
     bool _keyComboPressed = false;
 
-   
+    static class Constants
+    {
+        public const int VK_LBUTTON = 0x01; //L Mouse Click
+        public const int VK_RBUTTON = 0x02; //R Mouse Click
+    }
 
     // Use this for initialization
     void Awake ()
     {
         _instance = this;
-        listeners = new List<Listener>();
         _timeOfLastExitComboHit = Time.time;
 
     }
     public int lastKeyHit = 0;
-	// Update is called once per frame
-	void Update () {
-
+    bool prevlMouseButtonHeld = false;
+    // Update is called once per frame
+    void Update () {
+        bool gotMouseInput = Input.GetAxis("MouseDeltaX") != 0 || Input.GetAxis("MouseDeltaY") != 0;
         //OK????
         for (int i = 0; i < 0xFE; i++)
         {
@@ -76,7 +106,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
                 continue;
             }
 
-            bool gotMouseInput = Input.GetAxis("MouseDeltaX") != 0 || Input.GetAxis("MouseDeltaY") != 0;
+           
 
             if (GetAsyncKeyState(i) != 0 || gotMouseInput)
             {
@@ -85,6 +115,14 @@ public class BackgroundKeyboardInput : MonoBehaviour {
                 lastKeyHit = i;
             }
         }
+
+        bool lMouseButtonHeld = GetAsyncKeyState(Constants.VK_LBUTTON) != 0;
+        if (!prevlMouseButtonHeld && lMouseButtonHeld)
+        {
+            //Debug.Log("BG Mouse click!");
+            Events.onBackgroundMouseClick.Invoke();
+        }
+        prevlMouseButtonHeld = lMouseButtonHeld;
 
         bool altShiftBheld = GetAsyncKeyState(0x10) != 0 && GetAsyncKeyState(0x12) != 0 && GetAsyncKeyState(0x42) != 0;
         //bool ctrlCHeld = GetAsyncKeyState(0x11) != 0 && GetAsyncKeyState(0x43) != 0;
@@ -95,12 +133,10 @@ public class BackgroundKeyboardInput : MonoBehaviour {
 
             if (!_keyComboPressed)
             {
+                
                 _keyComboPressed = true;
                 timeOfLastExitComboHit = Time.time;
-                foreach (Listener l in listeners)
-                {
-                    l.onBackgroundKeyCombo();
-                }
+                Events.onBackgroundKeyCombo.Invoke();
             }
         }
         else
@@ -108,10 +144,5 @@ public class BackgroundKeyboardInput : MonoBehaviour {
 
             _keyComboPressed = false;
         }
-    }
-
-    public void addListener(Listener l)
-    {
-        this.listeners.Add(l);
     }
 }
