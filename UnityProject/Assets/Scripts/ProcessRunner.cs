@@ -72,8 +72,71 @@ public class ProcessRunner : MonoBehaviour
 	[DllImport("user32.dll")]
 	public static extern bool SetFocus(IntPtr hWnd);
 
-	// cycles through every window and calls callback
-	private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+    //code for removing window borders
+    //https://www.codeproject.com/Questions/413778/Removing-a-Window-Border-No-Winform
+    //Import window changing function
+    [DllImport("USER32.DLL")]
+    public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+    [DllImport("user32.dll")]
+    static extern bool DrawMenuBar(IntPtr hWnd);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowPos")]
+    public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
+
+    private const int GWL_STYLE = -16;              //hex constant for style changing
+    private const int WS_BORDER = 0x00800000;       //window with border
+    private const int WS_CAPTION = 0x00C00000;      //window with a title bar
+    private const int WS_SYSMENU = 0x00080000;      //window with no borders etc.
+    private const int WS_MINIMIZEBOX = 0x00020000;  //window with minimizebox
+
+    public const int SWP_ASYNCWINDOWPOS = 0x4000;
+    public const int SWP_DEFERERASE = 0x2000;
+    public const int SWP_DRAWFRAME = 0x0020;
+    public const int SWP_FRAMECHANGED = 0x0020;
+    public const int SWP_HIDEWINDOW = 0x0080;
+    public const int SWP_NOACTIVATE = 0x0010;
+    public const int SWP_NOCOPYBITS = 0x0100;
+    public const int SWP_NOMOVE = 0x0002;
+    public const int SWP_NOOWNERZORDER = 0x0200;
+    public const int SWP_NOREDRAW = 0x0008;
+    public const int SWP_NOREPOSITION = 0x0200;
+    public const int SWP_NOSENDCHANGING = 0x0400;
+    public const int SWP_NOSIZE = 0x0001;
+    public const int SWP_NOZORDER = 0x0004;
+    public const int SWP_SHOWWINDOW = 0x0040;
+
+    public const int HWND_TOP = 0;
+    public const int HWND_BOTTOM = 1;
+    public const int HWND_TOPMOST = -1;
+    public const int HWND_NOTOPMOST = -2;
+
+    [ContextMenu("TESTREMOVE")]
+    public void TESTREMOVEBORDER()
+    {
+
+        if (_allWindowsCached.ContainsKey("New Unity Project"))
+        {
+            IntPtr window = _allWindowsCached["New Unity Project"];
+            SetWindowPos(window, 0, 0, 0, 1920, 1080, SWP_SHOWWINDOW);
+
+
+            DrawMenuBar(window);
+            this.delayedFunction(() =>
+            {
+                SetWindowLong(window, GWL_STYLE, WS_SYSMENU);
+                SetWindowPos(window, 0, 0, 0, 1920, 600,
+                    SWP_NOMOVE | SWP_NOZORDER | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+
+            }
+            , 1);
+            
+
+        }
+        
+    }
+
+    // cycles through every window and calls callback
+    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 	[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 	private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr extraData);
 
