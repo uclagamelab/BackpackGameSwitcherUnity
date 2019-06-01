@@ -114,22 +114,28 @@ public class ProcessRunner : MonoBehaviour
     public void TESTREMOVEBORDER()
     {
 
-        if (_allWindowsCached.ContainsKey("New Unity Project"))
+        if (_allWindowsCached.ContainsKey("Artifacts- Phazero"))
         {
-            IntPtr window = _allWindowsCached["New Unity Project"];
-            SetWindowPos(window, 0, 0, 0, 1920, 1080, SWP_SHOWWINDOW);
+            IntPtr window = _allWindowsCached["Artifacts- Phazero"];
+            //SetWindowPos(window, 0, 0, 0, 1920, 1080, SWP_SHOWWINDOW);
 
 
             DrawMenuBar(window);
-            this.delayedFunction(() =>
-            {
+            //this.delayedFunction(() =>
+            //{
                 SetWindowLong(window, GWL_STYLE, WS_SYSMENU);
-                SetWindowPos(window, 0, 0, 0, 1920, 600,
+                SetWindowPos(window, 0, 0, 0, 1920, 1080,
                     SWP_NOMOVE | SWP_NOZORDER | SWP_NOSIZE | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
 
+            //}
+            //, 1);
+
+            this.delayedFunction(() =>
+            {
+                SetWindowPos(window, 0, 0, 0, 1920, 1080, SWP_SHOWWINDOW);
             }
-            , 1);
-            
+          , 1);
+
 
         }
         
