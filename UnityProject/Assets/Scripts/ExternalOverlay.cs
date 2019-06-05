@@ -16,12 +16,12 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
     static bool _overlayAllowed = true;
 
     bool _overlayShowing = false;
-
+    const string RAINMETER_PATH = "C:\\Program Files\\Rainmeter\\Rainmeter.exe";
     private void Awake()
     {
         _instance = this;
-
-        _overlayAllowed = !CommandLineArguments.AdminMode;
+        bool rainmeterInstalled = File.Exists(RAINMETER_PATH);
+        _overlayAllowed = rainmeterInstalled && !CommandLineArguments.AdminMode;
     }
 
     private void Start()
@@ -47,7 +47,7 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
         _instance._autoTimeout = displayDuration;
 
         //"C:\Program Files\Rainmeter\Rainmeter.exe"[!ActivateConfig "CrockoDial\Main" "Main.ini"][!Move "448" "0"][!Draggable 0]
-        ProcessStartInfo startInfo = new ProcessStartInfo("C:\\Program Files\\Rainmeter\\Rainmeter.exe");
+        ProcessStartInfo startInfo = new ProcessStartInfo(RAINMETER_PATH);
         startInfo.Arguments = "[!ActivateConfig \"CrockoDial\\Main\" \"Main.ini\"][!Move \"260\" \"0\"][!Draggable 0]";
         //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 

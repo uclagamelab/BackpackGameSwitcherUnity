@@ -139,7 +139,7 @@ public class UnityExeRunner : AbstractGameRunner
             if (!_waitingForMainGameWindow)
             {
                 Debug.Log("DING GDDO");
-                mouseStartupOptions.Perform();
+                mouseStartupOptions?.Perform();
             }
             //start with args normally
             return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
