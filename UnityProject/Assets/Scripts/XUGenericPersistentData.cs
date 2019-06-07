@@ -231,7 +231,7 @@ public class XUGenericPersistentDataEditor<T, V> : UnityEditor.Editor where T : 
 
         if (GUILayout.Button("Open In Explorer"))
         {
-            XuFileSystemUtil.OpenFileInExplorer(targetScript.saveDataPath);
+            XuFileSystemUtil.SelectFileInExplorer(targetScript.saveDataPath);
         }
         GUILayout.EndHorizontal();
     }

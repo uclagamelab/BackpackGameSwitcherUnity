@@ -19,13 +19,31 @@ static class XuFileSystemUtil
 
     }
 
-    public static void OpenFileInExplorer(string itemPath)
+    public static void SelectFileInExplorer(string itemPathOrig)
     {
-        #if UNITY_EDITOR
+        //#if UNITY_EDITOR
+        string itemPath = itemPathOrig;
             //Courtesy of stackoverflow 'yoyo'
             itemPath = itemPath.Replace(@"/", @"\");   // explorer doesn't like front slashes
+
             System.Diagnostics.Process.Start("explorer.exe", "/select," + itemPath);
-        #endif
+
+        
+        //#endif
+    }
+
+    public static void OpenPathInExplorer(string itemPathOrig)
+    {
+        //#if UNITY_EDITOR
+        string itemPath = itemPathOrig;
+        //Courtesy of stackoverflow 'yoyo'
+        itemPath = itemPath.Replace(@"/", @"\");   // explorer doesn't like front slashes
+
+
+        System.Diagnostics.Process.Start("explorer.exe", itemPath);
+        
+
+        //#endif
     }
 
     public static void ProcessAllFilesRecursive(IEnumerable<string> startDirectories, System.Action<string> fileAction)

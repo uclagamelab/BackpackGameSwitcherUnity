@@ -96,7 +96,7 @@ public class GameCatalog : MonoBehaviour
                 bool shouldSkip = new FileInfo(gameFolderPathString).Name.StartsWith("~");
                 if (shouldSkip)
                 {
-                    Debug.Log("Starts with '~', so IGNORING : " + gameFolderPathString);
+                    //Debug.Log("Starts with '~', so IGNORING : " + gameFolderPathString);
                     continue;
                 }
 

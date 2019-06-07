@@ -421,7 +421,7 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
-    void setJoyToKeyConfig(string configFile)
+    public void setJoyToKeyConfig(string configFile)
     {
         _currentJoyToKeyConfig = configFile;
 
@@ -475,7 +475,7 @@ public class ProcessRunner : MonoBehaviour
 
         _currentRunningGameProcess = gameToStart.launchSettings.Runner().Launch();//StartProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/);
         _runningGame = gameToStart;
-        setJoyToKeyConfig(gameToStart.joyToKeyConfig);
+        
         currentProcessStartTime = Time.time;
     }
 
@@ -691,11 +691,11 @@ public class ProcessRunner : MonoBehaviour
 
     public void StopCurrentRunningGame()
     {
-        _runningGame?.launchSettings.Runner()?.LaunchCleanUp();
+        _runningGame?.launchSettings.Runner()?.Reset();
         _runningGame = null;
         if (_currentRunningGameProcess != null)
         {
-            UnityEngine.Debug.Log("CloseProcess called : " + _currentRunningGameProcess.Id);
+            //UnityEngine.Debug.Log("CloseProcess called : " + _currentRunningGameProcess.Id);
 
             KillAllNonSafeProcesses(_currentRunningGameProcess.Handle, (uint)_currentRunningGameProcess.Id, 0);
         }

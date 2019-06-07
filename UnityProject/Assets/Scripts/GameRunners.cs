@@ -15,12 +15,14 @@ public class GameLaunchSettings
         public GameLaunchType type = GameLaunchType.Unity;
         public UnityExeRunner unityStartupOptions = new UnityExeRunner();
         public GenericExeRunner genericStartupOptions = new GenericExeRunner();
+        public float joyToKeyConfigDelay = -1;
     #endregion -------------------------------------------------------
 
     #region NON-SERIALIZED-----------------------------------------
     GameData _srcGame;
     #endregion -------------------------------------------------------
 
+    public bool joyToKeyDelayed => joyToKeyConfigDelay > 0;
     public IGameRunner Runner()
     {
         if (type == GameLaunchType.Generic)
@@ -67,7 +69,7 @@ public interface IGameRunner
     void SetUpWithGame(GameData game);
     Process Launch();
     void RunningUpdate();
-    void LaunchCleanUp();
+    void Reset();
 }
 
 public abstract class AbstractGameRunner : IGameRunner
@@ -85,7 +87,7 @@ public abstract class AbstractGameRunner : IGameRunner
     }
 
     public abstract Process Launch();
-    public abstract void LaunchCleanUp();
+    public abstract void Reset();
     public abstract void RunningUpdate();
 }
 
@@ -123,9 +125,13 @@ public class UnityExeRunner : AbstractGameRunner
     public override Process Launch()
     {
         //------RESET STATE --------
-        _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
-        _waitingForMainGameWindow = !string.IsNullOrEmpty(_srcGame.windowTitle);
-        //--------------------------
+        Reset();
+
+        //--- Set Joy to key profile, if appropriate ----
+        if (!_srcGame.launchSettings.joyToKeyDelayed)
+        {
+            ProcessRunner.instance.setJoyToKeyConfig(_srcGame.joyToKeyConfig); 
+        }
 
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
         if (hasResolutionSetupScreen)
@@ -136,10 +142,10 @@ public class UnityExeRunner : AbstractGameRunner
         }
         else
         {
-            if (!_waitingForMainGameWindow)
+            if (!_waitingForMainGameWindow && mouseStartupOptions != null)
             {
-                Debug.Log("DING GDDO");
-                mouseStartupOptions?.Perform();
+                Debug.Log("Performing mouse routine");
+                mouseStartupOptions.Perform();
             }
             //start with args normally
             return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
@@ -154,6 +160,7 @@ public class UnityExeRunner : AbstractGameRunner
     }
     DialogSkipState _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
     bool _waitingForMainGameWindow = true;
+    float _timeSinceWindowAppeared = -1;
 
     float _lastResDialogKeySend = float.NegativeInfinity;
 
@@ -173,6 +180,23 @@ public class UnityExeRunner : AbstractGameRunner
                 _waitingForMainGameWindow = false;
                 mouseStartupOptions?.Perform();
             }
+        }
+
+        if (!_waitingForMainGameWindow)
+        {
+            float prevTime = _timeSinceWindowAppeared;
+            _timeSinceWindowAppeared += Time.deltaTime;
+
+            if (_srcGame.launchSettings.joyToKeyDelayed)
+            {
+                bool joyToKeyDelayReached = prevTime < _srcGame.launchSettings.joyToKeyConfigDelay && _timeSinceWindowAppeared >= _srcGame.launchSettings.joyToKeyConfigDelay;
+                if (joyToKeyDelayReached)
+                {
+                    Debug.Log("Joy to key delay reached!");
+                    ProcessRunner.instance.setJoyToKeyConfig(_srcGame.joyToKeyConfig);
+                }
+            }
+
         }
 
         if (hasResolutionSetupScreen)
@@ -209,8 +233,13 @@ public class UnityExeRunner : AbstractGameRunner
         }
     }
 
-    public override void LaunchCleanUp()
+    public override void Reset()
     {
+        //------RESET STATE --------
+        _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
+        _waitingForMainGameWindow = !string.IsNullOrEmpty(_srcGame.windowTitle);
+        _timeSinceWindowAppeared = 0;
+        //--------------------------
     }
 }
 
@@ -234,7 +263,7 @@ public class GenericExeRunner : AbstractGameRunner
     {
     }
 
-    public override void LaunchCleanUp()
+    public override void Reset()
     {
     }
 }

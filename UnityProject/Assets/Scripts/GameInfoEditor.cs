@@ -178,22 +178,14 @@ public class GameInfoEditor : MonoBehaviour
         SetSelectedGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
     }
 
-    public void CopyFromLegacyJson()
+    public void OpenSelectedFolderInWindowsExplorer()
     {
-        string legacyJson = XuFileSystemUtil.ReadText(Path.Combine(currentSelectedGame.rootFolder.FullName, "gameInfo.json"));
-        if (legacyJson != null)
+        if (Screen.fullScreen)
         {
-            JSONObject job = new JSONObject(legacyJson);
-            job.GetField(ref currentSelectedGame.title, "title");
-            job.GetField(ref currentSelectedGame.designers, "designers");
-            job.GetField(ref currentSelectedGame.description, "description");
-            job.GetField(ref currentSelectedGame.joyToKeyConfig_singlePlayer, "joytokey cfg");
-            job.GetField(ref currentSelectedGame.windowTitle, "window title");
-            _ezEditor.UpdateWithGame(currentSelectedGame);
-            //currentSelectedGame.flushChangesToJson();
+            Screen.fullScreen = false;
         }
+        XuFileSystemUtil.OpenPathInExplorer(currentSelectedGame.rootFolder.FullName);
     }
-
     
 
 

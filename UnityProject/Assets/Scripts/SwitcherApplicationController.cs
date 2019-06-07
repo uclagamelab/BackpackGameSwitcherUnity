@@ -91,7 +91,7 @@ public class SwitcherApplicationController : MonoBehaviour
         {
             if (gotAnExitCombo)
             {
-                print("game exited with combo!");
+                //print("game exited with combo!");
             }
             else
             {
