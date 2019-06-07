@@ -581,7 +581,10 @@ public class ProcessRunner : MonoBehaviour
     //Add startup forgiveness timer, for games that change window
 	public bool IsGameRunning()
     {
-        return _currentRunningGameProcess != null && !_currentRunningGameProcess.HasExited;
+        bool processJustStarted = _runningGame != null && (Time.time - currentProcessStartTime) < 2;
+        bool windowBasedGameIsRunning = _runningGame != null && !string.IsNullOrEmpty(_runningGame.windowTitle) && WindowIsPresent(_runningGame.windowTitle);
+        bool processBasedGameIsRunning = _runningGame != null && (_currentRunningGameProcess != null && !_currentRunningGameProcess.HasExited);
+        return processJustStarted || windowBasedGameIsRunning || processBasedGameIsRunning;
     }
 	public void BringThisToForeground()
     {
