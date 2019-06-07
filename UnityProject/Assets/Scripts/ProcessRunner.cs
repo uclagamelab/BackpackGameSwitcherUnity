@@ -475,7 +475,13 @@ public class ProcessRunner : MonoBehaviour
 
         _currentRunningGameProcess = gameToStart.launchSettings.Runner().Launch();//StartProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/);
         _runningGame = gameToStart;
-        
+
+        //IDEALLY: this would be better folded into the process runner, but whatever for now
+        if (!_runningGame.launchSettings.joyToKeyDelayed)
+        {
+            ProcessRunner.instance.setJoyToKeyConfig(_runningGame.joyToKeyConfig);
+        }
+
         currentProcessStartTime = Time.time;
     }
 

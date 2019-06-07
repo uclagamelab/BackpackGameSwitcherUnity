@@ -79,7 +79,8 @@ public abstract class AbstractGameRunner : IGameRunner
 
     [SerializeField]
     public MouseStartUpOptions mouseStartupOptions;
-
+    protected bool _waitingForMainGameWindow = true;
+    float _timeSinceWindowAppeared = -1;
 
     public void SetUpWithGame(GameData game)
     {
@@ -87,8 +88,41 @@ public abstract class AbstractGameRunner : IGameRunner
     }
 
     public abstract Process Launch();
-    public abstract void Reset();
-    public abstract void RunningUpdate();
+    public virtual void Reset()
+    {
+        _timeSinceWindowAppeared = 0;
+        _waitingForMainGameWindow = !string.IsNullOrEmpty(_srcGame.windowTitle);
+    }
+    public virtual void RunningUpdate()
+    {
+        if (_waitingForMainGameWindow)
+        {
+            if (ProcessRunner.WindowIsPresent(_srcGame.windowTitle))
+            {
+                Debug.Log("Main Game Window Appeared");
+                _waitingForMainGameWindow = false;
+                mouseStartupOptions?.Perform();
+            }
+        }
+
+        if (!_waitingForMainGameWindow)
+        {
+            float prevTime = _timeSinceWindowAppeared;
+            _timeSinceWindowAppeared += Time.deltaTime;
+
+            if (_srcGame.launchSettings.joyToKeyDelayed)
+            {
+                bool joyToKeyDelayReached = prevTime < _srcGame.launchSettings.joyToKeyConfigDelay && _timeSinceWindowAppeared >= _srcGame.launchSettings.joyToKeyConfigDelay;
+                if (joyToKeyDelayReached)
+                {
+                    Debug.Log("Joy to key delay reached!");
+                    ProcessRunner.instance.setJoyToKeyConfig(_srcGame.joyToKeyConfig);
+                }
+            }
+
+        }
+
+    }
 }
 
 
@@ -127,12 +161,7 @@ public class UnityExeRunner : AbstractGameRunner
         //------RESET STATE --------
         Reset();
 
-        //--- Set Joy to key profile, if appropriate ----
-        if (!_srcGame.launchSettings.joyToKeyDelayed)
-        {
-            ProcessRunner.instance.setJoyToKeyConfig(_srcGame.joyToKeyConfig); 
-        }
-
+  
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
         if (hasResolutionSetupScreen)
         {
@@ -148,7 +177,10 @@ public class UnityExeRunner : AbstractGameRunner
                 mouseStartupOptions.Perform();
             }
             //start with args normally
-            return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
+            var ret = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
+
+     
+            return ret;
         }
     }
 
@@ -159,8 +191,8 @@ public class UnityExeRunner : AbstractGameRunner
         DialogHasClosed
     }
     DialogSkipState _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
-    bool _waitingForMainGameWindow = true;
-    float _timeSinceWindowAppeared = -1;
+
+
 
     float _lastResDialogKeySend = float.NegativeInfinity;
 
@@ -172,33 +204,7 @@ public class UnityExeRunner : AbstractGameRunner
 
     public override void RunningUpdate()
     {
-        if (_waitingForMainGameWindow)
-        {
-            if (ProcessRunner.WindowIsPresent(_srcGame.windowTitle))
-            {
-                Debug.Log("Main Game Window Appeared");
-                _waitingForMainGameWindow = false;
-                mouseStartupOptions?.Perform();
-            }
-        }
-
-        if (!_waitingForMainGameWindow)
-        {
-            float prevTime = _timeSinceWindowAppeared;
-            _timeSinceWindowAppeared += Time.deltaTime;
-
-            if (_srcGame.launchSettings.joyToKeyDelayed)
-            {
-                bool joyToKeyDelayReached = prevTime < _srcGame.launchSettings.joyToKeyConfigDelay && _timeSinceWindowAppeared >= _srcGame.launchSettings.joyToKeyConfigDelay;
-                if (joyToKeyDelayReached)
-                {
-                    Debug.Log("Joy to key delay reached!");
-                    ProcessRunner.instance.setJoyToKeyConfig(_srcGame.joyToKeyConfig);
-                }
-            }
-
-        }
-
+        base.RunningUpdate();
         if (hasResolutionSetupScreen)
         {
             if (_resDiaSkipState == DialogSkipState.WaitingForDialogToAppear)
@@ -235,10 +241,10 @@ public class UnityExeRunner : AbstractGameRunner
 
     public override void Reset()
     {
+        base.Reset();
         //------RESET STATE --------
         _resDiaSkipState = DialogSkipState.WaitingForDialogToAppear;
-        _waitingForMainGameWindow = !string.IsNullOrEmpty(_srcGame.windowTitle);
-        _timeSinceWindowAppeared = 0;
+        
         //--------------------------
     }
 }
@@ -255,17 +261,16 @@ public class GenericExeRunner : AbstractGameRunner
 
     public override Process Launch()
     {
+        Reset();
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
         return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), commandLineArguments);
     }
 
     public override void RunningUpdate()
     {
+        base.RunningUpdate();
     }
 
-    public override void Reset()
-    {
-    }
 }
 #endregion
 
