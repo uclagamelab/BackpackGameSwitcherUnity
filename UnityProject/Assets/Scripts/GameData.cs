@@ -21,7 +21,9 @@ public class GameData
     public string joyToKeyConfig_singlePlayer = null;
     
     public string exePath;
-    
+    public string exePathAbsolute => Path.Combine(this.rootFolder.FullName, this.exePath);
+
+
 
 
     public ControlInstructions instructions;
@@ -105,7 +107,7 @@ public class GameData
 
         // --- Find the exe ------------------------
         //setUpExe_LEGACY(_gameFolder);
-        if (!File.Exists(this.exePath))
+        if (!File.Exists(this.exePathAbsolute))
         {
             autoFindAndAssignAppropriateExe();
         }
@@ -418,7 +420,7 @@ public class GameData
         {
             auditMsgStringBuilder.AppendLine(dat.title + " has empty exe path");
         }
-        else if (!System.IO.File.Exists(Path.Combine(dat.rootFolder.FullName, dat.exePath)))
+        else if (!System.IO.File.Exists(dat.exePathAbsolute))
         {
             auditMsgStringBuilder.AppendLine(dat.title + ", no file found at specified exe path");
         }
