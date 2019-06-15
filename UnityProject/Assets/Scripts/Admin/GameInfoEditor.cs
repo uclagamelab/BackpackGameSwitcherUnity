@@ -169,7 +169,7 @@ public class GameInfoEditor : MonoBehaviour
             nuItem.game = gam;
             nuItem.gameObject.SetActive(true);
             nuItem.text = gam.title;
-            nuItem.transform.parent = _gameListScrollRect.content;
+            nuItem.transform.SetParent(_gameListScrollRect.content, false);
         }
     }
 
