@@ -7,14 +7,7 @@ public class CrockoInput : MonoBehaviour
     static bool USE_TRACKBALL_INPUT = false;
     private void Awake()
     {
-        string[] args = System.Environment.GetCommandLineArgs();
-        foreach (string arg in args)
-        {
-            if (arg == "-trackball_input")
-            {
-                USE_TRACKBALL_INPUT = true;
-            }
-        }
+        USE_TRACKBALL_INPUT = XUCommandLineArguments.Contains("-trackball_input");
     }
     
     public static bool GetOpenGameButtonDown()

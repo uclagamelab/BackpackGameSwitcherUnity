@@ -5,7 +5,8 @@ using UnityEngine.UI;
 using UnityStandardAssets.ImageEffects;
 
 public class PreLaunchGameInfo : MonoBehaviour {
-    public static PreLaunchGameInfo Instance;
+    static XUSingleTown<PreLaunchGameInfo> _InstanceHelper = new XUSingleTown<PreLaunchGameInfo>();
+    public static PreLaunchGameInfo Instance => _InstanceHelper.instance;
 
     public bool animating
     {
@@ -38,11 +39,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
     }
 
     CanvasGroup _canvasGroup;
-
-    private void Awake()
-    {
-        Instance = this;
-    }
 
     // Use this for initialization
     void Start () {
@@ -163,7 +159,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
         _dimmer.enabled = true;
         if (forward)
         {
-
             setHighlighted(_backButton.rt);
         }
        this.varyWithT((rawT) =>

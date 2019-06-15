@@ -19,11 +19,9 @@ public class MenuVisualsGeneric : MonoBehaviour
     [SerializeField]
     CanvasGroup _slideshowTitleTabCanvasGroup;
 
-    public static MenuVisualsGeneric Instance
-    {
-        get;
-        private set;
-    }
+    static XUSingleTown<MenuVisualsGeneric> _InstanceHelper = new XUSingleTown<MenuVisualsGeneric>();
+    public static MenuVisualsGeneric Instance => _InstanceHelper.instance;
+
 
     public Text _titleText;
         public Text _creditText;
@@ -47,8 +45,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         private set;
     }
 
-    GameInfoUI gameInfoUI;
-    PreLaunchGameInfo gameInfoV2;
+    PreLaunchGameInfo gameInfoV2 => PreLaunchGameInfo.Instance;
 
     bool animating = false;
 
@@ -106,10 +103,8 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         private void Awake()
     {
-        Instance = this;
         state = MenuState.ChooseGame;
         this.listners = new List<Listener>();
-        gameInfoUI = this.GetComponentInChildren<GameInfoUI>();
     }
 
 
@@ -118,7 +113,7 @@ public class MenuVisualsGeneric : MonoBehaviour
     void Start ()
     {
         //updateInfoDisplay(currentlySelectedGame, 0);
-        gameInfoV2 = this.GetComponentInChildren<PreLaunchGameInfo>(true);
+
 
         selectRandomGame();
     }
@@ -313,13 +308,6 @@ public class MenuVisualsGeneric : MonoBehaviour
         return true;
     }
 
-    public void showLoadingScreen(bool show)
-    {
-        //BackgroundDisplay.Instance.gameObject.SetActive(!show);
-        this.gameInfoUI.gameObject.SetActive(!show);
-        //LoadingScreen.instance.on = show;
-    }
-
     void showErrorText(string error)
     {
         this.varyWithT((float t) => {
@@ -352,9 +340,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         this.state = MenuState.ChooseGame;
 
-        
-
-        this.showLoadingScreen(false);
+       
        
 
    

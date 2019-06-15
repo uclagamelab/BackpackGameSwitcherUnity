@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameInfoUI : MonoBehaviour {
-
+public class GameInfoUI : MonoBehaviour
+{
+    static XUSingleTown<GameInfoUI> _InstanceHelper = new XUSingleTown<GameInfoUI>();
+    public static GameInfoUI Instance => _InstanceHelper.instance;
 
     public Text titleText;
     public Text creditText;

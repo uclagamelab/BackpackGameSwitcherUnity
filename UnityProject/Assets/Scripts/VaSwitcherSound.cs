@@ -21,7 +21,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     [SerializeField]
     AudioMixerGroup _bgmGroup;
 
-    public MenuVisualsGeneric menu;
+    MenuVisualsGeneric menu => MenuVisualsGeneric.Instance;
     public AudioClip cycleSound;
     public AudioClip cycleSound2;
     public AudioClip cycleFinishSound;
