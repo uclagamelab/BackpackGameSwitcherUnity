@@ -5,7 +5,7 @@ using UnityEngine;
 public class XUGenericPeristentDataSingleton<T> : XUGenericPersistentData<T> where T : new()
 {
 
-    internal static SingleTown<XUGenericPeristentDataSingleton<T>> _instanceHelper = new SingleTown<XUGenericPeristentDataSingleton<T>>(SingletownStrategy.CreateGameObjectAndAddComponentIfNonExisting);
+    internal static XUSingleTown<XUGenericPeristentDataSingleton<T>> _instanceHelper = new XUSingleTown<XUGenericPeristentDataSingleton<T>>(SingletownStrategy.CreateGameObjectAndAddComponentIfNonExisting);
     protected static XUGenericPeristentDataSingleton<T> instance
     {
         get

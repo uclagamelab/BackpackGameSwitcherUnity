@@ -11,18 +11,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum SingletownStrategy { FindExisting, CreateGameObjectAndAddComponentIfNonExisting, InstantiateFromResourcesPrefab };
-class SingleTown<T> where T : Component
+class XUSingleTown<T> where T : Component
 {
     string _resourcesPrefabPath = null;
 
     SingletownStrategy _strategy = SingletownStrategy.FindExisting;
 
-    public SingleTown(SingletownStrategy strategy = SingletownStrategy.FindExisting)
+    public XUSingleTown(SingletownStrategy strategy = SingletownStrategy.FindExisting)
     {
         _strategy = strategy;
     }
 
-    public SingleTown(string resourcesPrefabPath)
+    public XUSingleTown(string resourcesPrefabPath)
     {
         _strategy = SingletownStrategy.InstantiateFromResourcesPrefab;
         _resourcesPrefabPath = resourcesPrefabPath;

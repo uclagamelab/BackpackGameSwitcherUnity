@@ -146,8 +146,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         string cleanPath = this.gamesDirInputField.text;
         cleanPath = cleanPath.Replace('\\', '/');
         GameCatalog.Instance.repopulateCatalog(cleanPath);
-
-        GenericSettings.SaveAllGenericSettings();
     }
 
     void Update()

@@ -54,14 +54,6 @@ public class SwitcherApplicationController : MonoBehaviour
     void Start()
     {
         BackgroundKeyboardInput.Events.onBackgroundKeyCombo += onBackgroundKeyCombo;
-        GenericSettings.OnSettingsUpdated += OnSettingsUpdated;
-        OnSettingsUpdated();
-    }
-
-    void OnSettingsUpdated()
-    {
-        GenericSettings.TryGetValue("idle_timeout", out idleTimeout, 2 * 60);
-        GenericSettings.TryGetValue("idle_cycle_duration", out attractAutoCycleDuration, 90);
     }
 
     //TODO: Move this to process runner
