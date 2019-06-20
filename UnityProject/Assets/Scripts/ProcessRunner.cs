@@ -37,14 +37,8 @@ public class ProcessRunner : MonoBehaviour
         //set { _gameProcessIsRunning = value; }
     }
 
-    static ProcessRunner _instance;
-    public static ProcessRunner instance
-    {
-        get
-        {
-            return _instance;
-        }
-    }
+    static XUSingleTown<ProcessRunner> _instanceHelper = new XUSingleTown<ProcessRunner>();
+    public static ProcessRunner instance => _instanceHelper.instance;
     // DLL Imports
 
 
@@ -313,7 +307,6 @@ public class ProcessRunner : MonoBehaviour
 
     void Awake()
     {
-        _instance = this;
         _windowCheckTimers.Start();
     }
 
