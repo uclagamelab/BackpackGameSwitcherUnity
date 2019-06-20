@@ -7,6 +7,15 @@ using UnityEngine;
 // Some General Purpose file handling Helpers
 static class XuFileSystemUtil
 {
+    public static string GetParentDirectory(string path, int nLevelsUp = 1)
+    {
+        string ret = path;
+        for (int i = 0; i < nLevelsUp; i++)
+        {
+            ret = System.IO.Path.GetDirectoryName(ret);
+        }
+        return ret;
+    }
     public static void GetAllDirectoriesRecursive(string startDirectory, List<string> pathPop, bool includeStartDir = true)
     {
         pathPop.Clear();
