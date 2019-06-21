@@ -38,7 +38,7 @@ public class SwitcherApplicationController : MonoBehaviour
     }
 
 
-    static float idleTimeout = 3;//6 * 60;
+    static float idleTimeout = 6 * 60;
     float attractAutoCycleDuration = 2;
 
     bool _defaultIsFullScreen = true;
