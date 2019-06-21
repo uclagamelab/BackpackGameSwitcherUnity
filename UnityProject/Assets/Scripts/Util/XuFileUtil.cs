@@ -8,11 +8,11 @@ using UnityEngine;
 static class XuFileUtil
 {
     public static string RunningAppDirectory =>
-#if UNITY_EDITOR
-        "C:\\Users\\AlexRickett\\Desktop\\CROCKO-DIAL";
-#else
+        #if UNITY_EDITOR
+        Path.GetDirectoryName(Application.dataPath); //while in editor, use the project directory
+        #else
         AppDomain.CurrentDomain.BaseDirectory;
-#endif
+        #endif
 
 
     public static string GetParentDirectory(string path, int nLevelsUp = 1)
