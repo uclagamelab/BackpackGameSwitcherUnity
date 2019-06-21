@@ -23,9 +23,6 @@ public class GameData
     public string exePath;
     public string exePathAbsolute => Path.Combine(this.rootFolder.FullName, this.exePath);
 
-
-
-
     public ControlInstructions instructions;
 
     public GameLaunchSettings launchSettings;// = new GameLaunchSettings();
@@ -63,9 +60,16 @@ public class GameData
     public Texture previewImg;
     #endregion -----------------------------------------------
 
+    public bool valid
+    {
+        get;
+        private set;
+    }
+
     #region ---CONSTRUCTOR ---------------------------------------------------------------------
     public GameData(string gameFolderPath)
     {
+        valid = true;
         _gameFolder = new DirectoryInfo(gameFolderPath);//IMPORTANT that this gets set immediately
 
         if (_gameFolder.Exists)
@@ -90,6 +94,7 @@ public class GameData
         catch (System.Exception e)
         {
             Debug.LogError("problem parsing json in " + _gameFolder.FullName);
+            valid = false;
             return;
         }
 
