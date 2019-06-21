@@ -61,7 +61,7 @@ public class SwitcherApplicationController : MonoBehaviour
     {
         #if !UNITY_EDITOR
         bool resolutionDifferent = Screen.width != _defaultResolution.width || Screen.height != _defaultResolution.height;
-        if (!CommandLineArguments.AdminMode && resolutionDifferent)
+        if (!SwitcherSettings.AdminMode && resolutionDifferent)
         {
             Screen.SetResolution(_defaultResolution.width, _defaultResolution.height, _defaultIsFullScreen);
         }
