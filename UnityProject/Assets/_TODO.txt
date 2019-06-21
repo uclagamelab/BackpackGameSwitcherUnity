@@ -5,6 +5,8 @@ pressing:
 * Add 'hidden' property to game, 'show hidden' to overall settings
 
 less important:
+* Custom cursors, hiding the cursor for other apps: https://devblogs.microsoft.com/scripting/use-powershell-to-change-the-mouse-pointer-scheme/
+https://www.autoitscript.com/forum/topic/106233-hide-the-mouse-cursor/
 * Clean up the settings menu
 * Ditch the command line arguments, and make changeable via settings menu (?)
 * finish making work with restart on crash
