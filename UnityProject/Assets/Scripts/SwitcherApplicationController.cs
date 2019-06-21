@@ -99,7 +99,7 @@ public class SwitcherApplicationController : MonoBehaviour
         gameProcessWentNullOrExitedLastUpdate = processWentNullOrExitedThisUpdate;
 
         //Make Switcher Retake focus, if necessary
-        if (Time.time > lastFocusSwitchAttemptTime + 1)
+        if (Time.time > lastFocusSwitchAttemptTime + 3)
         {
             lastFocusSwitchAttemptTime = Time.time;
             if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.

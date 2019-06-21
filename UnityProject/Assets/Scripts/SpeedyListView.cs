@@ -224,15 +224,6 @@ public class SpeedyListView : MonoBehaviour
             _speedAccumulator = Mathf.MoveTowards(_speedAccumulator, 0,  Time.deltaTime * 2f);
         }
 
-        if (currentGame != null)
-        {
-            char firstLetter = currentGame.title[0];
-            firstLetter = char.IsLetter(firstLetter) ? char.ToUpper(firstLetter) : '#';
-            sb.Clear();
-            sb.Append(firstLetter);
-            _alphaHelper.text = sb.ToString(); ;
-        }
-
         UpdateTextViz();
     }
 
@@ -295,6 +286,15 @@ public class SpeedyListView : MonoBehaviour
             _listItems[i].gameData = _things[effIdx].data;
             _listItems[i].title = _things[effIdx].titleSansNewlines;
 
+        }
+
+        if (currentGame != null)
+        {
+            char firstLetter = currentGame.title[0];
+            firstLetter = char.IsLetter(firstLetter) ? char.ToUpper(firstLetter) : '#';
+            sb.Clear();
+            sb.Append(firstLetter);
+            _alphaHelper.text = sb.ToString();
         }
     }
 
