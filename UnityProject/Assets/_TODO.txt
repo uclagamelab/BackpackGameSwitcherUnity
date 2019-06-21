@@ -1,7 +1,5 @@
 ﻿TODO:
 pressing:
-* rather than starting a game from a bat file, start game + (bat file, or autoit script)
-* make sure works without image folder (seems to?)
 * Add 'hidden' property to game, 'show hidden' to overall settings
 
 less important:
@@ -10,19 +8,13 @@ https://www.autoitscript.com/forum/topic/106233-hide-the-mouse-cursor/
 * Clean up the settings menu
 * Ditch the command line arguments, and make changeable via settings menu (?)
 * finish making work with restart on crash
-* ensure roughly robust to no games, corrupt json, bad files
 * package joytokey profiles in game directories, and copy to joytokey directory
-* package joytokey, rainmeter, autoit with app (for easier install)
-* try to tidy up the project
 * take another pass at the documentation
-
-DESIGN NOTES:
-* more space below the selected bottom tab 
-* More space above the selected tab
-* "dim" the unselected tabs
-* extend the bottom gradient, or build shadows into those tabs
+* upload companion software somewhere? just add to git?
+* try to make a new skin, refactoring as necessary
 
 BUGS
+* If no valid folder, need to completely restart after setting a good one
 * Needing to restart when you change folders, other settings?
 * Bugs with applying changes.  
 
@@ -41,18 +33,13 @@ GAME ISSUES:
 
 
 FANCINESS:
-* Add notes to game folders
-* Make totally portable deploy (no installs required)
-* Refactor, (rewrite?)
-* Be able to create games from within Tools menu (relatively easy)
+* Playlists
 * About section
 * Sort by creator
 * Image galleries
 * Video player (for non-playable projects, etc...)
 * Ken Burns effect on images?
-* Make a couple different 'skins'
-* Support for 2 players
-* Be able to optionally hide, or reskin cursor for games
+* add "platform info" file, giving info about available controls, number of players, whether analog stick
 * Doublecheck audit, see what it's able to show you
 * Checking if a game has stalled???
 	https://stackoverflow.com/questions/3500634/how-to-check-if-process-is-not-responding
@@ -86,23 +73,21 @@ Front End Menu
 }
 
 #### #### Other Notes #### #### #### #### #### ####
-Goals:
-Should be super easy to re-skin,
-Should be super easy to change menu controls
-Should be easy to add new data, and files to games
-Should also work for non-games (just videos)
-Probably would also like an extended image gallery / longer description in some cases
 
 ### ### Audit? #### #### #### #### #### ####
 - check JSON validity
 - check Exes, check if shortcuts valid
 - check for missing image/video
-- check for spaces in folder names.
 - check that valid joytoKeyFiles are specified in JSON
 - check general folder structure
 - check validity of joyToKeyFiles (all have exit button mapped)
 
 #### ####  Things found #### #### 
+https://github.com/ViGEm (a bunch of 'em)
+https://github.com/Snoothy/UCR (UNIVERSAL control remapper, updated somewhat recently, uses vjoy)
+https://github.com/shauleiz/vJoy/releases (simulates a gamepad, has c# interface)
+http://vjoystick.sourceforge.net/site/
+
 https://github.com/AntiMicro/antimicro (joy to key alternative, open source, might be able to cannibalize)
 
 #### #### Focus notes #### #### #### #### #### ####
