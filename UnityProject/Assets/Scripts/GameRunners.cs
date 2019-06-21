@@ -288,6 +288,7 @@ public class GenericExeRunner : AbstractGameRunner
     {
         Reset();
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
+        LaunchHelperProcess();
         return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), commandLineArguments);
     }
 
