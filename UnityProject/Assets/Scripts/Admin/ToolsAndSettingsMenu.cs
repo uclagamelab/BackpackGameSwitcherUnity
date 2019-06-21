@@ -129,23 +129,20 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     void loadValuesFromSettings()
     {
-        this.gamesDirInputField.text = SwitcherSettings.Data.GamesFolder;
-        this.joyToKeyDirInputField.text = SwitcherSettings.Data.JoyToKeyFolder;
-        this.bgMusicDirInputField.text = SwitcherSettings.Data.BGMusicFolder;
+        this.gamesDirInputField.text = SwitcherSettings.Data._GamesFolder;
+        this.joyToKeyDirInputField.text = SwitcherSettings.Data._JoyToKeyFolder;
+        this.bgMusicDirInputField.text = SwitcherSettings.Data._BGMusicFolder;
     }
 
     public void saveCurrentValuesToSettings()
     {
-        SwitcherSettings.Data.GamesFolder = this.gamesDirInputField.text;
-        SwitcherSettings.Data.JoyToKeyFolder = this.joyToKeyDirInputField.text;
-        SwitcherSettings.Data.BGMusicFolder = this.bgMusicDirInputField.text;
+        SwitcherSettings.Data._GamesFolder = this.gamesDirInputField.text;
+        SwitcherSettings.Data._JoyToKeyFolder = this.joyToKeyDirInputField.text;
+        SwitcherSettings.Data._BGMusicFolder = this.bgMusicDirInputField.text;
         SwitcherSettings.ApplyChanges();
 
         //Apply the settings
-
-        string cleanPath = this.gamesDirInputField.text;
-        cleanPath = cleanPath.Replace('\\', '/');
-        GameCatalog.Instance.repopulateCatalog(cleanPath);
+        GameCatalog.Instance.repopulateCatalog(SwitcherSettings.Data.GamesFolder);
     }
 
     void Update()
@@ -198,7 +195,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
                 }
                 File.Move(finalPath, backupPath);
             }
-            XuFileSystemUtil.WriteText(sb.ToString(), finalPath);
+            XuFileUtil.WriteText(sb.ToString(), finalPath);
         }
 
         //resultMessage.text = "Done!, \n\nsaved existing file as : <nothing yet>";

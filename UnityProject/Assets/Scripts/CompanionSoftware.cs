@@ -8,12 +8,12 @@ public class CompanionSoftware  {
     static string mainFolder =>
         #if UNITY_EDITOR
          Path.Combine(
-             XuFileSystemUtil.GetParentDirectory(Application.dataPath,2),
+             XuFileUtil.GetParentDirectory(Application.dataPath,2),
              "CompanionSoftware"
              );
 #else
              Path.Combine(
-             XuFileSystemUtil.GetParentDirectory(Application.dataPath,1),
+             XuFileUtil.GetParentDirectory(Application.dataPath,1),
              "CompanionSoftware"
              );
 #endif

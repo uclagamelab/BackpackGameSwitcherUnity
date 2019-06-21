@@ -184,7 +184,7 @@ public class GameInfoEditor : MonoBehaviour
         {
             Screen.fullScreen = false;
         }
-        XuFileSystemUtil.OpenPathInExplorer(currentSelectedGame.rootFolder.FullName);
+        XuFileUtil.OpenPathInExplorer(currentSelectedGame.rootFolder.FullName);
     }
     
 

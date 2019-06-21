@@ -19,6 +19,8 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
 
     //"C:\\Program Files\\Rainmeter\\Rainmeter.exe";
 
+    static Process _rainmeterProcess = null;
+
     private void Awake()
     {
         _instance = this;
@@ -31,7 +33,7 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
         if (_overlayAllowed)
         {
             //ProcessStartInfo startInfo = new ProcessStartInfo(CompanionSoftware.Rainmeter);
-            Process.Start(CompanionSoftware.Rainmeter);
+            _rainmeterProcess = Process.Start(CompanionSoftware.Rainmeter);
         }
         MenuVisualsGeneric.Instance.addListener(this);
     }
@@ -70,8 +72,12 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
         startInfo.Arguments = "[!ActivateConfig \"CrockoDial\\Main\" \"Main.ini\"][!Move \"260\" \"0\"][!Draggable 0]";
         //startInfo.WorkingDirectory = "";// System.IO.Path.GetDirectoryName(CompanionSoftware.Rainmeter);
         //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-      
-         Process.Start(startInfo);
+
+        var newProcess = Process.Start(startInfo);
+        if (_rainmeterProcess.HasExited)
+        {
+            _rainmeterProcess = newProcess;
+        }
         //Debug.Log("?? " + success);
     }
 
@@ -90,7 +96,11 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
         ProcessStartInfo startInfo = new ProcessStartInfo(CompanionSoftware.Rainmeter);
         startInfo.Arguments = "[!DeactivateConfig \"CrockoDial\\Main\" \"Main.ini\"]";
 
-        Process.Start(startInfo);
+        var newProcess = Process.Start(startInfo);
+        if (_rainmeterProcess.HasExited)
+        {
+            _rainmeterProcess = newProcess;
+        }
         _instance._overlayShowing = false;
         _instance._autoTimeout = 0;//doesn't really matter
     }
@@ -144,6 +154,14 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
         if (_overlayShowing)
         {
             HideOverlay();
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (_rainmeterProcess != null && !_rainmeterProcess.HasExited)
+        {
+            _rainmeterProcess.Kill();
         }
     }
 }

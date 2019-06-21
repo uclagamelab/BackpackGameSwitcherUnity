@@ -14,10 +14,25 @@ public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData
 public class SwitcherPrefData
 {
     #region SERIALIZED
-    public string GamesFolder;
-    public string JoyToKeyFolder;
-    public string BGMusicFolder;
+    public string _GamesFolder;
+    public string _JoyToKeyFolder;
+    public string _BGMusicFolder;
     #endregion
 
+    public string JoyToKeyFolder => ConvertIfExeRelative(_JoyToKeyFolder);
+    public string BGMusicFolder => ConvertIfExeRelative(_BGMusicFolder);
 
+    static string ConvertIfExeRelative(string rawPath)
+    {
+        if (rawPath.StartsWith(".\\")) //is relative
+        {
+            return System.IO.Path.Combine(XuFileUtil.RunningAppDirectory, rawPath.Substring(2));
+        }
+        else
+        {
+            return rawPath;
+        }
+    }
+
+    public string GamesFolder => ConvertIfExeRelative(_GamesFolder);
 }

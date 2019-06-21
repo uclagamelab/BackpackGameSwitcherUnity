@@ -5,8 +5,16 @@ using System.IO;
 using UnityEngine;
 
 // Some General Purpose file handling Helpers
-static class XuFileSystemUtil
+static class XuFileUtil
 {
+    public static string RunningAppDirectory =>
+#if UNITY_EDITOR
+        "C:\\Users\\AlexRickett\\Desktop\\CROCKO-DIAL";
+#else
+        AppDomain.CurrentDomain.BaseDirectory;
+#endif
+
+
     public static string GetParentDirectory(string path, int nLevelsUp = 1)
     {
         string ret = path;
@@ -32,12 +40,12 @@ static class XuFileSystemUtil
     {
         //#if UNITY_EDITOR
         string itemPath = itemPathOrig;
-            //Courtesy of stackoverflow 'yoyo'
-            itemPath = itemPath.Replace(@"/", @"\");   // explorer doesn't like front slashes
+        //Courtesy of stackoverflow 'yoyo'
+        itemPath = itemPath.Replace(@"/", @"\");   // explorer doesn't like front slashes
 
-            System.Diagnostics.Process.Start("explorer.exe", "/select," + itemPath);
+        System.Diagnostics.Process.Start("explorer.exe", "/select," + itemPath);
 
-        
+
         //#endif
     }
 
@@ -50,7 +58,7 @@ static class XuFileSystemUtil
 
 
         System.Diagnostics.Process.Start("explorer.exe", itemPath);
-        
+
 
         //#endif
     }
@@ -58,6 +66,18 @@ static class XuFileSystemUtil
     public static void ProcessAllFilesRecursive(IEnumerable<string> startDirectories, System.Action<string> fileAction)
     {
         ProcessAllFilesRecursive(startDirectories, "*", fileAction);
+    }
+
+    /// <summary>
+    /// Not thoroughly tested, should copy more vetted version from somewhere
+    /// </summary>
+    /// <param name="maybeSubdirectory"></param>
+    /// <param name="maybeParentDirectory"></param>
+    /// <returns></returns>
+    public static bool IsSubdirectory  (string maybeSubdirectory, string maybeParentDirectory)
+    {
+
+        return maybeSubdirectory.Replace('\\', '/').StartsWith(maybeParentDirectory.Replace('\\', '/'));
     }
 
     public static string ComputeRelativePath(string exeFullPath, string relativeToPath)//_currentGame.rootFolder.FullName

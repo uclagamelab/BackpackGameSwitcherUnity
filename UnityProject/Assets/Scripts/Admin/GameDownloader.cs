@@ -24,7 +24,7 @@ public class GameDownloader : MonoBehaviour
                 //"https://drive.google.com/uc?export=download&id=1OLk-C_iaI0ItswTyI_0yfc0ioo8BaqqE";
                 "https://drive.google.com/uc?export=download&id=14q1oOoVBWz2YZ-OPROvktOdTBIVdHTB1";
 
-            string downloadNameSuffix = XuFileSystemUtil.GetDateSuffixForFileName();
+            string downloadNameSuffix = XuFileUtil.GetDateSuffixForFileName();
             downloadHelper.downloadedZipPath = Application.temporaryCachePath + "/" + downloadNameSuffix + "Audio.zip";
             Debug.Log(downloadHelper.downloadedZipPath);
 
@@ -59,7 +59,7 @@ public class GameDownloader : MonoBehaviour
         if (GUI.Button(new Rect(Screen.height - 45, 10, 70, 45), "Cancel"))
         {
             wc.CancelAsync();
-            XuFileSystemUtil.DeleteFileOrDirectory(downloadedZipPath);
+            XuFileUtil.DeleteFileOrDirectory(downloadedZipPath);
         }
 
         if (finished)
@@ -80,16 +80,16 @@ public class GameDownloader : MonoBehaviour
 
         string originalFilePath = Application.streamingAssetsPath + "/Audio";
         bool saveExistingTemporarily = System.IO.Directory.Exists(originalFilePath);
-        string saveVersionOfBank = originalFilePath + "_safe_" + XuFileSystemUtil.GetDateSuffixForFileName();
+        string saveVersionOfBank = originalFilePath + "_safe_" + XuFileUtil.GetDateSuffixForFileName();
         if (saveExistingTemporarily)
         {
-            XuFileSystemUtil.MoveFileOrDirectory(originalFilePath, saveVersionOfBank);
+            XuFileUtil.MoveFileOrDirectory(originalFilePath, saveVersionOfBank);
         }
 
         //[!!!] Warning will overwrite an existing file with no warning!
         ZipUtil.Unzip(downloadedZipPath, unzipDestination);
 
-        XuFileSystemUtil.DeleteFileOrDirectory(downloadedZipPath);
+        XuFileUtil.DeleteFileOrDirectory(downloadedZipPath);
     }
 
     void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)

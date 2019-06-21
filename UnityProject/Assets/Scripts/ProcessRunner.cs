@@ -428,7 +428,12 @@ public class ProcessRunner : MonoBehaviour
         startInfo.FileName = @GameCatalog.Instance.joyToKeyData.executable;
         startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
 
-        _joy2KeyProcess = Process.Start(startInfo);
+
+        var newProcess = Process.Start(startInfo);
+        if (_joy2KeyProcess == null || _joy2KeyProcess.HasExited)
+        {
+            _joy2KeyProcess = newProcess;
+        }
     }
 
     public static Process StartProcess(string directory, string exe, string cmdArgs)
@@ -743,7 +748,34 @@ public class ProcessRunner : MonoBehaviour
             this.safeProcesses.Add(p);
         }
     }
-    
+
+    [ContextMenu("TryKillNamedExe")]
+    public void TryKillNamedExe()
+    {
+        TryKillNamedExe(CompanionSoftware.Rainmeter);
+    }
+    public static void TryKillNamedExe(string targetExe)
+    {
+        Process[] processes = Process.GetProcesses();
+        foreach (Process p in processes)
+        {
+            bool canCheck = !p.HasExited;
+            if (canCheck && p.MainModule.FileName == targetExe)
+            {
+                Debug.Log(p.MainModule.FileName);
+                p.Kill();
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (_joy2KeyProcess != null && !_joy2KeyProcess.HasExited)
+        {
+            _joy2KeyProcess.Kill();
+        }
+    }
+
     public void KillAllNonSafeProcesses(IntPtr hProcess, uint processID, int exitCode)
     {
         Process[] processes = Process.GetProcesses();
