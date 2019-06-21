@@ -101,7 +101,11 @@ public class GameCatalog : MonoBehaviour
                 }
 
                 GameData gameData = new GameData(gameFolderPathString.Replace('\\', '/'));
-                allGames.Add(gameData);
+                if (gameData.valid)
+                {
+                    allGames.Add(gameData);
+                }
+
             /*}
             catch (System.Exception e)
             {
