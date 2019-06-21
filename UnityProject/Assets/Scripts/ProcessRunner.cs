@@ -5,6 +5,7 @@ This class, (aspirationally) is contains functions for...
 - Starting new exes/bat files etc...
 - stopping existing processings
 
+TODO: factor out dll stuff
  */
 
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms632668(v=vs.85).aspx
@@ -354,7 +355,6 @@ public class ProcessRunner : MonoBehaviour
         }
         
         return true;
-
     }
     public static Dictionary<string, IntPtr> _allWindowsCached = new Dictionary<string, IntPtr>();
     private void Update()
@@ -379,9 +379,7 @@ public class ProcessRunner : MonoBehaviour
             EnumWindows(allWindowIter, IntPtr.Zero);
 
         }
-
         
-
         //----------------------------------------------
 
         if (_runningGame != null)
@@ -436,8 +434,9 @@ public class ProcessRunner : MonoBehaviour
     public static Process StartProcess(string directory, string exe, string cmdArgs)
     {
 
+        //this is a little weird...
         string fullPath = Path.Combine(directory, exe);
-        if (!File.Exists(fullPath))
+        if (!File.Exists(exe) && !File.Exists(fullPath))
         {
             Debug.LogError("Game not found at path:\n"+ fullPath);
             return null;
@@ -533,8 +532,7 @@ public class ProcessRunner : MonoBehaviour
 		}, IntPtr.Zero);
 
 	}
-
-
+    
 	// returns true if the 'hWnd' is managed by the 'processId'
 	bool DoesWindowMatchProcessId( IntPtr hWnd, int processId )
 	{
@@ -624,8 +622,6 @@ public class ProcessRunner : MonoBehaviour
             SendKeyStrokesToWindow(windowTitle);
             //>>>>>>>>>>>>>>>>
         }
-
-
     }
 
     static string lastSentWindow = null;
@@ -682,7 +678,7 @@ public class ProcessRunner : MonoBehaviour
         process.Start();
     }
 
-        public static void MouseClick()
+    public static void MouseClick()
     {
         _mousePosCommandBuilderCmdBuilder.Clear();
         _mousePosCommandBuilderCmdBuilder.Append("/C call \"");
@@ -698,8 +694,7 @@ public class ProcessRunner : MonoBehaviour
         process.StartInfo = startInfo;
         process.Start();
     }
-
-
+    
     public void StopCurrentRunningGame()
     {
         _runningGame?.launchSettings.Runner()?.Reset();
@@ -748,8 +743,7 @@ public class ProcessRunner : MonoBehaviour
             this.safeProcesses.Add(p);
         }
     }
-
-
+    
     public void KillAllNonSafeProcesses(IntPtr hProcess, uint processID, int exitCode)
     {
         Process[] processes = Process.GetProcesses();
@@ -780,9 +774,7 @@ public class ProcessRunner : MonoBehaviour
             }
         }
     }
-
-
-
+    
     bool isSafeProcess(Process proc)
     {
         foreach(Process sp in safeProcesses)
@@ -795,7 +787,7 @@ public class ProcessRunner : MonoBehaviour
         return false;
     }
 
-        public static void TerminateProcessTreeOld(IntPtr hProcess, uint processID, int exitCode)
+    public static void TerminateProcessTreeOld(IntPtr hProcess, uint processID, int exitCode)
 	{
 		// Retrieve all processes on the system
 		Process[] processes = Process.GetProcesses();
@@ -828,8 +820,7 @@ public class ProcessRunner : MonoBehaviour
 		// Finally, termine the process itself:
 		TerminateProcess((uint)hProcess, exitCode);
 	}
-
-
+    
     struct MyProcInfo
     {
         public int ProcessId;

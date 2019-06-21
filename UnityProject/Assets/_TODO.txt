@@ -1,8 +1,8 @@
 ﻿TODO:
 pressing:
+* rather than starting a game from a bat file, start game + (bat file, or autoit script)
 * make sure works without image folder (seems to?)
 * Add 'hidden' property to game, 'show hidden' to overall settings
-* auto-start artifacts I
 
 less important:
 * Clean up the settings menu
@@ -10,6 +10,9 @@ less important:
 * finish making work with restart on crash
 * ensure roughly robust to no games, corrupt json, bad files
 * package joytokey profiles in game directories, and copy to joytokey directory
+* package joytokey, rainmeter, autoit with app (for easier install)
+* try to tidy up the project
+* take another pass at the documentation
 
 DESIGN NOTES:
 * more space below the selected bottom tab 
@@ -23,6 +26,8 @@ BUGS
 
 GAME ISSUES:
 * Games that won't run full screen, don't have 1080p resolution (which ones?)
+	-Unity games older than 3 and before don't respect fullscreen or width/height args
+
 * Games that need their registrys set 
 	(can record initial setup, but hard to get right on the first try)
 	(Make Unity specific solution?  Programatically set the registry?)

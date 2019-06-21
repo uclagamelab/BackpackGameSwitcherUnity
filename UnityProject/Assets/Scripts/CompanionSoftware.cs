@@ -20,6 +20,7 @@ public class CompanionSoftware  {
 
     //maybe a const var instead of property would be ok???
     //C:\Program Files\Rainmeter\Rainmeter.exe
-    public static string Rainmeter => Path.Combine(mainFolder, "Rainmeter", "Rainmeter.exe");
+    public static string Rainmeter => Path.Combine(mainFolder, "Rainmeter\\Rainmeter.exe");
+    public static string AutoIt => Path.Combine(mainFolder, "AutoIt3\\AutoIt3.exe");
 
 }

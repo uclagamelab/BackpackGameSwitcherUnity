@@ -16,6 +16,8 @@ public class GameLaunchSettings
         public UnityExeRunner unityStartupOptions = new UnityExeRunner();
         public GenericExeRunner genericStartupOptions = new GenericExeRunner();
         public float joyToKeyConfigDelay = -1;
+        public string launchHelperScriptPath = "";
+        public string launchHelperScriptPathAbsolute => string.IsNullOrEmpty(launchHelperScriptPath) ? "" : Path.Combine(_srcGame.rootFolder.FullName, this.launchHelperScriptPath);
     #endregion -------------------------------------------------------
 
     #region NON-SERIALIZED-----------------------------------------
@@ -88,6 +90,28 @@ public abstract class AbstractGameRunner : IGameRunner
     }
 
     public abstract Process Launch();
+
+    public void LaunchHelperProcess()
+    {
+        if (!string.IsNullOrEmpty(_srcGame.launchSettings.launchHelperScriptPath))
+        {
+            bool isAutoItScript = System.IO.Path.GetExtension(_srcGame.launchSettings.launchHelperScriptPath).ToLower() == ".au3";
+            if (isAutoItScript)
+            {
+                ProcessRunner.StartProcess(
+                    Path.GetDirectoryName(_srcGame.launchSettings.launchHelperScriptPathAbsolute), 
+                    CompanionSoftware.AutoIt,
+                    Path.GetFileName(_srcGame.launchSettings.launchHelperScriptPathAbsolute)
+                    );
+            }
+            else
+            {
+                string startDir = _srcGame.launchSettings.launchHelperScriptPathAbsolute;
+                ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), "");
+            }
+        }
+    }
+
     public virtual void Reset()
     {
         _timeSinceWindowAppeared = 0;
@@ -163,11 +187,12 @@ public class UnityExeRunner : AbstractGameRunner
 
   
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
+        Process ret;
         if (hasResolutionSetupScreen)
         {
             //start with other args
             //_dialogWaitTimer.Restart(.25f);
-            return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._hasResolutionDialogArgs);
+            ret = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._hasResolutionDialogArgs);
         }
         else
         {
@@ -177,11 +202,11 @@ public class UnityExeRunner : AbstractGameRunner
                 mouseStartupOptions.Perform();
             }
             //start with args normally
-            var ret = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
-
-     
-            return ret;
+             ret = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
         }
+
+        LaunchHelperProcess();
+        return ret;
     }
 
     enum DialogSkipState
