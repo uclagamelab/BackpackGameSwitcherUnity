@@ -21,19 +21,25 @@ public class RawImageFitter : MonoBehaviour {
     public Mode mode = Mode.MatchHeight;
 
     RectTransform rt;
+    RectTransform parentRt;
+    RawImage rawImg;
+    Canvas canvas;
     //RawImage ri;
     Texture tex
     {
     get 
         {
-            return this.GetComponent<RawImage>().texture;
+            return rawImg.texture;
         }
     }
 
 	// Use this for initialization
 	void Start ()
     {
+        rawImg = this.GetComponent<RawImage>();
         rt = this.GetComponent<RectTransform>();
+        parentRt = this.transform.parent.GetComponentInParent<RectTransform>();
+        canvas = this.transform.parent.GetComponent<Canvas>();
         //ri = this.GetComponent<RawImage>();
         //v.texture.wi
 
@@ -52,9 +58,9 @@ public class RawImageFitter : MonoBehaviour {
             //rt.sizeDelta = sizeDelta;
 
             Vector2 containerSize = sz;//new Vector2(Screen.width, Screen.height);
-            if (this.transform.parent.GetComponent<Canvas>() == null)
+            if (canvas == null)
             {
-                containerSize = RectTransformUtility.PixelAdjustRect(this.transform.parent.GetComponentInParent<RectTransform>(), this.GetComponentInParent<Canvas>()).size;//
+                containerSize = RectTransformUtility.PixelAdjustRect(parentRt, canvas).size;//
             }
             bool matchHeight = false;
 
