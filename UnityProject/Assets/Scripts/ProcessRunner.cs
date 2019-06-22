@@ -701,7 +701,9 @@ public class ProcessRunner : MonoBehaviour
         process.StartInfo = startInfo;
         process.Start();
     }
-    
+
+
+
     public void StopCurrentRunningGame()
     {
         _runningGame?.launchSettings.Runner()?.Reset();
@@ -770,12 +772,9 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    private void OnApplicationQuit()
     {
-        if (_joy2KeyProcess != null && !_joy2KeyProcess.HasExited)
-        {
-            _joy2KeyProcess.Kill();
-        }
+        TerminateProcess(_joy2KeyProcess);
     }
 
     public void KillAllNonSafeProcesses(IntPtr hProcess, uint processID, int exitCode)
@@ -794,6 +793,14 @@ public class ProcessRunner : MonoBehaviour
                     UnityEngine.Debug.LogError(e);
                 }
             }
+        }
+    }
+
+    public static void TerminateProcess(Process p, int exitCode = 0)
+    {
+        if (p != null && !p.HasExited)
+        {
+            TerminateProcess((uint)p.Handle, exitCode);
         }
     }
 

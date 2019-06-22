@@ -157,11 +157,8 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
         }
     }
 
-    void OnDestroy()
+    void OnApplicationQuit()
     {
-        if (_rainmeterProcess != null && !_rainmeterProcess.HasExited)
-        {
-            _rainmeterProcess.Kill();
-        }
+        ProcessRunner.TerminateProcess(_rainmeterProcess);
     }
 }
