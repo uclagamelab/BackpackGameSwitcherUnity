@@ -1,6 +1,7 @@
 ﻿TODO:
 pressing:
 * make sure works without image folder (seems to?)
+* Take a pass pre-launch game menu
 * Add 'hidden' property to game, 'show hidden' to overall settings
 * auto-start artifacts I
 
@@ -10,6 +11,13 @@ less important:
 * finish making work with restart on crash
 * ensure roughly robust to no games, corrupt json, bad files
 * package joytokey profiles in game directories, and copy to joytokey directory
+
+HYGEINE:
+* Clean up the settings menu (remove unused fields and sliders)
+* remove/replace start up keyrecorder (does auto it have such a recorder?)
+* Go through scripts and find unused ones
+* Ditch the command line arguments, and make changeable via settings menu (?)
+* Go through scene file and find unused stuff
 
 DESIGN NOTES:
 * more space below the selected bottom tab 
