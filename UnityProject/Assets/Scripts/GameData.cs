@@ -25,7 +25,7 @@ public class GameData
 
     public ControlInstructions instructions;
 
-    public GameLaunchSettings launchSettings;// = new GameLaunchSettings();
+    public GameLaunchSettings launchSettings;
     #endregion ---------------------------------------------------------
 
     #region --- UNSERIALIZED ------------------------------------------
@@ -434,7 +434,7 @@ public class GameData
         {
             auditMsgStringBuilder.AppendLine(dat.title + " doesn't specify joy to key config");
         }
-        else if (!System.IO.File.Exists(Path.Combine(GameCatalog.Instance.joyToKeyData.directory, dat.joyToKeyConfig)))
+        else if (!System.IO.File.Exists(Path.Combine(SwitcherSettings.Data.JoyToKeyFolder, dat.joyToKeyConfig)))
         {
             auditMsgStringBuilder.AppendLine(dat.title + ", joytokey config: ;" + dat.joyToKeyConfig + "' not found");
         }

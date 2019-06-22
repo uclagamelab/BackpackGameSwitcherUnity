@@ -49,13 +49,13 @@ public class LaunchSettingsEditor : MonoBehaviour
     {
         ProcessRunner.instance.StartGame(GameInfoEditor.instance.currentSelectedGame);
 
-        AbstractGameRunner absRunner = GameInfoEditor.instance.currentSelectedGame.launchSettings.Runner() as AbstractGameRunner;
-        if (absRunner != null)
+        GameLaunchSettings launchSettings = GameInfoEditor.instance.currentSelectedGame.launchSettings;
+        if (launchSettings != null)
         {
 
             Debug.Log("Hiho!");
-            absRunner.mouseStartupOptions = new MouseStartUpOptions();
-            MouseRecorder.instance.StartRecording(absRunner.mouseStartupOptions);
+            launchSettings.mouseStartupOptions = new MouseStartUpOptions();
+            MouseRecorder.instance.StartRecording(launchSettings.mouseStartupOptions);
         }
         
     }

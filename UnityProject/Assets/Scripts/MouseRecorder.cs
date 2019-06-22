@@ -6,8 +6,8 @@ public class MouseRecorder : MonoBehaviour {
 
     
     public float timer = -1;
-    public MouseStartUpOptions _toPopulate;
-    public List<MouseStartUpOptions.AutoMouseEvent> _events = new List<MouseStartUpOptions.AutoMouseEvent>();
+    MouseStartUpOptions _toPopulate;
+    List<AutoMouseEvent> _events = new List<AutoMouseEvent>();
 
     public static MouseRecorder instance
     {
@@ -76,7 +76,7 @@ public class MouseRecorder : MonoBehaviour {
     {
         if (recording)
         {
-            _events.Add(new MouseStartUpOptions.AutoMouseEvent(BackgroundKeyboardInput.GetCursorPosition(), MouseStartUpOptions.ClickEventType.leftClick, timer));
+            _events.Add(new AutoMouseEvent(BackgroundKeyboardInput.GetCursorPosition(), AutoMouseEvent.ClickEventType.leftClick, timer));
             timer = 0;
         }
     }

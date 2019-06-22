@@ -22,5 +22,6 @@ public class CompanionSoftware  {
     //C:\Program Files\Rainmeter\Rainmeter.exe
     public static string Rainmeter => Path.Combine(mainFolder, "Rainmeter\\Rainmeter.exe");
     public static string AutoIt => Path.Combine(mainFolder, "AutoIt3\\AutoIt3.exe");
+    public static string JoyToKey => Path.Combine(SwitcherSettings.Data.JoyToKeyFolder, "JoyToKey.exe");
 
 }

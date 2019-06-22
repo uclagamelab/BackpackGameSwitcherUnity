@@ -416,16 +416,18 @@ public class ProcessRunner : MonoBehaviour
     {
         _currentJoyToKeyConfig = configFile;
 
-        if (!System.IO.File.Exists(@GameCatalog.Instance.joyToKeyData.executable))
+        string joyToKeyExe = CompanionSoftware.JoyToKey;
+
+        if (!System.IO.File.Exists(joyToKeyExe))
         {
-            UnityEngine.Debug.LogError("JoyToKey executable not available at '" + GameCatalog.Instance.joyToKeyData.executable + "'");
+            UnityEngine.Debug.LogError("JoyToKey executable not available at '" + joyToKeyExe + "'");
             return;
         }
 
         ProcessStartInfo startInfo = new ProcessStartInfo();
 
-        startInfo.WorkingDirectory = @GameCatalog.Instance.joyToKeyData.directory; //"C:\\Users\\Garrett Johnson\\Desktop";
-        startInfo.FileName = @GameCatalog.Instance.joyToKeyData.executable;
+        startInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(joyToKeyExe); //"C:\\Users\\Garrett Johnson\\Desktop";
+        startInfo.FileName = joyToKeyExe;
         startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
 
 

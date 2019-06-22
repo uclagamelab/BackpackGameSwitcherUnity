@@ -63,7 +63,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         _editGamesButton.onClick.AddListener(onEditGamesButtonClicked);
         _overallSettingsButton.onClick.AddListener(onOverallSettingsButtonClicked);
         _auditButton.onClick.AddListener(auditGames);
-        _generateJoyToKeyAppAssociationFileButton.onClick.AddListener(GenerateJoyToKeyExeAssociationFile);
+        //_generateJoyToKeyAppAssociationFileButton.onClick.AddListener(GenerateJoyToKeyExeAssociationFile);
 
 
         isOpen = allMenu.gameObject.activeSelf; 
@@ -152,55 +152,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
             this.showSetup(!this.allMenu.gameObject.activeSelf);
         }
     }
-
-    public void GenerateJoyToKeyExeAssociationFile()
-    {
-        {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            /*
-             AppLinkData
-    46
-    0
-             */
-            sb.Append("AppLinkData\n46\n0\n\n");
-            foreach (GameData dat in GameCatalog.Instance.games)
-            {
-                if (!string.IsNullOrEmpty(dat.exePath) && !string.IsNullOrEmpty(dat.joyToKeyConfig))
-                {
-                    //System.IO.Path.GetFileName();
-                    sb.Append(dat.title);
-                    sb.Append('|');
-                    string j2kFile = dat.joyToKeyConfig;
-                    if (j2kFile.EndsWith(".cfg"))
-                    {
-                        j2kFile = j2kFile.Substring(0, j2kFile.Length - ".cfg".Length);
-                    }
-                    sb.Append(j2kFile);
-                    sb.Append('|');
-                    sb.Append(dat.exePath);
-                    sb.Append('\n');
-                }
-            }
-
-
-            string finalPath = System.IO.Path.Combine(GameCatalog.Instance.joyToKeyData.directory, "AppLink.dat");
-            if (File.Exists(finalPath))
-            {
-                int backUpNum = 1;
-                string backupPath = null;
-                while (backupPath == null || File.Exists(backupPath))
-                {
-                    backupPath = System.IO.Path.Combine(GameCatalog.Instance.joyToKeyData.directory, "AppLink_bak_" + backUpNum + ".dat");
-                    backUpNum++;
-                }
-                File.Move(finalPath, backupPath);
-            }
-            XuFileUtil.WriteText(sb.ToString(), finalPath);
-        }
-
-        //resultMessage.text = "Done!, \n\nsaved existing file as : <nothing yet>";
-    }
-
 
     public void restoreDefaults()
     {

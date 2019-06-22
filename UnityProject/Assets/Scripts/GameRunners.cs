@@ -17,11 +17,16 @@ public class GameLaunchSettings
         public GenericExeRunner genericStartupOptions = new GenericExeRunner();
         public float joyToKeyConfigDelay = -1;
         public string launchHelperScriptPath = "";
-        public string launchHelperScriptPathAbsolute => string.IsNullOrEmpty(launchHelperScriptPath) ? "" : Path.Combine(_srcGame.rootFolder.FullName, this.launchHelperScriptPath);
+ 
+    [SerializeField]
+    public MouseStartUpOptions mouseStartupOptions;
     #endregion -------------------------------------------------------
+    public string launchHelperScriptPathAbsolute => string.IsNullOrEmpty(launchHelperScriptPath) ? "" : Path.Combine(_srcGame.rootFolder.FullName, this.launchHelperScriptPath);
+
 
     #region NON-SERIALIZED-----------------------------------------
-    GameData _srcGame;
+    [System.NonSerialized]
+    private GameData _srcGame;
     #endregion -------------------------------------------------------
 
     public bool joyToKeyDelayed => joyToKeyConfigDelay > 0;
@@ -76,11 +81,11 @@ public interface IGameRunner
 
 public abstract class AbstractGameRunner : IGameRunner
 {
-    [System.NonSerialized]
+
+    [NonSerialized]
     protected GameData _srcGame;
 
-    [SerializeField]
-    public MouseStartUpOptions mouseStartupOptions;
+
     protected bool _waitingForMainGameWindow = true;
     float _timeSinceWindowAppeared = -1;
 
@@ -125,7 +130,7 @@ public abstract class AbstractGameRunner : IGameRunner
             {
                 Debug.Log("Main Game Window Appeared");
                 _waitingForMainGameWindow = false;
-                mouseStartupOptions?.Perform();
+                _srcGame.launchSettings.mouseStartupOptions?.Perform();
             }
         }
 
@@ -158,9 +163,6 @@ public class UnityExeRunner : AbstractGameRunner
     #endregion --------------------------------------------------------
 
     #region NON-SERIALIZED --------------------------------------------
-    //XUTimer _dialogWaitTimer = new XUTimer();
-
-    static float DialogWaitDuration = 5;
     #endregion --------------------------------------------------------
 
     public string ResulotionDialogWindowTitle => _srcGame.windowTitle + " Configuration";
@@ -196,10 +198,10 @@ public class UnityExeRunner : AbstractGameRunner
         }
         else
         {
-            if (!_waitingForMainGameWindow && mouseStartupOptions != null)
+            if (!_waitingForMainGameWindow && _srcGame.launchSettings.mouseStartupOptions != null)
             {
                 Debug.Log("Performing mouse routine");
-                mouseStartupOptions.Perform();
+                _srcGame.launchSettings.mouseStartupOptions.Perform();
             }
             //start with args normally
              ret = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
@@ -306,25 +308,8 @@ public class MouseStartUpOptions
     public float extraStartDelay = 0;
     public AutoMouseEvent[] startUpRoutine;
 
-    [System.Serializable]
-    public class AutoMouseEvent
-    {
-        public ClickEventType clickType;
-        public float delay;
-        public Vector2 position;
 
-        public AutoMouseEvent(Vector2 position, ClickEventType clickType, float delay)
-        {
-            this.clickType = clickType;
-            this.delay = delay;
-            this.position = position;
-        }
-    }
 
-    public enum ClickEventType
-    {
-        None = 0, leftClick = 1
-    }
 
     public void Perform()
     {
@@ -340,7 +325,7 @@ public class MouseStartUpOptions
             {
                 yield return new WaitForSeconds(ame.delay);
                 ProcessRunner.SetMousePosition((int)ame.position.x, (int)ame.position.y);
-                if (ame.clickType == ClickEventType.leftClick)
+                if (ame.clickType == AutoMouseEvent.ClickEventType.leftClick)
                 {
                     yield return new WaitForSeconds(.05f);
                     ProcessRunner.MouseClick();
@@ -350,4 +335,22 @@ public class MouseStartUpOptions
     }
 }
 
+[System.Serializable]
+public class AutoMouseEvent
+{
+    public enum ClickEventType
+    {
+        None = 0, leftClick = 1
+    }
+    public ClickEventType clickType;
+    public float delay;
+    public Vector2 position;
+
+    public AutoMouseEvent(Vector2 position, ClickEventType clickType, float delay)
+    {
+        this.clickType = clickType;
+        this.delay = delay;
+        this.position = position;
+    }
+}
 
