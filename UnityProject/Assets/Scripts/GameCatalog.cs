@@ -14,7 +14,6 @@ using Debug = UnityEngine.Debug;
 
 public class GameCatalog : MonoBehaviour
 {
-	public GameData joyToKeyData;
     List<GameData> allGames;
 
     public IList<GameData> games
@@ -54,12 +53,6 @@ public class GameCatalog : MonoBehaviour
     
     public void repopulateCatalog(string gamesFolderPath)
     {
-        this.joyToKeyData = new GameData();
-
-        // directory = (Application.streamingAssetsPath + "\\JoyToKey"),
-        this.joyToKeyData.executable = SwitcherSettings.Data.JoyToKeyFolder + "/JoyToKey.exe";//Application.streamingAssetsPath + "\\~Special" + "\\JoyToKey\\JoyToKey.exe";
-        //this.joyToKeyData.commandLineArguments = ""; //does it actually need some???
-
         if (allGames == null)
         {
             allGames = new List<GameData>();
@@ -101,7 +94,11 @@ public class GameCatalog : MonoBehaviour
                 }
 
                 GameData gameData = new GameData(gameFolderPathString.Replace('\\', '/'));
-                allGames.Add(gameData);
+                if (gameData.valid)
+                {
+                    allGames.Add(gameData);
+                }
+
             /*}
             catch (System.Exception e)
             {

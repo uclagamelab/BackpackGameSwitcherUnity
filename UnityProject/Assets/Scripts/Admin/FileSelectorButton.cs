@@ -7,6 +7,7 @@ using System.IO;
 
 public class FileSelectorButton : MonoBehaviour
 {
+    bool detectIfExeRelative => _baseDirectory != BaseDirectoryType.JoyToKey;
     public enum BaseDirectoryType
     {
         JoyToKey,
@@ -28,7 +29,7 @@ public class FileSelectorButton : MonoBehaviour
     InputField _targetField;
 
     public bool _setFileNameInsteadOfFullPath = true;
-    public System.Action<string> OnValidPathChosen = (string chosenFile)=> { };
+    public System.Action<string> OnValidPathChosen = (string chosenFile) => { };
 
     // Start is called before the first frame update
     void Awake()
@@ -38,6 +39,11 @@ public class FileSelectorButton : MonoBehaviour
     }
 
 
+    public string StartingDirectoryIfNoHistory()
+    {
+       return Directory.Exists(XuFileUtil.RunningAppDirectory) ? XuFileUtil.RunningAppDirectory :  Path.GetDirectoryName(Application.dataPath);
+    }
+    
     void onClick()
     {
         if (string.IsNullOrEmpty(startDirectory) || !Directory.Exists(startDirectory))
@@ -52,13 +58,16 @@ public class FileSelectorButton : MonoBehaviour
             }
             else if (_baseDirectory == BaseDirectoryType.Other)
             {
-                startDirectory = Path.GetDirectoryName(Application.dataPath);
-            }
-            
-                
+                startDirectory = StartingDirectoryIfNoHistory();
+            }  
         }
 
-        string result = null;
+        if (!Directory.Exists(startDirectory))
+        {
+            startDirectory = StartingDirectoryIfNoHistory();
+        }
+
+            string result = null;
         if (_dialogTarget == DialogSelectionType.SingleFile)
         {
             result = FileBrowser.OpenSingleFile(windowTitle, startDirectory, extensions);
@@ -75,6 +84,15 @@ public class FileSelectorButton : MonoBehaviour
             if (_setFileNameInsteadOfFullPath)
             {
                 finalVal = Path.GetFileName(result);//exclude the path
+            }
+
+            if (detectIfExeRelative)
+            {
+                if (XuFileUtil.IsSubdirectory(finalVal, XuFileUtil.RunningAppDirectory))
+                {
+                    finalVal = XuFileUtil.ComputeRelativePath(finalVal, XuFileUtil.RunningAppDirectory);
+                    finalVal = Path.Combine(".", finalVal);
+                }
             }
 
             _targetField.text = finalVal;

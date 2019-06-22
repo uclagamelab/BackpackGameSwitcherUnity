@@ -38,7 +38,7 @@ public class SwitcherApplicationController : MonoBehaviour
     }
 
 
-    static float idleTimeout = 3;//6 * 60;
+    static float idleTimeout = 6 * 60;
     float attractAutoCycleDuration = 2;
 
     bool _defaultIsFullScreen = true;
@@ -61,7 +61,7 @@ public class SwitcherApplicationController : MonoBehaviour
     {
         #if !UNITY_EDITOR
         bool resolutionDifferent = Screen.width != _defaultResolution.width || Screen.height != _defaultResolution.height;
-        if (!CommandLineArguments.AdminMode && resolutionDifferent)
+        if (!SwitcherSettings.AdminMode && resolutionDifferent)
         {
             Screen.SetResolution(_defaultResolution.width, _defaultResolution.height, _defaultIsFullScreen);
         }
@@ -99,7 +99,7 @@ public class SwitcherApplicationController : MonoBehaviour
         gameProcessWentNullOrExitedLastUpdate = processWentNullOrExitedThisUpdate;
 
         //Make Switcher Retake focus, if necessary
-        if (Time.time > lastFocusSwitchAttemptTime + 1)
+        if (Time.time > lastFocusSwitchAttemptTime + 3)
         {
             lastFocusSwitchAttemptTime = Time.time;
             if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.

@@ -146,7 +146,7 @@ public class XUGenericPersistentData<T> : MonoBehaviour where T : new()
             _currentSaveData = new T();
         }
 
-        string loadedSaveDataJson = XuFileSystemUtil.ReadText(saveDataPath);
+        string loadedSaveDataJson = XuFileUtil.ReadText(saveDataPath);
         if (loadedSaveDataJson != null)
         {
             //This is a little naive longerterm, would be better to use SimpleJSON instead and get a more generic object
@@ -181,14 +181,14 @@ public class XUGenericPersistentData<T> : MonoBehaviour where T : new()
     {
         if (!_suppresSaves || !Application.isPlaying) //allow saves outside play mode
         {
-            XuFileSystemUtil.WriteText(JsonUtility.ToJson(this._currentSaveData, true), saveDataPath);
+            XuFileUtil.WriteText(JsonUtility.ToJson(this._currentSaveData, true), saveDataPath);
         }
         events.OnSaveDataUpdated.Invoke();
     }
 
     public void clearSaveData()
     {
-        XuFileSystemUtil.DeleteFile(saveDataPath);
+        XuFileUtil.DeleteFile(saveDataPath);
         currentSaveData = new T();
         events.OnSaveDataUpdated.Invoke();
     }
@@ -231,7 +231,7 @@ public class XUGenericPersistentDataEditor<T, V> : UnityEditor.Editor where T : 
 
         if (GUILayout.Button("Open In Explorer"))
         {
-            XuFileSystemUtil.SelectFileInExplorer(targetScript.saveDataPath);
+            XuFileUtil.SelectFileInExplorer(targetScript.saveDataPath);
         }
         GUILayout.EndHorizontal();
     }

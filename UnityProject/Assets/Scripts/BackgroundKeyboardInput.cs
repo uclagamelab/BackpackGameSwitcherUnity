@@ -95,7 +95,17 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     public int lastKeyHit = 0;
     bool prevlMouseButtonHeld = false;
     // Update is called once per frame
-    void Update () {
+    float timer = 0;
+    const float rate = 1/60f;
+    void Update ()
+    {
+        if (timer < rate)
+        {
+            timer += Time.deltaTime;
+            return;
+        }
+        timer = 0;
+
         bool gotMouseInput = Input.GetAxis("MouseDeltaX") != 0 || Input.GetAxis("MouseDeltaY") != 0;
         //OK????
         for (int i = 0; i < 0xFE; i++)

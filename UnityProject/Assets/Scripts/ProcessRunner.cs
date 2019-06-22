@@ -5,6 +5,7 @@ This class, (aspirationally) is contains functions for...
 - Starting new exes/bat files etc...
 - stopping existing processings
 
+TODO: factor out dll stuff
  */
 
 //https://msdn.microsoft.com/en-us/library/windows/desktop/ms632668(v=vs.85).aspx
@@ -37,14 +38,8 @@ public class ProcessRunner : MonoBehaviour
         //set { _gameProcessIsRunning = value; }
     }
 
-    static ProcessRunner _instance;
-    public static ProcessRunner instance
-    {
-        get
-        {
-            return _instance;
-        }
-    }
+    static XUSingleTown<ProcessRunner> _instanceHelper = new XUSingleTown<ProcessRunner>();
+    public static ProcessRunner instance => _instanceHelper.instance;
     // DLL Imports
 
 
@@ -313,7 +308,6 @@ public class ProcessRunner : MonoBehaviour
 
     void Awake()
     {
-        _instance = this;
         _windowCheckTimers.Start();
     }
 
@@ -361,7 +355,6 @@ public class ProcessRunner : MonoBehaviour
         }
         
         return true;
-
     }
     public static Dictionary<string, IntPtr> _allWindowsCached = new Dictionary<string, IntPtr>();
     private void Update()
@@ -386,9 +379,7 @@ public class ProcessRunner : MonoBehaviour
             EnumWindows(allWindowIter, IntPtr.Zero);
 
         }
-
         
-
         //----------------------------------------------
 
         if (_runningGame != null)
@@ -425,26 +416,34 @@ public class ProcessRunner : MonoBehaviour
     {
         _currentJoyToKeyConfig = configFile;
 
-        if (!System.IO.File.Exists(@GameCatalog.Instance.joyToKeyData.executable))
+        string joyToKeyExe = CompanionSoftware.JoyToKey;
+
+        if (!System.IO.File.Exists(joyToKeyExe))
         {
-            UnityEngine.Debug.LogError("JoyToKey executable not available at '" + GameCatalog.Instance.joyToKeyData.executable + "'");
+            UnityEngine.Debug.LogError("JoyToKey executable not available at '" + joyToKeyExe + "'");
             return;
         }
 
         ProcessStartInfo startInfo = new ProcessStartInfo();
 
-        startInfo.WorkingDirectory = @GameCatalog.Instance.joyToKeyData.directory; //"C:\\Users\\Garrett Johnson\\Desktop";
-        startInfo.FileName = @GameCatalog.Instance.joyToKeyData.executable;
+        startInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(joyToKeyExe); //"C:\\Users\\Garrett Johnson\\Desktop";
+        startInfo.FileName = joyToKeyExe;
         startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
 
-        _joy2KeyProcess = Process.Start(startInfo);
+
+        var newProcess = Process.Start(startInfo);
+        if (_joy2KeyProcess == null || _joy2KeyProcess.HasExited)
+        {
+            _joy2KeyProcess = newProcess;
+        }
     }
 
     public static Process StartProcess(string directory, string exe, string cmdArgs)
     {
 
+        //this is a little weird...
         string fullPath = Path.Combine(directory, exe);
-        if (!File.Exists(fullPath))
+        if (!File.Exists(exe) && !File.Exists(fullPath))
         {
             Debug.LogError("Game not found at path:\n"+ fullPath);
             return null;
@@ -540,8 +539,7 @@ public class ProcessRunner : MonoBehaviour
 		}, IntPtr.Zero);
 
 	}
-
-
+    
 	// returns true if the 'hWnd' is managed by the 'processId'
 	bool DoesWindowMatchProcessId( IntPtr hWnd, int processId )
 	{
@@ -631,8 +629,6 @@ public class ProcessRunner : MonoBehaviour
             SendKeyStrokesToWindow(windowTitle);
             //>>>>>>>>>>>>>>>>
         }
-
-
     }
 
     static string lastSentWindow = null;
@@ -689,7 +685,7 @@ public class ProcessRunner : MonoBehaviour
         process.Start();
     }
 
-        public static void MouseClick()
+    public static void MouseClick()
     {
         _mousePosCommandBuilderCmdBuilder.Clear();
         _mousePosCommandBuilderCmdBuilder.Append("/C call \"");
@@ -705,6 +701,7 @@ public class ProcessRunner : MonoBehaviour
         process.StartInfo = startInfo;
         process.Start();
     }
+
 
 
     public void StopCurrentRunningGame()
@@ -756,6 +753,29 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
+    [ContextMenu("TryKillNamedExe")]
+    public void TryKillNamedExe()
+    {
+        TryKillNamedExe(CompanionSoftware.Rainmeter);
+    }
+    public static void TryKillNamedExe(string targetExe)
+    {
+        Process[] processes = Process.GetProcesses();
+        foreach (Process p in processes)
+        {
+            bool canCheck = !p.HasExited;
+            if (canCheck && p.MainModule.FileName == targetExe)
+            {
+                Debug.Log(p.MainModule.FileName);
+                p.Kill();
+            }
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        TerminateProcess(_joy2KeyProcess);
+    }
 
     public void KillAllNonSafeProcesses(IntPtr hProcess, uint processID, int exitCode)
     {
@@ -776,6 +796,14 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
+    public static void TerminateProcess(Process p, int exitCode = 0)
+    {
+        if (p != null && !p.HasExited)
+        {
+            TerminateProcess((uint)p.Handle, exitCode);
+        }
+    }
+
     void killAllPrevProcesses()
     {
         Process[] processes = Process.GetProcesses();
@@ -787,9 +815,7 @@ public class ProcessRunner : MonoBehaviour
             }
         }
     }
-
-
-
+    
     bool isSafeProcess(Process proc)
     {
         foreach(Process sp in safeProcesses)
@@ -802,7 +828,7 @@ public class ProcessRunner : MonoBehaviour
         return false;
     }
 
-        public static void TerminateProcessTreeOld(IntPtr hProcess, uint processID, int exitCode)
+    public static void TerminateProcessTreeOld(IntPtr hProcess, uint processID, int exitCode)
 	{
 		// Retrieve all processes on the system
 		Process[] processes = Process.GetProcesses();
@@ -835,8 +861,7 @@ public class ProcessRunner : MonoBehaviour
 		// Finally, termine the process itself:
 		TerminateProcess((uint)hProcess, exitCode);
 	}
-
-
+    
     struct MyProcInfo
     {
         public int ProcessId;

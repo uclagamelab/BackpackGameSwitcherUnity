@@ -16,7 +16,7 @@ public class SizeByText : MonoBehaviour {
     public ObservedText[] srcTexts => _srcTexts;
 
     RectTransform rt;
-
+    public float xPadding = 0;
     // Use this for initialization
     void Awake() {
         rt = this.GetComponent<RectTransform>();
@@ -27,21 +27,25 @@ public class SizeByText : MonoBehaviour {
 
     }
 
-    public void ForceUpdate()
+    //public void ForceUpdate()
+    //{
+    //    LateUpdate();
+    //}
+    // Update is called once per frame
+    public void ForceUpdate ()
     {
-        LateUpdate();
-    }
-
-	// Update is called once per frame
-	void LateUpdate ()
-    {
-       
-        float finalSize = -1;
-        foreach (ObservedText obt in _srcTexts)
+        foreach (ObservedText txt in _srcTexts)
         {
-            float newSize= (obt.Length * obt.sizeFac) + obt.padding;
-            finalSize = Mathf.Max(newSize, finalSize);
+            txt.refText_Tmp.ForceMeshUpdate();
         }
+
+                float finalSize = -1;
+        //foreach (ObservedText obt in _srcTexts)
+        //{
+        //    float newSize= (obt.Length * obt.sizeFac) + obt.padding;
+        //    finalSize = Mathf.Max(newSize, finalSize);
+        //}
+        finalSize = getRenderedSize().x + xPadding;
         if (finalSize > 0)
         {
 
@@ -58,6 +62,22 @@ public class SizeByText : MonoBehaviour {
 
     }
 
+    public Vector2 getRenderedSize()
+    {
+        Vector2 ret = Vector2.zero;
+        foreach (ObservedText txt in _srcTexts)
+        {
+            if (txt.refText_Tmp != null)
+            {
+                Vector2 renVal = txt.refText_Tmp.GetRenderedValues();
+                ret.x = Mathf.Max(ret.x, Mathf.Abs(renVal.x));
+                ret.y = Mathf.Max(ret.y, Mathf.Abs(renVal.y));
+            }
+        }
+        return ret;
+    }
+
+
     [System.Serializable]
     public class ObservedText
     {
@@ -71,6 +91,7 @@ public class SizeByText : MonoBehaviour {
                 return refText != null ? refText.text.Length : refText_Tmp != null ? refText_Tmp.text.Length : 0;
             }
         }
+
 
         public float sizeFac = 40;
         public float padding = 0;

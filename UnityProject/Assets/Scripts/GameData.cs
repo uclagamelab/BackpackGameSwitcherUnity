@@ -23,12 +23,9 @@ public class GameData
     public string exePath;
     public string exePathAbsolute => Path.Combine(this.rootFolder.FullName, this.exePath);
 
-
-
-
     public ControlInstructions instructions;
 
-    public GameLaunchSettings launchSettings;// = new GameLaunchSettings();
+    public GameLaunchSettings launchSettings;
     #endregion ---------------------------------------------------------
 
     #region --- UNSERIALIZED ------------------------------------------
@@ -63,9 +60,16 @@ public class GameData
     public Texture previewImg;
     #endregion -----------------------------------------------
 
+    public bool valid
+    {
+        get;
+        private set;
+    }
+
     #region ---CONSTRUCTOR ---------------------------------------------------------------------
     public GameData(string gameFolderPath)
     {
+        valid = true;
         _gameFolder = new DirectoryInfo(gameFolderPath);//IMPORTANT that this gets set immediately
 
         if (_gameFolder.Exists)
@@ -90,6 +94,7 @@ public class GameData
         catch (System.Exception e)
         {
             Debug.LogError("problem parsing json in " + _gameFolder.FullName);
+            valid = false;
             return;
         }
 
@@ -143,17 +148,17 @@ public class GameData
 
     public string GetDescriptionText()
     {
-        return XuFileSystemUtil.ReadText(this.descriptionFilePath);
+        return XuFileUtil.ReadText(this.descriptionFilePath);
     }
 
     public string GetInstructionText()
     {
-        return XuFileSystemUtil.ReadText(this.instructionsFilePath);
+        return XuFileUtil.ReadText(this.instructionsFilePath);
     }
 
     public string GetNotesText()
     {
-        return XuFileSystemUtil.ReadText(this.notesFilePath);
+        return XuFileUtil.ReadText(this.notesFilePath);
     }
 
 
@@ -164,7 +169,7 @@ public class GameData
         if (string.IsNullOrEmpty(rawJson))
         {
             rawJson = JsonUtility.ToJson(this, prettify);
-            XuFileSystemUtil.WriteText(rawJson, jsonFilePath);
+            XuFileUtil.WriteText(rawJson, jsonFilePath);
         }
         //if (prettify)
         //{
@@ -177,14 +182,14 @@ public class GameData
     {
         string newJson = JsonUtility.ToJson(this, true);
         WriteJSON(newJson);
-        XuFileSystemUtil.WriteText(this.description, descriptionFilePath);
-        XuFileSystemUtil.WriteText(this.howToPlay, instructionsFilePath);
-        XuFileSystemUtil.WriteText(this.notes, notesFilePath);
+        XuFileUtil.WriteText(this.description, descriptionFilePath);
+        XuFileUtil.WriteText(this.howToPlay, instructionsFilePath);
+        XuFileUtil.WriteText(this.notes, notesFilePath);
     }
 
     public void WriteJSON(string newJson)
     {
-        XuFileSystemUtil.WriteText(newJson, this.jsonFilePath);
+        XuFileUtil.WriteText(newJson, this.jsonFilePath);
     }
 
 
@@ -207,7 +212,7 @@ public class GameData
         else //--- Create it, if it doesn't exist ---------------
         {
             string newPath = Path.Combine(_gameFolder.FullName, _gameFolder.Name + extension);
-            XuFileSystemUtil.WriteText(defaultVal, newPath);
+            XuFileUtil.WriteText(defaultVal, newPath);
             ret = newPath;
         }
         return ret;
@@ -236,7 +241,7 @@ public class GameData
     void autoFindAndAssignAppropriateExe()
     {
         string chosenPath = null;
-        XuFileSystemUtil.ProcessAllFilesRecursive(this._gameFolder.FullName, (path) => 
+        XuFileUtil.ProcessAllFilesRecursive(this._gameFolder.FullName, (path) => 
         {
             if (chosenPath == null)
             {
@@ -249,7 +254,7 @@ public class GameData
 
                 if (seeminglyAppropriateExe)
                 {
-                    chosenPath = XuFileSystemUtil.ComputeRelativePath(fi.FullName, _gameFolder.FullName);
+                    chosenPath = XuFileUtil.ComputeRelativePath(fi.FullName, _gameFolder.FullName);
                 }
             }
         });
@@ -429,7 +434,7 @@ public class GameData
         {
             auditMsgStringBuilder.AppendLine(dat.title + " doesn't specify joy to key config");
         }
-        else if (!System.IO.File.Exists(Path.Combine(GameCatalog.Instance.joyToKeyData.directory, dat.joyToKeyConfig)))
+        else if (!System.IO.File.Exists(Path.Combine(SwitcherSettings.Data.JoyToKeyFolder, dat.joyToKeyConfig)))
         {
             auditMsgStringBuilder.AppendLine(dat.title + ", joytokey config: ;" + dat.joyToKeyConfig + "' not found");
         }

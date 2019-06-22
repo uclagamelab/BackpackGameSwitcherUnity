@@ -16,10 +16,17 @@ public class GameLaunchSettings
         public UnityExeRunner unityStartupOptions = new UnityExeRunner();
         public GenericExeRunner genericStartupOptions = new GenericExeRunner();
         public float joyToKeyConfigDelay = -1;
+        public string launchHelperScriptPath = "";
+ 
+    [SerializeField]
+    public MouseStartUpOptions mouseStartupOptions;
     #endregion -------------------------------------------------------
+    public string launchHelperScriptPathAbsolute => string.IsNullOrEmpty(launchHelperScriptPath) ? "" : Path.Combine(_srcGame.rootFolder.FullName, this.launchHelperScriptPath);
+
 
     #region NON-SERIALIZED-----------------------------------------
-    GameData _srcGame;
+    [System.NonSerialized]
+    private GameData _srcGame;
     #endregion -------------------------------------------------------
 
     public bool joyToKeyDelayed => joyToKeyConfigDelay > 0;
@@ -74,11 +81,11 @@ public interface IGameRunner
 
 public abstract class AbstractGameRunner : IGameRunner
 {
-    [System.NonSerialized]
+
+    [NonSerialized]
     protected GameData _srcGame;
 
-    [SerializeField]
-    public MouseStartUpOptions mouseStartupOptions;
+
     protected bool _waitingForMainGameWindow = true;
     float _timeSinceWindowAppeared = -1;
 
@@ -88,6 +95,28 @@ public abstract class AbstractGameRunner : IGameRunner
     }
 
     public abstract Process Launch();
+
+    public void LaunchHelperProcess()
+    {
+        if (!string.IsNullOrEmpty(_srcGame.launchSettings.launchHelperScriptPath))
+        {
+            bool isAutoItScript = System.IO.Path.GetExtension(_srcGame.launchSettings.launchHelperScriptPath).ToLower() == ".au3";
+            if (isAutoItScript)
+            {
+                ProcessRunner.StartProcess(
+                    Path.GetDirectoryName(_srcGame.launchSettings.launchHelperScriptPathAbsolute), 
+                    CompanionSoftware.AutoIt,
+                    Path.GetFileName(_srcGame.launchSettings.launchHelperScriptPathAbsolute)
+                    );
+            }
+            else
+            {
+                string startDir = _srcGame.launchSettings.launchHelperScriptPathAbsolute;
+                ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), "");
+            }
+        }
+    }
+
     public virtual void Reset()
     {
         _timeSinceWindowAppeared = 0;
@@ -101,7 +130,7 @@ public abstract class AbstractGameRunner : IGameRunner
             {
                 Debug.Log("Main Game Window Appeared");
                 _waitingForMainGameWindow = false;
-                mouseStartupOptions?.Perform();
+                _srcGame.launchSettings.mouseStartupOptions?.Perform();
             }
         }
 
@@ -134,9 +163,6 @@ public class UnityExeRunner : AbstractGameRunner
     #endregion --------------------------------------------------------
 
     #region NON-SERIALIZED --------------------------------------------
-    //XUTimer _dialogWaitTimer = new XUTimer();
-
-    static float DialogWaitDuration = 5;
     #endregion --------------------------------------------------------
 
     public string ResulotionDialogWindowTitle => _srcGame.windowTitle + " Configuration";
@@ -163,25 +189,26 @@ public class UnityExeRunner : AbstractGameRunner
 
   
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
+        Process ret;
         if (hasResolutionSetupScreen)
         {
             //start with other args
             //_dialogWaitTimer.Restart(.25f);
-            return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._hasResolutionDialogArgs);
+            ret = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._hasResolutionDialogArgs);
         }
         else
         {
-            if (!_waitingForMainGameWindow && mouseStartupOptions != null)
+            if (!_waitingForMainGameWindow && _srcGame.launchSettings.mouseStartupOptions != null)
             {
                 Debug.Log("Performing mouse routine");
-                mouseStartupOptions.Perform();
+                _srcGame.launchSettings.mouseStartupOptions.Perform();
             }
             //start with args normally
-            var ret = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
-
-     
-            return ret;
+             ret = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), CommonArgs._1080pFullscreenArgs);
         }
+
+        LaunchHelperProcess();
+        return ret;
     }
 
     enum DialogSkipState
@@ -263,6 +290,7 @@ public class GenericExeRunner : AbstractGameRunner
     {
         Reset();
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
+        LaunchHelperProcess();
         return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), commandLineArguments);
     }
 
@@ -280,25 +308,8 @@ public class MouseStartUpOptions
     public float extraStartDelay = 0;
     public AutoMouseEvent[] startUpRoutine;
 
-    [System.Serializable]
-    public class AutoMouseEvent
-    {
-        public ClickEventType clickType;
-        public float delay;
-        public Vector2 position;
 
-        public AutoMouseEvent(Vector2 position, ClickEventType clickType, float delay)
-        {
-            this.clickType = clickType;
-            this.delay = delay;
-            this.position = position;
-        }
-    }
 
-    public enum ClickEventType
-    {
-        None = 0, leftClick = 1
-    }
 
     public void Perform()
     {
@@ -314,7 +325,7 @@ public class MouseStartUpOptions
             {
                 yield return new WaitForSeconds(ame.delay);
                 ProcessRunner.SetMousePosition((int)ame.position.x, (int)ame.position.y);
-                if (ame.clickType == ClickEventType.leftClick)
+                if (ame.clickType == AutoMouseEvent.ClickEventType.leftClick)
                 {
                     yield return new WaitForSeconds(.05f);
                     ProcessRunner.MouseClick();
@@ -324,4 +335,22 @@ public class MouseStartUpOptions
     }
 }
 
+[System.Serializable]
+public class AutoMouseEvent
+{
+    public enum ClickEventType
+    {
+        None = 0, leftClick = 1
+    }
+    public ClickEventType clickType;
+    public float delay;
+    public Vector2 position;
+
+    public AutoMouseEvent(Vector2 position, ClickEventType clickType, float delay)
+    {
+        this.clickType = clickType;
+        this.delay = delay;
+        this.position = position;
+    }
+}
 

@@ -16,46 +16,76 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
     static bool _overlayAllowed = true;
 
     bool _overlayShowing = false;
-    const string RAINMETER_PATH = "C:\\Program Files\\Rainmeter\\Rainmeter.exe";
+
+    //"C:\\Program Files\\Rainmeter\\Rainmeter.exe";
+
+    static Process _rainmeterProcess = null;
+
     private void Awake()
     {
         _instance = this;
-        bool rainmeterInstalled = File.Exists(RAINMETER_PATH);
+        bool rainmeterInstalled = File.Exists(CompanionSoftware.Rainmeter);
         _overlayAllowed = rainmeterInstalled && !SwitcherSettings.AdminMode;
     }
 
     private void Start()
     {
+        if (_overlayAllowed)
+        {
+            //ProcessStartInfo startInfo = new ProcessStartInfo(CompanionSoftware.Rainmeter);
+            _rainmeterProcess = Process.Start(CompanionSoftware.Rainmeter);
+        }
         MenuVisualsGeneric.Instance.addListener(this);
     }
 
 
+    [ContextMenu("Show Overlay")]
+    void showOverlay()
+    {
+        ShowOverlay();
+    }
     static void ShowOverlay(float displayDuration = MAX_OVERLAY_ON_TIME)
     {
-        if (!_overlayAllowed) //-------- Don't show if disabled ---------------
+        #if UNITY_EDITOR
+        if (Application.isPlaying)
         {
-            return;
+        #endif
+            if (!_overlayAllowed) //-------- Don't show if disabled ---------------
+            {
+                return;
+            }
+
+            if (_instance._overlayShowing) //--- Don't show if already showing ----
+            {
+                return;
+            }
+
+            _instance._overlayShowing = true;
+
+            _instance._autoTimeout = displayDuration;
+        #if UNITY_EDITOR
         }
-
-        if (_instance._overlayShowing) //--- Don't show if already showing ----
-        {
-            return;
-        }
-
-        _instance._overlayShowing = true;
-
-        _instance._autoTimeout = displayDuration;
+        #endif
 
         //"C:\Program Files\Rainmeter\Rainmeter.exe"[!ActivateConfig "CrockoDial\Main" "Main.ini"][!Move "448" "0"][!Draggable 0]
-        ProcessStartInfo startInfo = new ProcessStartInfo(RAINMETER_PATH);
+        ProcessStartInfo startInfo = new ProcessStartInfo(CompanionSoftware.Rainmeter);
         startInfo.Arguments = "[!ActivateConfig \"CrockoDial\\Main\" \"Main.ini\"][!Move \"260\" \"0\"][!Draggable 0]";
+        //startInfo.WorkingDirectory = "";// System.IO.Path.GetDirectoryName(CompanionSoftware.Rainmeter);
         //startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 
-        Process process = new System.Diagnostics.Process();
-        process.StartInfo = startInfo;
-        process.Start();
+        var newProcess = Process.Start(startInfo);
+        if (_rainmeterProcess.HasExited)
+        {
+            _rainmeterProcess = newProcess;
+        }
+        //Debug.Log("?? " + success);
     }
 
+    [ContextMenu("Hide Overlay")]
+    void hideOverlay()
+    {
+        HideOverlay();
+    }
     static void HideOverlay()
     {
         if (!_overlayAllowed)
@@ -63,13 +93,14 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
             return;
         }
         //"C:\Program Files\Rainmeter\Rainmeter.exe"[!ActivateConfig "CrockoDial\Main" "Main.ini"][!Move "448" "0"][!Draggable 0]
-        ProcessStartInfo startInfo = new ProcessStartInfo("C:\\Program Files\\Rainmeter\\Rainmeter.exe");
+        ProcessStartInfo startInfo = new ProcessStartInfo(CompanionSoftware.Rainmeter);
         startInfo.Arguments = "[!DeactivateConfig \"CrockoDial\\Main\" \"Main.ini\"]";
-        startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
 
-        Process process = new System.Diagnostics.Process();
-        process.StartInfo = startInfo;
-        process.Start();
+        var newProcess = Process.Start(startInfo);
+        if (_rainmeterProcess.HasExited)
+        {
+            _rainmeterProcess = newProcess;
+        }
         _instance._overlayShowing = false;
         _instance._autoTimeout = 0;//doesn't really matter
     }
@@ -124,5 +155,10 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
         {
             HideOverlay();
         }
+    }
+
+    void OnApplicationQuit()
+    {
+        ProcessRunner.TerminateProcess(_rainmeterProcess);
     }
 }

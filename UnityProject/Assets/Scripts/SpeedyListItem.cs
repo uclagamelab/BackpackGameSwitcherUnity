@@ -12,6 +12,7 @@ public class SpeedyListItem : MonoBehaviour {
     [SerializeField]
     TextMeshProUGUI _designerText;
 
+    [System.NonSerialized]
     GameData _gameData = null;
     [SerializeField]
     SizeByText _barSizer;

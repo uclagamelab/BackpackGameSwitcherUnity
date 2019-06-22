@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -13,14 +14,14 @@ public class SpeedyListView : MonoBehaviour
     }
     struct PersonalGameThing
     {
-        public string cleanTitle;
+        public string titleSansNewlines => data.title.Replace('\n', ' ');
+        public string title => data.title;
         public int realIdx;
         public GameData data;
         public PersonalGameThing(GameData dat, int idx)
         {
             realIdx = idx;
             this.data = dat;
-            this.cleanTitle = dat.title.Replace('\n', ' ');
         }
     }
     [Range(0, 1)]
@@ -132,8 +133,10 @@ public class SpeedyListView : MonoBehaviour
         private set;
     }
 
+    static StringBuilder sb = new StringBuilder();
     void LateUpdate()
     {
+        sb.Clear();
         int targetIdleOpacity = SwitcherApplicationController.isIdle ? 1 : 0;
         if (this._attractAmt != targetIdleOpacity)
         {
@@ -221,13 +224,6 @@ public class SpeedyListView : MonoBehaviour
             _speedAccumulator = Mathf.MoveTowards(_speedAccumulator, 0,  Time.deltaTime * 2f);
         }
 
-        if (currentGame != null)
-        {
-            char firstLetter = currentGame.title[0];
-            firstLetter = char.IsLetter(firstLetter) ? char.ToUpper(firstLetter) : '#';
-            _alphaHelper.text = "" + firstLetter;
-        }
-
         UpdateTextViz();
     }
 
@@ -281,15 +277,24 @@ public class SpeedyListView : MonoBehaviour
             _things.Add(new PersonalGameThing(gd, gidx));
             gidx++;
         }
-        _things.Sort((a, b) => string.Compare(a.cleanTitle, b.cleanTitle ));
+        _things.Sort((a, b) => string.Compare(a.title, b.title));
        // int fuzzFloored = (int)_fuzzyIdx;
         for (int i = 0; i < _listItems.Count; i++)
         {
             int effIdx = ((int) _fuzzyIdx + i + _things.Count) % _things.Count;
             _listItems[i].SetTabFlipIndex(_things[effIdx].realIdx);
             _listItems[i].gameData = _things[effIdx].data;
-            _listItems[i].title = _things[effIdx].cleanTitle;
+            _listItems[i].title = _things[effIdx].titleSansNewlines;
 
+        }
+
+        if (currentGame != null)
+        {
+            char firstLetter = currentGame.title[0];
+            firstLetter = char.IsLetter(firstLetter) ? char.ToUpper(firstLetter) : '#';
+            sb.Clear();
+            sb.Append(firstLetter);
+            _alphaHelper.text = sb.ToString();
         }
     }
 
