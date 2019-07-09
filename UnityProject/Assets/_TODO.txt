@@ -1,8 +1,12 @@
 ﻿TODO:
 pressing:
 * Add 'hidden' property to game, 'show hidden' to overall settings
+* Improve determination of whether a game is running or not, less dependent on process null/hasExited 
+ - once launched say running, and only say has exited if window appears then disappears, or quit keycombo, but not before.
+ - relevant line to fix is "if (_lastActionWasQuit)" in SwitcherApplicationController
 
 less important:
+* Replace builtin mouse recorder with joy to key version (would allow for long clicks, maybe other stuff)
 * Custom cursors, hiding the cursor for other apps: https://devblogs.microsoft.com/scripting/use-powershell-to-change-the-mouse-pointer-scheme/
 https://www.autoitscript.com/forum/topic/106233-hide-the-mouse-cursor/
 * Clean up the settings menu
@@ -12,6 +16,25 @@ https://www.autoitscript.com/forum/topic/106233-hide-the-mouse-cursor/
 * take another pass at the documentation
 * upload companion software somewhere? just add to git?
 * try to make a new skin, refactoring as necessary
+
+
+Refactor thoughts
+
+**Simplified API for modifying skin
+	Get List<GameData> of all available games
+	Launch a game via its GameData
+	Check if there is game running now, what game is currently running
+	Event if game quits of its own accord
+	Quit the current running game
+
+**Also to separate
+	Starting of JoyToKey
+	Fullscreen img/video displayer
+	background input module
+	music module (probably this part wouldn't change for most visuals)
+
+Assuming ctrl-k settings menu remains the same
+	Separate options not pertinent to other skins(?)
 
 BUGS
 * If no valid folder, need to completely restart after setting a good one
