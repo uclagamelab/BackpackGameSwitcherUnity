@@ -74,9 +74,13 @@ public interface IGameRunner
 {
     //string GetCommandLineArgs();
     void SetUpWithGame(GameData game);
-    Process Launch();
+    void Launch();
     void RunningUpdate();
     void Reset();
+    Process process
+    {
+        get;
+    }
 }
 
 public abstract class AbstractGameRunner : IGameRunner
@@ -94,7 +98,15 @@ public abstract class AbstractGameRunner : IGameRunner
         _srcGame = game;
     }
 
-    public abstract Process Launch();
+    public Process process
+    {
+        get;
+        protected set;
+    }
+
+
+
+    public abstract void Launch();
 
     public void LaunchHelperProcess()
     {
@@ -121,6 +133,7 @@ public abstract class AbstractGameRunner : IGameRunner
     {
         _timeSinceWindowAppeared = 0;
         _waitingForMainGameWindow = !string.IsNullOrEmpty(_srcGame.windowTitle);
+        process = null;
     }
     public virtual void RunningUpdate()
     {
@@ -182,7 +195,7 @@ public class UnityExeRunner : AbstractGameRunner
         return "";
     }
 
-    public override Process Launch()
+    public override void Launch()
     {
         //------RESET STATE --------
         Reset();
@@ -208,7 +221,7 @@ public class UnityExeRunner : AbstractGameRunner
         }
 
         LaunchHelperProcess();
-        return ret;
+        process = ret;
     }
 
     enum DialogSkipState
@@ -286,12 +299,12 @@ public class GenericExeRunner : AbstractGameRunner
     #region NON-SERIALIZED --------------------------------------------
     #endregion --------------------------------------------------------
 
-    public override Process Launch()
+    public override void Launch()
     {
         Reset();
         string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
         LaunchHelperProcess();
-        return ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), commandLineArguments);
+        process = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), commandLineArguments);
     }
 
     public override void RunningUpdate()

@@ -35,7 +35,7 @@ public class SwitcherMusic : MonoBehaviour, MenuVisualsGeneric.Listener {
 	
 	// Update is called once per frame
 	void Update () {
-        if (ProcessRunner.instance.gameProcessIsRunning || !hasFocus)
+        if (ProcessRunner.instance.IsGameRunning() || !hasFocus)
         {
             //print("something is runnig!");
             source1.volume = Mathf.MoveTowards(source1.volume, 0, Time.deltaTime);

@@ -29,13 +29,14 @@ public class ProcessRunner : MonoBehaviour
 
     public string processStateHelper;
 
-    public bool gameProcessIsRunning
+
+    //Add startup forgiveness timer, for games that change window
+    public bool IsGameRunning()
     {
-        get {
-            //return _gameProcessIsRunning;
-            return (this._currentRunningGameProcess != null && !this._currentRunningGameProcess.HasExited);
-        }
-        //set { _gameProcessIsRunning = value; }
+        bool processJustStarted = _runningGame != null && (Time.time - currentProcessStartTime) < 2;
+        bool windowBasedGameIsRunning = _runningGame != null && !string.IsNullOrEmpty(_runningGame.windowTitle) && WindowIsPresent(_runningGame.windowTitle);
+        bool processBasedGameIsRunning = _runningGame != null && (currentGameRunner.process != null && !currentGameRunner.process.HasExited);
+        return processJustStarted || windowBasedGameIsRunning || processBasedGameIsRunning;
     }
 
     static XUSingleTown<ProcessRunner> _instanceHelper = new XUSingleTown<ProcessRunner>();
@@ -253,7 +254,8 @@ public class ProcessRunner : MonoBehaviour
 
 	Process _thisProcess = Process.GetCurrentProcess(); //The application switcher process?
     GameData _runningGame = null;
-    Process _currentRunningGameProcess = null; //the currently running game process
+    IGameRunner currentGameRunner => _runningGame?.launchSettings.Runner();
+    //Process _currentRunningGameProcess = null; //the currently running game process
 	Process _joy2KeyProcess = null;
 
 
@@ -286,7 +288,7 @@ public class ProcessRunner : MonoBehaviour
         get
         {
             List<IntPtr> _runningWindowHandles = new List<IntPtr>();
-            CollectProcessWindows(_currentRunningGameProcess.Id, _runningWindowHandles);
+            CollectProcessWindows(currentGameRunner.process.Id, _runningWindowHandles);
 
 
             if (_runningWindowHandles.Count > 0)
@@ -481,8 +483,10 @@ public class ProcessRunner : MonoBehaviour
     {
         //ProcessRunner.instance.OpenProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/, currentGameData.joyToKeyConfig);
 
-        _currentRunningGameProcess = gameToStart.launchSettings.Runner().Launch();//StartProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/);
+        //_currentRunningGame = gameToStart.launchSettings.Runner();//StartProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/);
         _runningGame = gameToStart;
+        currentGameRunner.Launch();
+        
 
         //IDEALLY: this would be better folded into the process runner, but whatever for now
         if (!_runningGame.launchSettings.joyToKeyDelayed)
@@ -585,14 +589,7 @@ public class ProcessRunner : MonoBehaviour
         //AttachThreadInput( _thisThreadID, _targetThreadID, false);
     }
 
-    //Add startup forgiveness timer, for games that change window
-	public bool IsGameRunning()
-    {
-        bool processJustStarted = _runningGame != null && (Time.time - currentProcessStartTime) < 2;
-        bool windowBasedGameIsRunning = _runningGame != null && !string.IsNullOrEmpty(_runningGame.windowTitle) && WindowIsPresent(_runningGame.windowTitle);
-        bool processBasedGameIsRunning = _runningGame != null && (_currentRunningGameProcess != null && !_currentRunningGameProcess.HasExited);
-        return processJustStarted || windowBasedGameIsRunning || processBasedGameIsRunning;
-    }
+
 	public void BringThisToForeground()
     {
 
@@ -706,14 +703,15 @@ public class ProcessRunner : MonoBehaviour
 
     public void StopCurrentRunningGame()
     {
-        _runningGame?.launchSettings.Runner()?.Reset();
-        _runningGame = null;
-        if (_currentRunningGameProcess != null)
+    
+        if (currentGameRunner != null)
         {
             //UnityEngine.Debug.Log("CloseProcess called : " + _currentRunningGameProcess.Id);
 
-            KillAllNonSafeProcesses(_currentRunningGameProcess.Handle, (uint)_currentRunningGameProcess.Id, 0);
+            KillAllNonSafeProcesses();
         }
+        currentGameRunner?.Reset();
+        _runningGame = null;
     }
 
 	///////////
@@ -777,7 +775,7 @@ public class ProcessRunner : MonoBehaviour
         TerminateProcess(_joy2KeyProcess);
     }
 
-    public void KillAllNonSafeProcesses(IntPtr hProcess, uint processID, int exitCode)
+    public void KillAllNonSafeProcesses(int exitCode = 0)
     {
         Process[] processes = Process.GetProcesses();
         foreach (Process p in processes)
