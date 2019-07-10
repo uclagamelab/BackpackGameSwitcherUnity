@@ -258,8 +258,6 @@ public class GameInfoEditor : MonoBehaviour
                 string relPath = Uri.UnescapeDataString(relPathUri.ToString());//HttpUtility.HtmlDecode(relPathUri.ToString());
                 int rootFolderPortion = (_currentGame.rootFolder.Name.Length + 1);
                 string finalRelPath = relPath.Substring(rootFolderPortion, relPath.Length - rootFolderPortion);
-                Debug.Log(_currentGame.rootFolder);
-                Debug.Log(finalRelPath);
                 _exePathField.text = finalRelPath;
 
                 ApplyChangesToGameDataInMemory();
