@@ -1,5 +1,7 @@
 ﻿TODO:
 pressing:
+* Application will crash if Cruise Control has no window title set, and a focus change happens
+	Also, it seems to move focus back to switcher momentarily while cruise control is opening (probably fix with more forgiving determination of whether game is running)
 * Add 'hidden' property to game, 'show hidden' to overall settings
 * Improve determination of whether a game is running or not, less dependent on process null/hasExited 
  - once launched say running, and only say has exited if window appears then disappears, or quit keycombo, but not before.
