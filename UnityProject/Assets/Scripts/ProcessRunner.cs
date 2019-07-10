@@ -283,19 +283,38 @@ public class ProcessRunner : MonoBehaviour
     }
 
 
-    IntPtr _runningPrimaryWindow
+    //https://stackoverflow.com/questions/1888863/how-to-get-main-window-handle-from-process-id
+    /// <summary>
+    /// Best guess at the running game process's main window
+    /// </summary>
+    List<IntPtr> _runningWindowHandlesScratch = new List<IntPtr>();
+    IntPtr runningPrimaryWindowGuess 
     {
         get
         {
-            List<IntPtr> _runningWindowHandles = new List<IntPtr>();
-            CollectProcessWindows(currentGameRunner.process.Id, _runningWindowHandles);
+            _runningWindowHandlesScratch.Clear();
+            CollectProcessWindows(currentGameRunner.process.Id, _runningWindowHandlesScratch);
 
-
-            if (_runningWindowHandles.Count > 0)
+            IntPtr ret = IntPtr.Zero;
+            foreach (IntPtr handle in _runningWindowHandlesScratch)
             {
-                return _runningWindowHandles[0];
+                if (WinOsUtil.GetWindow(handle, GetWindowType.GW_OWNER) == IntPtr.Zero && WinOsUtil.IsWindowVisible(handle))
+                {
+                    #if UNITY_EDITOR
+                    if (ret != IntPtr.Zero)
+                    {
+                        Debug.Log("Multiple windows that fit bill!");
+                    }
+                    #endif
+                    ret = handle;
+                    #if !UNITY_EDITOR
+                    break;
+                    #endif
+
+                    //return handle;
+                }
             }
-            return IntPtr.Zero;
+            return ret;
         }
     }
 
@@ -351,9 +370,9 @@ public class ProcessRunner : MonoBehaviour
         {
             //TODO : support duplicate window names
             //Dictionary<string, HashSet<IntPtr>>
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             //Debug.LogError("Multiple windows with title: " + windowTitle);
-            #endif
+#endif
         }
         
         return true;
@@ -556,8 +575,12 @@ public class ProcessRunner : MonoBehaviour
         return matched;
     }
 
-	// Forces the given window to show in the foreground
-	void ForceBringToForeground(IntPtr hWnd)
+ 
+    //https://stackoverflow.com/questions/17879890/understanding-attachthreadinput-detaching-lose-focus
+
+
+           // Forces the given window to show in the foreground
+    void ForceBringToForeground(IntPtr hWnd)
 	{
         if (hWnd == IntPtr.Zero)
         {
@@ -575,36 +598,35 @@ public class ProcessRunner : MonoBehaviour
             return;
         }
 
-        /*if( _thisWindowHandles.Contains( fgWnd ) )
-		{
-			SetForegroundWindow(hWnd);
-			SetFocus(hWnd);
-			ShowWindow(hWnd, 3);
-			return;
-		}*/
+        //More detailed code and justification can be found here:
+        //https://stackoverflow.com/questions/17879890/understanding-attachthreadinput-detaching-lose-focus
 
-        var _thisThreadID = GetWindowThreadProcessId(_thisPrimaryWindow,  IntPtr.Zero);
-		var _targetThreadID = GetWindowThreadProcessId( fgWnd, IntPtr.Zero );
-		
-		AttachThreadInput( _thisThreadID, _targetThreadID, true);
+        //var currentThread = GetWindowThreadProcessId(_thisPrimaryWindow, IntPtr.Zero);
+        //    var activeThread = GetWindowThreadProcessId(fgWnd, IntPtr.Zero);
+        //    var windowThread = GetWindowThreadProcessId(hWnd, IntPtr.Zero);
+
+
         SetForegroundWindow(hWnd);
-		SetFocus(hWnd);
-        ShowWindow(hWnd, 3); //orig by itself
+        //SetFocus(hWnd);
+        //https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+        //ShowWindow(hWnd, 3);// 3); //orig by itself
+        ShowWindow(hWnd, 9);
 
-        //ShowWindow(hWnd, 6);
-        //ShowWindow(hWnd, 9);
 
-        //AttachThreadInput( _thisThreadID, _targetThreadID, false);
+        //if (currentThread != activeThread)
+        //    AttachThreadInput(currentThread, activeThread, false);
+        //if (windowThread != currentThread)
+        //    AttachThreadInput(windowThread, currentThread, false);
     }
 
 
 	public void BringThisToForeground()
     {
         //ForceBringToForeground(thisPrimaryWindow);
-        #if !UNITY_EDITOR
+#if !UNITY_EDITOR
         string switcherWindowName = Application.productName;
         ForceBringToForeground(GetWindowByTitle(switcherWindowName));
-        #endif
+#endif
         setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
     }
 
@@ -624,18 +646,14 @@ public class ProcessRunner : MonoBehaviour
 
         if (string.IsNullOrEmpty(windowTitle))
         {
-            ForceBringToForeground(_runningPrimaryWindow);
+            ForceBringToForeground(runningPrimaryWindowGuess);
         }
         else
         {
             ForceBringToForeground(GetWindowByTitle(windowTitle));
         }
 
-            
-
-
-        //    string windowTitle = overrideWindowTitle;
-        //    //string windowTitle = "";
+           
         //    /// Alt way <<<<<<<<<<<<<<<<
         //    SendKeyStrokesToWindow(windowTitle);
         //    //>>>>>>>>>>>>>>>>
