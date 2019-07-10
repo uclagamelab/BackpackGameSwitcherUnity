@@ -600,7 +600,6 @@ public class ProcessRunner : MonoBehaviour
 
 	public void BringThisToForeground()
     {
-        print("Bring switcher to foreground");
         //ForceBringToForeground(thisPrimaryWindow);
         #if !UNITY_EDITOR
         string switcherWindowName = Application.productName;
