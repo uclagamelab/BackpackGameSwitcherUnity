@@ -439,6 +439,11 @@ public class GameData
             auditMsgStringBuilder.AppendLine(dat.title + ", joytokey config: ;" + dat.joyToKeyConfig + "' not found");
         }
 
+        if (string.IsNullOrEmpty(dat.windowTitle))
+        {
+            auditMsgStringBuilder.AppendLine(dat.title + " has no window title set");
+        }
+
         this.launchSettings.Audit(auditMsgStringBuilder);
     }
 
