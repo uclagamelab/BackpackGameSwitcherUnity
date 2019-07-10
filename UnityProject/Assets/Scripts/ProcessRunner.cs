@@ -16,9 +16,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+//using System.Runtime.InteropServices;
 using System.IO;
 using Debug = UnityEngine.Debug;
+using static WinOsUtil;
 
 public class ProcessRunner : MonoBehaviour
 {
@@ -56,128 +57,7 @@ public class ProcessRunner : MonoBehaviour
 
     List<Process> safeProcesses;
 
-	// sets the given window to the foreground window
-	[DllImport("user32.dll")]
-	public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-	// returns the foreground window
-	[DllImport("user32.dll")]
-	private static extern IntPtr GetForegroundWindow();
-
-	// focuses the given window
-	[DllImport("user32.dll")]
-	public static extern bool SetFocus(IntPtr hWnd);
-
-    //code for removing window borders
-    //https://www.codeproject.com/Questions/413778/Removing-a-Window-Border-No-Winform
-    //Import window changing function
-    [DllImport("USER32.DLL")]
-    public static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
-    [DllImport("user32.dll")]
-    static extern bool DrawMenuBar(IntPtr hWnd);
-
-    [DllImport("user32.dll", EntryPoint = "SetWindowPos")]
-    public static extern IntPtr SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int Y, int cx, int cy, uint wFlags);
-
-    private const int GWL_STYLE = -16;              //hex constant for style changing
-    const uint WS_BORDER = 0x800000;
-
-    /// <summary>The window has a title bar (includes the WS_BORDER style).</summary>
-    const uint WS_CAPTION = 0xc00000;
-
-    /// <summary>The window is a child window. A window with this style cannot have a menu bar. This style cannot be used with the WS_POPUP style.</summary>
-    const uint WS_CHILD = 0x40000000;
-
-    /// <summary>Excludes the area occupied by child windows when drawing occurs within the parent window. This style is used when creating the parent window.</summary>
-    const uint WS_CLIPCHILDREN = 0x2000000;
-
-    /// <summary>
-    ///   Clips child windows relative to each other; that is, when a particular child window receives a WM_PAINT message, the WS_CLIPSIBLINGS style clips all other overlapping child windows out of the region of the child window to be updated.
-    ///   If WS_CLIPSIBLINGS is not specified and child windows overlap, it is possible, when drawing within the client area of a child window, to draw within the client area of a neighboring child window.
-    /// </summary>
-    const uint WS_CLIPSIBLINGS = 0x4000000;
-
-    /// <summary>The window is initially disabled. A disabled window cannot receive input from the user. To change this after a window has been created, use the EnableWindow function.</summary>
-    const uint WS_DISABLED = 0x8000000;
-
-    /// <summary>The window has a border of a style typically used with dialog boxes. A window with this style cannot have a title bar.</summary>
-    const uint WS_DLGFRAME = 0x400000;
-
-      /// <summary>
-      ///   The window is the first control of a group of controls. The group consists of this first control and all controls defined after it, up to the next control with the WS_GROUP style.
-      ///   The first control in each group usually has the WS_TABSTOP style so that the user can move from group to group. The user can subsequently change the keyboard focus from one control in the group to the next control in the group by using the direction keys.
-      ///   You can turn this style on and off to change dialog box navigation. To change this style after a window has been created, use the SetWindowLong function.
-      /// </summary>
-    const uint WS_GROUP = 0x20000;
-
-    /// <summary>The window has a horizontal scroll bar.</summary>
-    const uint WS_HSCROLL = 0x100000;
-
-    /// <summary>The window is initially maximized.</summary>
-    const uint WS_MAXIMIZE = 0x1000000;
-
-    /// <summary>The window has a maximize button. Cannot be combined with the WS_EX_CONTEXTHELP style. The WS_SYSMENU style must also be specified.</summary>
-    const uint WS_MAXIMIZEBOX = 0x10000;
-
-    /// <summary>The window is initially minimized.</summary>
-    const uint WS_MINIMIZE = 0x20000000;
-
-    /// <summary>The window has a minimize button. Cannot be combined with the WS_EX_CONTEXTHELP style. The WS_SYSMENU style must also be specified.</summary>
-    const uint WS_MINIMIZEBOX = 0x20000;
-
-    /// <summary>The window is an overlapped window. An overlapped window has a title bar and a border.</summary>
-    const uint WS_OVERLAPPED = 0x0;
-
-    /// <summary>The window is an overlapped window.</summary>
-    const uint WS_OVERLAPPEDWINDOW = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_SIZEFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-
-      /// <summary>The window is a pop-up window. This style cannot be used with the WS_CHILD style.</summary>
-    const uint WS_POPUP = 0x80000000u;
-
-      /// <summary>The window is a pop-up window. The WS_CAPTION and WS_POPUPWINDOW styles must be combined to make the window menu visible.</summary>
-    const uint WS_POPUPWINDOW = WS_POPUP | WS_BORDER | WS_SYSMENU;
-
-      /// <summary>The window has a sizing border.</summary>
-    const uint WS_SIZEFRAME = 0x40000;
-
-    /// <summary>The window has a window menu on its title bar. The WS_CAPTION style must also be specified.</summary>
-    const uint WS_SYSMENU = 0x80000;
-
-    /// <summary>
-    ///   The window is a control that can receive the keyboard focus when the user presses the TAB key.
-    ///   Pressing the TAB key changes the keyboard focus to the next control with the WS_TABSTOP style.
-    ///   You can turn this style on and off to change dialog box navigation. To change this style after a window has been created, use the SetWindowLong function.
-    ///   For user-created windows and modeless dialogs to work with tab stops, alter the message loop to call the IsDialogMessage function.
-    /// </summary>
-    const uint WS_TABSTOP = 0x10000;
-
-      /// <summary>The window is initially visible. This style can be turned on and off by using the ShowWindow or SetWindowPos function.</summary>
-      const uint WS_VISIBLE = 0x10000000;
-
-    /// <summary>The window has a vertical scroll bar.</summary>
-    const uint WS_VSCROLL = 0x200000;
-
-    public const int SWP_ASYNCWINDOWPOS = 0x4000;
-    public const int SWP_DEFERERASE = 0x2000;
-    public const int SWP_DRAWFRAME = 0x0020;
-    public const int SWP_FRAMECHANGED = 0x0020;
-    public const int SWP_HIDEWINDOW = 0x0080;
-    public const int SWP_NOACTIVATE = 0x0010;
-    public const int SWP_NOCOPYBITS = 0x0100;
-    public const int SWP_NOMOVE = 0x0002;
-    public const int SWP_NOOWNERZORDER = 0x0200;
-    public const int SWP_NOREDRAW = 0x0008;
-    public const int SWP_NOREPOSITION = 0x0200;
-    public const int SWP_NOSENDCHANGING = 0x0400;
-    public const int SWP_NOSIZE = 0x0001;
-    public const int SWP_NOZORDER = 0x0004;
-    public const int SWP_SHOWWINDOW = 0x0040;
-
-    public const int HWND_TOP = 0;
-    public const int HWND_BOTTOM = 1;
-    public const int HWND_TOPMOST = -1;
-    public const int HWND_NOTOPMOST = -2;
-
+	
     [ContextMenu("TESTREMOVE")]
     public void TESTREMOVEBORDER()
     {
@@ -212,43 +92,7 @@ public class ProcessRunner : MonoBehaviour
 
     }
 
-    // cycles through every window and calls callback
-    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-	[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-	private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr extraData);
-
-    [DllImport("USER32.DLL")]
-    private static extern IntPtr GetShellWindow();
-
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-	//static extern IntPtr SetFocus(HandleRef hWnd);
-	static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    [DllImport("USER32.DLL")]
-    private static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder lpString, int nMaxCount);
-
-    [DllImport("USER32.DLL")]
-    private static extern int GetWindowTextLength(IntPtr hWnd);
-
-    [DllImport("USER32.DLL")]
-    private static extern bool IsWindowVisible(IntPtr hWnd);
-
-
-    // Returnsthe process ID associated with the window
-    /*[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-	private static extern int GetWindowThreadProcessId(HandleRef handle, out int processId);
-	*/
-    [DllImport("user32.dll")]
-	static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
-
-    [DllImport("user32.dll")]
-    public static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint lpdwProcessId);
-
-    // ???
-    [DllImport("user32.dll")]
-	static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-
+    
 
 
 
@@ -303,7 +147,8 @@ public class ProcessRunner : MonoBehaviour
                     #if UNITY_EDITOR
                     if (ret != IntPtr.Zero)
                     {
-                        Debug.Log("Multiple windows that fit bill!");
+                        //TODO: this would be smart to put in the audit/error messages section
+                        Debug.Log("Multiple windows seem like they could be the main window for this process!\nPlease manually specify the main windows title");
                     }
                     #endif
                     ret = handle;
@@ -745,27 +590,7 @@ public class ProcessRunner : MonoBehaviour
         _runningGame = null;
     }
 
-	///////////
-	// [StructLayout(LayoutKind.Sequential)]
-	private struct PROCESS_BASIC_INFORMATION
-	{
-		public int ExitStatus;
-		public int PebBaseAddress;
-		public int AffinityMask;
-		public int BasePriority;
-		public uint UniqueProcessId;
-		public uint InheritedFromUniqueProcessId;
-	}
-	[DllImport("kernel32.dll")]
-	static extern bool TerminateProcess(uint hProcess, int exitCode);
-	[DllImport("ntdll.dll")]
-	static extern int NtQueryInformationProcess(
-		IntPtr hProcess,
-		int processInformationClass /* 0 */,
-		ref PROCESS_BASIC_INFORMATION processBasicInformation,
-		uint processInformationLength,
-		out uint returnLength
-		);
+
 
     void recordSafeProcesses()
     {
@@ -815,7 +640,7 @@ public class ProcessRunner : MonoBehaviour
             {
                 try
                 {
-                    TerminateProcess((uint)p.Handle, exitCode);
+                    WinOsUtil.TerminateProcess((uint)p.Handle, exitCode);
                 }
                 catch (Exception e)
                 {
@@ -829,7 +654,7 @@ public class ProcessRunner : MonoBehaviour
     {
         if (p != null && !p.HasExited)
         {
-            TerminateProcess((uint)p.Handle, exitCode);
+            WinOsUtil.TerminateProcess((uint)p.Handle, exitCode);
         }
     }
 
@@ -840,7 +665,7 @@ public class ProcessRunner : MonoBehaviour
         {
             if (p.Id != this._thisProcess.Id)
             {
-                TerminateProcess((uint)p.Handle, 0);
+                WinOsUtil.TerminateProcess((uint)p.Handle, 0);
             }
         }
     }
@@ -855,58 +680,5 @@ public class ProcessRunner : MonoBehaviour
             }
         }
         return false;
-    }
-
-    public static void TerminateProcessTreeOld(IntPtr hProcess, uint processID, int exitCode)
-	{
-		// Retrieve all processes on the system
-		Process[] processes = Process.GetProcesses();
-		foreach (Process p in processes)
-		{
-			// Get some basic information about the process
-			PROCESS_BASIC_INFORMATION pbi = new PROCESS_BASIC_INFORMATION();
-			try
-			{
-				uint bytesWritten;
-				NtQueryInformationProcess(p.Handle,
-				                          0, ref pbi, (uint)Marshal.SizeOf(pbi),
-				                          out bytesWritten); // == 0 is OK
-
-                // Is it a child process of the process we're trying to terminate?
-                if (pbi.InheritedFromUniqueProcessId == processID)
-                {
-                    // The terminate the child process and its child processes
-                    TerminateProcessTreeOld(p.Handle, pbi.UniqueProcessId, exitCode);
-                }
-			}
-			catch (Exception  ex )
-			{
-                
-                UnityEngine.Debug.LogWarning(ex);
-				// Ignore, most likely 'Access Denied'
-			}
-		}
-		
-		// Finally, termine the process itself:
-		TerminateProcess((uint)hProcess, exitCode);
-	}
-    
-    struct MyProcInfo
-    {
-        public int ProcessId;
-        public string ProcessName;
-    }
-
-    static MyProcInfo GetProcessIdIfStillRunning(int pid)
-    {
-        try
-        {
-            var p = Process.GetProcessById(pid);
-            return new MyProcInfo() { ProcessId = p.Id, ProcessName = p.ProcessName };
-        }
-        catch (ArgumentException)
-        {
-            return new MyProcInfo() { ProcessId = -1, ProcessName = "No-longer existent process" };
-        }
     }
 }
