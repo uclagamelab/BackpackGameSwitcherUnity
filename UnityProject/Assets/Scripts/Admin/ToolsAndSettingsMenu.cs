@@ -167,7 +167,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         {
 
             dat.Audit(_auditStringBuilder);
-            _auditStringBuilder.AppendLine();
         }
 
         resultMessage.text = _auditStringBuilder.ToString();

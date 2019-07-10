@@ -107,13 +107,8 @@ public class SwitcherApplicationController : MonoBehaviour
             //Mostly ok, is hacky fix to issue that checking whether a process exists/hasn't exited
             //is not a good way to determine if a game is running, or starting to run.
             //TODO: More robustly detect if a game is running or not (detect a non-key-combo quite
-            if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.
-            {
-                //print("bring switcher to the frongt!");
-                ProcessRunner.instance.BringThisToForeground();
-
-            }
-            else if (ProcessRunner.instance.IsGameRunning()) // have the game try to retake focus, if one is running.
+        
+            if (ProcessRunner.instance.IsGameRunning()) // have the game try to retake focus, if one is running.
             {
                 //print("bringing to front");
                 generatedSimulatedKeypressForFocusSwitchToSwitcherApp = true;
@@ -121,6 +116,12 @@ public class SwitcherApplicationController : MonoBehaviour
                 ProcessRunner.instance.BringRunningToForeground(gameMenu.currentlySelectedGame); //this function should be robust to repeated calls
                 
                 
+            }
+            else//if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.
+            {
+                //print("bring switcher to the frongt!");
+                ProcessRunner.instance.BringThisToForeground();
+
             }
         }
 
