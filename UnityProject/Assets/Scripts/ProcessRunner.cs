@@ -559,6 +559,14 @@ public class ProcessRunner : MonoBehaviour
 	// Forces the given window to show in the foreground
 	void ForceBringToForeground(IntPtr hWnd)
 	{
+        if (hWnd == IntPtr.Zero)
+        {
+#if UNITY_EDITOR
+            Debug.Log("Got bad window handle for foreground control");
+#endif
+            return;
+        }
+
 		IntPtr fgWnd = GetForegroundWindow();
 
         if (hWnd == fgWnd)
@@ -594,8 +602,10 @@ public class ProcessRunner : MonoBehaviour
     {
 
         //ForceBringToForeground(thisPrimaryWindow);
+        #if !UNITY_EDITOR
         string switcherWindowName = Application.productName;
-        SendKeyStrokesToWindow(switcherWindowName);
+        ForceBringToForeground(GetWindowByTitle(switcherWindowName));
+        #endif
         setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
     }
 
@@ -607,25 +617,29 @@ public class ProcessRunner : MonoBehaviour
 	
     public void BringRunningToForeground(GameData currentlySelectedGame)
     {
-        string overrideWindowTitle = currentlySelectedGame.windowTitle;
+        string windowTitle = currentlySelectedGame.windowTitle;
         setJoyToKeyConfigIfNotAlreadySet(currentlySelectedGame.joyToKeyConfig);
-        
 
-        bool useOldWay = string.IsNullOrEmpty(overrideWindowTitle);
-        if (useOldWay)
+
+
+
+        if (string.IsNullOrEmpty(windowTitle))
         {
-            //orig way <<<<<<<<
             ForceBringToForeground(_runningPrimaryWindow);
-            //>>>>>>>>>>>>>>>>
         }
         else
         {
-            string windowTitle = overrideWindowTitle;
-            //string windowTitle = "";
-            /// Alt way <<<<<<<<<<<<<<<<
-            SendKeyStrokesToWindow(windowTitle);
-            //>>>>>>>>>>>>>>>>
+            ForceBringToForeground(GetWindowByTitle(windowTitle));
         }
+
+            
+
+
+        //    string windowTitle = overrideWindowTitle;
+        //    //string windowTitle = "";
+        //    /// Alt way <<<<<<<<<<<<<<<<
+        //    SendKeyStrokesToWindow(windowTitle);
+        //    //>>>>>>>>>>>>>>>>
     }
 
     static string lastSentWindow = null;
@@ -670,9 +684,9 @@ public class ProcessRunner : MonoBehaviour
         _mousePosCommandBuilderCmdBuilder.Append('x');
         _mousePosCommandBuilderCmdBuilder.Append(y);
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         Debug.Log(_mousePosCommandBuilderCmdBuilder.ToString());
-        #endif
+#endif
         Process process = new System.Diagnostics.Process();
         ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
         startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
