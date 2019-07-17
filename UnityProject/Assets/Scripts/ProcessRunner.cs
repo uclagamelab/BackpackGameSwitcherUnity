@@ -280,6 +280,7 @@ public class ProcessRunner : MonoBehaviour
 
     public void setJoyToKeyConfig(string configFile)
     {
+        return;
         _currentJoyToKeyConfig = configFile;
 
         string joyToKeyExe = CompanionSoftware.JoyToKey;

@@ -25,7 +25,7 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
     {
         _instance = this;
         bool rainmeterInstalled = File.Exists(CompanionSoftware.Rainmeter);
-        _overlayAllowed = rainmeterInstalled && !SwitcherSettings.AdminMode;
+        _overlayAllowed &= rainmeterInstalled && !SwitcherSettings.AdminMode;
     }
 
     private void Start()
