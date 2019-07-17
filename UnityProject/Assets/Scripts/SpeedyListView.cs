@@ -336,7 +336,7 @@ public class SpeedyListView : MonoBehaviour
 
         if (currentGame != null)
         {
-            char firstLetter = currentGame.title[0];
+            char firstLetter = currentGame.title.Length == 0 ? '#' : currentGame.title[0];
             firstLetter = char.IsLetter(firstLetter) ? char.ToUpper(firstLetter) : '#';
             sb.Clear();
             sb.Append(firstLetter);
