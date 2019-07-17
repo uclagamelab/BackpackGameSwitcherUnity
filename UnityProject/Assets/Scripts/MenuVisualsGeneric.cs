@@ -237,14 +237,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         if (!SpeedyListView.instance.keyHeld && currentlySelectedGame != _lastAppliedGameData && !BackgroundDisplay.Instance.animating)
         {
             _lastAppliedGameData = currentlySelectedGame;
-            if (currentlySelectedGame.videoUrl != null)
-            {
-                BackgroundDisplay.Instance.setVideo(currentlySelectedGame.videoUrl, _lastVidMoveDirection);
-            }
-            else
-            {
-                BackgroundDisplay.Instance.setImage(currentlySelectedGame.previewImg, _lastVidMoveDirection);
-            }
+            BackgroundDisplay.Instance.setDisplayedGame(currentlySelectedGame, _lastVidMoveDirection);
         }
     }
 

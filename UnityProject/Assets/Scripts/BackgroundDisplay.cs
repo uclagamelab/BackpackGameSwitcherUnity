@@ -207,7 +207,20 @@ public class BackgroundDisplay : MonoBehaviour {
         this.videoPlayer2 = new FadeableVideo(vid2);
 
         _allFadeables = new Fadeable[] { videoPlayer1, videoPlayer2, image1, image2 };
+
+        //zero out all fadeables
+        //so an irrelevant one doesn't block an active one
+        foreach (Fadeable f in _allFadeables)
+        {
+            f.alpha = 0;
+        }
     }
+
+     void Start()
+    {
+        setDisplayedGame(MenuVisualsGeneric.Instance.currentlySelectedGame, 1);
+    }
+
     void blurUpdate()
     {
         if (bgBlurrer == null)
@@ -242,7 +255,7 @@ public class BackgroundDisplay : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        
+
         /*System.Array.Sort<Fadeable>(allThings, (Fadeable a, Fadeable b) => {
             return a == thingToShow ? 0 : 1;
         });*/
@@ -337,27 +350,24 @@ public class BackgroundDisplay : MonoBehaviour {
         }
     }
 
+    public void setDisplayedGame(GameData game, int direction)
+    {
+        
+        if (game.videoUrl != null)
+        {
+            BackgroundDisplay.Instance.setVideo(game.videoUrl, direction);
+        }
+        else
+        {
+            BackgroundDisplay.Instance.setImage(game.previewImg, direction);
+        }
+    }
+
     public void setImage(Texture img, int direction)
     {
 
-        Fadeable outgoingThing = null;
-        if (thingToShow == videoPlayer1)
-        {
-            outgoingThing = videoPlayer1;
-        }
-        else if (thingToShow == videoPlayer2)
-        {
-            outgoingThing = videoPlayer2;
-        }
-        else if (thingToShow == image1)
-        {
-            outgoingThing = image1;
-        }
-        else if (thingToShow == image2)
-        {
-            outgoingThing = image2;
-        }
-
+        Fadeable outgoingThing = thingToShow;
+ 
         FadeableRawImage targImg = thingToShow == image1 ? image2 : image1;
         targImg.image.texture = img;
 
@@ -379,15 +389,8 @@ public class BackgroundDisplay : MonoBehaviour {
 
         FadeableVideo targVideoPlayer = thingToShow == videoPlayer1 ? videoPlayer2 : videoPlayer1;
 
-        FadeableVideo outgoingVideo = null;
-        if (thingToShow == videoPlayer1)
-        {
-            outgoingVideo = videoPlayer1;
-        }
-        else if (thingToShow == videoPlayer2)
-        {
-            outgoingVideo = videoPlayer2;
-        }
+        var outgoingVideo = thingToShow;
+
 
         targVideoPlayer.alpha = 0;
         if (targVideoPlayer.videoPlayer.url != videoUrl)
