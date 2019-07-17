@@ -13,7 +13,7 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
     static ExternalOverlay _instance;
     float _autoTimeout = 0;
     const float MAX_OVERLAY_ON_TIME = 10;
-    static bool _overlayAllowed = true;
+    static bool _overlayAllowed = false;
 
     bool _overlayShowing = false;
 
