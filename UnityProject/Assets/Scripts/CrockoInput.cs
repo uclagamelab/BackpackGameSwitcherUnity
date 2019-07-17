@@ -7,15 +7,29 @@ public class CrockoInput : MonoBehaviour
     static bool USE_TRACKBALL_INPUT = false;
     private void Awake()
     {
-        USE_TRACKBALL_INPUT = XUCommandLineArguments.Contains("-trackball_input");
+        USE_TRACKBALL_INPUT = true;// XUCommandLineArguments.Contains("-trackball_input");
     }
-    
+
+    static bool _openGameButtonDownForced = false;
+    public static void RequestOpenGameButtonDown()
+    {
+        _openGameButtonDownForced = true;
+    }
+
+    public void requestOpenGameButtonDown()
+    {
+        RequestOpenGameButtonDown();
+    }
+
     public static bool GetOpenGameButtonDown()
     {
         return 
             !ToolsAndSettingsMenu.isOpen &&
-            CrockoInput.trackBallSubmitDown || //Trackball version
-            Input.GetKeyDown(KeyCode.UpArrow);
+            (CrockoInput.trackBallSubmitDown  //Trackball version
+            ||
+            Input.GetKeyDown(KeyCode.UpArrow)
+            ||
+            _openGameButtonDownForced);
     }
 
     public static bool GetListScrollForward(ButtonPhase phase)
@@ -44,10 +58,11 @@ public class CrockoInput : MonoBehaviour
 
             if (USE_TRACKBALL_INPUT)
             {
-                float mouseDelta = Input.GetAxis("MouseDeltaY");
+                bool clickScrolling = Input.GetMouseButton(0);
+                float mouseDelta = !clickScrolling ? 0 : .125f*Input.GetAxis("MouseDeltaY");
                 if (Mathf.Abs(mouseDelta) > 1)
                 {
-                    float clampedMouseDelta = Mathf.Clamp(mouseDelta * .125f, -1, 1);
+                    float clampedMouseDelta = mouseDelta;// Mathf.Clamp(mouseDelta * .125f, -1, 1);
                     ret += clampedMouseDelta;
                 }
             }
@@ -83,7 +98,7 @@ public class CrockoInput : MonoBehaviour
     static bool GetMouseSwipe(int sign)
     {
         bool ret = false;
-        if (USE_TRACKBALL_INPUT)
+        if (USE_TRACKBALL_INPUT && false)
         {
             if (_mouseSwipeCoolDown == 0)
             {
@@ -142,12 +157,16 @@ public class CrockoInput : MonoBehaviour
                 }
             }
 
-            if (_mouseSubmitCoolDown == 0 && Input.GetMouseButtonDown(0))
+            if (false && _mouseSubmitCoolDown == 0 && Input.GetMouseButtonDown(0))
             {
                 trackBallSubmitDown = true;
                 _mouseSubmitCoolDown = .75f;
             }
         }
+    }
+    private void LateUpdate()
+    {
+        _openGameButtonDownForced = false;
     }
 }
 public enum ButtonPhase

@@ -14,7 +14,7 @@ public class CursorManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        bool shouldBeVisible = SwitcherSettings.AdminMode || ToolsAndSettingsMenu.isOpen;
+        bool shouldBeVisible = true;// SwitcherSettings.AdminMode || ToolsAndSettingsMenu.isOpen;
         if (shouldBeVisible != lastAppliedViz)
         {
             Cursor.visible = shouldBeVisible;

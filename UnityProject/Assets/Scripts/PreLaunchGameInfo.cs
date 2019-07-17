@@ -137,6 +137,17 @@ public class PreLaunchGameInfo : MonoBehaviour {
         }
     }
 
+    public void highlightBackButton()
+    {
+        setHighlighted(_backButton.rt);
+    }
+
+    public void highlightPlayButton()
+    {
+        setHighlighted(_playButton.rt);
+    }
+
+
     GameObject getHighlighted()
     {
 

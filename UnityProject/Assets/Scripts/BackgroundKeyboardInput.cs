@@ -134,7 +134,10 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         }
         prevlMouseButtonHeld = lMouseButtonHeld;
 
-        bool altShiftBheld = GetAsyncKeyState(0x10) != 0 && GetAsyncKeyState(0x12) != 0 && GetAsyncKeyState(0x42) != 0;
+        bool altShiftBheld = 
+            GetAsyncKeyState(27) != 0 //escape
+            ||
+            GetAsyncKeyState(0x10) != 0 && GetAsyncKeyState(0x12) != 0 && GetAsyncKeyState(0x42) != 0;
         //bool ctrlCHeld = GetAsyncKeyState(0x11) != 0 && GetAsyncKeyState(0x43) != 0;
         // virtual key codes for "ctrl" and "c"
         //if(GetAsyncKeyState(0x11)!=0 && GetAsyncKeyState(0x43)!=0)

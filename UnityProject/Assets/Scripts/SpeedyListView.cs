@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
-
+using UnityEngine.EventSystems;
 
 public class SpeedyListView : MonoBehaviour
 {
@@ -90,6 +90,35 @@ public class SpeedyListView : MonoBehaviour
 
         //_alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
         SwitcherApplicationController.OnAttractCycleNextGame += AttractCycleNextGame;
+
+        for(int i = 0; i < _listItems.Count; i++)
+        {
+            var item = _listItems[i];
+            EventTrigger et = item.gameObject.AddComponent<EventTrigger>();
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerClick;
+            int closureI = i;
+            bool isTargetGameTab = i == _listItems.Count - 2;
+            if (isTargetGameTab)
+            {
+                entry.callback.AddListener((eventData) =>
+                {
+                    CrockoInput.RequestOpenGameButtonDown();
+                });
+            }
+            else
+            {
+                entry.callback.AddListener((eventData) =>
+                {
+                    if (!autoScrolling)
+                    {
+                        this.AutoCycleToIdx(Mathf.RoundToInt(_fuzzyIdx) - (_listItems.Count - closureI - 2));//Mathf.FloorToInt(_fuzzyIdx) - 3);
+                    }
+                });
+            }
+   
+            et.triggers.Add(entry);
+        }
     }
     void Start()
     {
@@ -117,7 +146,23 @@ public class SpeedyListView : MonoBehaviour
             return null;
         }
     }
-    
+
+    void AutoCycleToIdx(int idx)
+    {
+        this.autoScrolling = true;
+        float startFuz = _fuzzyIdx;
+        //print(startFuz + " -> " + idx);
+        this.varyWithT((t) => {
+
+            //print(_fuzzyIdx);
+            _fuzzyIdx = Mathf.Lerp(startFuz, idx, t);
+            if (t == 1)
+            {
+                autoScrolling = false;
+            }
+        },Mathf.Clamp(Mathf.Abs(startFuz - idx) * .05f, .075f, .2f));
+    }
+
     void UpdateVideoToCurrentGame()
     {
        
@@ -133,6 +178,7 @@ public class SpeedyListView : MonoBehaviour
         private set;
     }
 
+    bool autoScrolling = false;
     static StringBuilder sb = new StringBuilder();
     void LateUpdate()
     {
@@ -162,7 +208,7 @@ public class SpeedyListView : MonoBehaviour
         if (!PreLaunchGameInfo.Instance.open)
         {
 
-            float scrollAmount = CrockoInput.GetListScroll();
+            float scrollAmount = autoScrolling ? 0 : CrockoInput.GetListScroll();
 
             if (Mathf.Abs(scrollAmount) > 0)
             {
@@ -185,7 +231,7 @@ public class SpeedyListView : MonoBehaviour
 
         int lastSelectedIdx = _selectedTopIndex;
 
-        if (!keyHeld)
+        if (!keyHeld && !autoScrolling)
         {          
             _fuzzyIdx = Mathf.MoveTowards(_fuzzyIdx, _selectedTopIndex, Time.deltaTime * speed);
 
@@ -204,7 +250,7 @@ public class SpeedyListView : MonoBehaviour
             (shoulShowAlphaHelper ? 1 : 0), 
             (keyHeld ? Time.deltaTime * 2 : Time.deltaTime * 1f));
 
-        if ((int)lastFuzz != (int)_fuzzyIdx)
+        if ((int)lastFuzz != (int)_fuzzyIdx || autoScrolling)
         {
             OnRepopulated();
         }
