@@ -503,19 +503,26 @@ public class ProcessRunner : MonoBehaviour
 
 
 
-        if (string.IsNullOrEmpty(windowTitle))
+        /*if (string.IsNullOrEmpty(windowTitle))
         {
-            ForceBringToForeground(runningPrimaryWindowGuess);
+            //ForceBringToForeground(runningPrimaryWindowGuess);
+            ForceBringToForeground(GetWindowByTitle(StartsWithSI19));
         }
         else
         {
             ForceBringToForeground(GetWindowByTitle(windowTitle));
-        }
+            //ForceBringToForeground(GetWindowByTitle(StartsWithSI19));
+        } */
 
-           
+
         //    /// Alt way <<<<<<<<<<<<<<<<
-        //    SendKeyStrokesToWindow(windowTitle);
+        //SendKeyStrokesToWindow("UGLSI19 - Google Chrome");// windowTitle);
         //    //>>>>>>>>>>>>>>>>
+    }
+
+    static bool StartsWithSI19(string winTitle)
+    {
+        return winTitle.StartsWith("UGLSI19");
     }
 
     static string lastSentWindow = null;
