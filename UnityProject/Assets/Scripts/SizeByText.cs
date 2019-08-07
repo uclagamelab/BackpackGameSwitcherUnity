@@ -45,7 +45,7 @@ public class SizeByText : MonoBehaviour {
         //    float newSize= (obt.Length * obt.sizeFac) + obt.padding;
         //    finalSize = Mathf.Max(newSize, finalSize);
         //}
-        finalSize = getRenderedSize().x + xPadding;
+        finalSize = Mathf.Max(200,getRenderedSize().x) + xPadding;
         if (finalSize > 0)
         {
 
@@ -70,6 +70,10 @@ public class SizeByText : MonoBehaviour {
             if (txt.refText_Tmp != null)
             {
                 Vector2 renVal = txt.refText_Tmp.GetRenderedValues();
+                if (renVal.x < 0 || renVal.y < 0)
+                {
+                    renVal = Vector2.zero;
+                }
                 ret.x = Mathf.Max(ret.x, Mathf.Abs(renVal.x));
                 ret.y = Mathf.Max(ret.y, Mathf.Abs(renVal.y));
             }
