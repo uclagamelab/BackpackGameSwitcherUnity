@@ -259,7 +259,21 @@ public class ProcessRunner : MonoBehaviour
         return _allWindowsCached.ContainsKey(windowTitle);
     }
 
-    public static IntPtr GetWindowByTitle(string windowTitle)
+    public delegate bool WindowTitleFilter(string winTitle);
+    public static IntPtr GetWindowByTitle(WindowTitleFilter filter)
+    {
+        IntPtr ret = IntPtr.Zero;
+        foreach (string wt in _allWindowsCached.Keys)
+        {
+            if (filter(wt))
+            {
+                return _allWindowsCached[wt];
+            }
+        }
+        return ret;
+    }
+
+        public static IntPtr GetWindowByTitle(string windowTitle)
     {
         IntPtr ret = IntPtr.Zero;
         if (_allWindowsCached.ContainsKey(windowTitle))
