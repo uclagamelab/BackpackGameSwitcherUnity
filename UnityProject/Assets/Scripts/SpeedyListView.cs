@@ -281,7 +281,7 @@ public class SpeedyListView : MonoBehaviour
        // int fuzzFloored = (int)_fuzzyIdx;
         for (int i = 0; i < _listItems.Count; i++)
         {
-            int effIdx = ((int) _fuzzyIdx + i + _things.Count) % _things.Count;
+            int effIdx = ((int) _fuzzyIdx + i + _things.Count) % Mathf.Max(1,_things.Count);
             _listItems[i].SetTabFlipIndex(_things[effIdx].realIdx);
             _listItems[i].gameData = _things[effIdx].data;
             _listItems[i].title = _things[effIdx].titleSansNewlines;
