@@ -1,0 +1,1 @@
+"c:\progra~2\Google\Chrome\Application\chrome.exe" --incognito --chrome-frame --kiosk --disable-infobars "%1"

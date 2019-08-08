@@ -15,6 +15,7 @@ public class GameLaunchSettings
         public GameLaunchType type = GameLaunchType.Unity;
         public UnityExeRunner unityStartupOptions = new UnityExeRunner();
         public GenericExeRunner genericStartupOptions = new GenericExeRunner();
+        public WebsiteRunner websiteStartupOptions = new WebsiteRunner();
         public float joyToKeyConfigDelay = -1;
         public string launchHelperScriptPath = "";
  
@@ -40,6 +41,10 @@ public class GameLaunchSettings
         {
             return unityStartupOptions;
         }
+        else if (type == GameLaunchType.Website)
+        {
+            return websiteStartupOptions;
+        }
         return null;
     }
 
@@ -61,6 +66,7 @@ public class GameLaunchSettings
         _srcGame = gameData;
         this.unityStartupOptions.SetUpWithGame(gameData);
         this.genericStartupOptions.SetUpWithGame(gameData);
+        this.websiteStartupOptions.SetUpWithGame(gameData);
     }
 }
 
@@ -339,6 +345,38 @@ public class GenericExeRunner : AbstractGameRunner
 #endregion
 
 [System.Serializable]
+public class WebsiteRunner : AbstractGameRunner
+{
+    #region SERIALIZED ------------------------------------------------
+    public string url = string.Empty;
+
+    public override void Launch()
+    {
+        /*Reset();
+        string startDir = Path.Combine(this._srcGame.rootFolder.FullName, this._srcGame.exePath);
+        
+        process = ProcessRunner.StartProcess(Path.GetDirectoryName(startDir), Path.GetFileName(startDir), commandLineArguments);*/
+        LaunchHelperProcess();
+        process = ProcessRunner.StartProcess(CompanionSoftware.BrowserLauncher, url);
+
+
+    }
+
+    public override void RunningUpdate()
+    {
+        //don't do anything!
+        //base.RunningUpdate();
+    }
+
+    public override void FocusWindow()
+    {
+        //also don't do anything!
+        //base.FocusWindow();
+    }
+    #endregion --------------------------------------------------------
+}
+#region MOUSE
+[System.Serializable]
 public class MouseStartUpOptions
 {
     public float extraStartDelay = 0;
@@ -390,3 +428,4 @@ public class AutoMouseEvent
     }
 }
 
+#endregion

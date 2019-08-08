@@ -180,11 +180,20 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
+    public static Process StartProcess(string exe, string cmdArgs)
+    {
+        return StartProcess(null, exe, cmdArgs);
+    }
     public static Process StartProcess(string directory, string exe, string cmdArgs)
     {
 
         //this is a little weird...
-        string fullPath = Path.Combine(directory, exe);
+        string fullPath = exe;
+        if (directory != null)
+        {
+            fullPath = Path.Combine(directory, exe);
+        }
+
         if (!File.Exists(exe) && !File.Exists(fullPath))
         {
             Debug.LogError("Game not found at path:\n"+ fullPath);
@@ -208,8 +217,12 @@ public class ProcessRunner : MonoBehaviour
             startInfo.UseShellExecute = true;
         }*/
 
- 
-        startInfo.WorkingDirectory = directory; //"C:\\Users\\Garrett Johnson\\Desktop";
+
+        if (directory != null)
+        {
+            startInfo.WorkingDirectory = directory; //"C:\\Users\\Garrett Johnson\\Desktop";
+        }
+        
         startInfo.FileName = exe;               //"angryBots.exe";
         if (cmdArgs != null)
         {
