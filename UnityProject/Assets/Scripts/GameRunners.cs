@@ -67,7 +67,8 @@ public class GameLaunchSettings
 public enum GameLaunchType
 {
     Generic = 0,
-    Unity = 1
+    Unity = 1,
+    Website = 2,
 }
 
 public interface IGameRunner
@@ -77,6 +78,7 @@ public interface IGameRunner
     void Launch();
     void RunningUpdate();
     void Reset();
+    void FocusWindow();
     Process process
     {
         get;
@@ -139,7 +141,7 @@ public abstract class AbstractGameRunner : IGameRunner
     {
         if (_waitingForMainGameWindow)
         {
-            if (ProcessRunner.WindowIsPresent(_srcGame.windowTitle))
+            if (ExternalWindowTracker.WindowIsPresent(_srcGame.windowTitle))
             {
                 Debug.Log("Main Game Window Appeared");
                 _waitingForMainGameWindow = false;
@@ -164,6 +166,27 @@ public abstract class AbstractGameRunner : IGameRunner
 
         }
 
+    }
+
+    public virtual void FocusWindow()
+    {
+        GameData currentlySelectedGame = this._srcGame;
+        string windowTitle = currentlySelectedGame.windowTitle;
+        
+
+        if (string.IsNullOrEmpty(windowTitle))
+        {
+            ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.runningPrimaryWindowGuess(process.Id));//currentGameRunner.process.Id));
+        }
+        else
+        {
+            ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(windowTitle));
+        }
+
+
+        //    /// Alt way <<<<<<<<<<<<<<<<
+        //    SendKeyStrokesToWindow(windowTitle);
+        //    //>>>>>>>>>>>>>>>>
     }
 }
 
@@ -249,14 +272,14 @@ public class UnityExeRunner : AbstractGameRunner
         {
             if (_resDiaSkipState == DialogSkipState.WaitingForDialogToAppear)
             {
-                if (ProcessRunner.WindowIsPresent(this.ResulotionDialogWindowTitle))
+                if (ExternalWindowTracker.WindowIsPresent(this.ResulotionDialogWindowTitle))
                 {
                     _resDiaSkipState = DialogSkipState.DialogHasAppeared;
                 }
             }
             else if (_resDiaSkipState == DialogSkipState.DialogHasAppeared)
             {
-                if (!ProcessRunner.WindowIsPresent(this.ResulotionDialogWindowTitle))
+                if (!ExternalWindowTracker.WindowIsPresent(this.ResulotionDialogWindowTitle))
                 {
                     _resDiaSkipState = DialogSkipState.DialogHasClosed;
                 }

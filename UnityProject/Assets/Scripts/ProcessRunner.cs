@@ -35,7 +35,7 @@ public class ProcessRunner : MonoBehaviour
     public bool IsGameRunning()
     {
         bool processJustStarted = _runningGame != null && (Time.time - currentProcessStartTime) < 5;
-        bool windowBasedGameIsRunning = _runningGame != null && !string.IsNullOrEmpty(_runningGame.windowTitle) && WindowIsPresent(_runningGame.windowTitle);
+        bool windowBasedGameIsRunning = _runningGame != null && !string.IsNullOrEmpty(_runningGame.windowTitle) &&  ExternalWindowTracker.WindowIsPresent(_runningGame.windowTitle);
         bool processBasedGameIsRunning = _runningGame != null && (currentGameRunner.process != null && !currentGameRunner.process.HasExited);
         return processJustStarted || windowBasedGameIsRunning || processBasedGameIsRunning;
     }
@@ -58,7 +58,7 @@ public class ProcessRunner : MonoBehaviour
     List<Process> safeProcesses;
 
 	
-    [ContextMenu("TESTREMOVE")]
+    /*[ContextMenu("TESTREMOVE")]
     public void TESTREMOVEBORDER()
     {
 
@@ -92,7 +92,7 @@ public class ProcessRunner : MonoBehaviour
 
     }
 
-    
+    */
 
 
 
@@ -104,69 +104,10 @@ public class ProcessRunner : MonoBehaviour
 
 
 
-
-    IntPtr _thisPrimaryWindow = IntPtr.Zero;
-    IntPtr thisPrimaryWindow
-    {
-        get
-        {
-            List<IntPtr> menuWindowHandles = new List<IntPtr>();
-            CollectProcessWindows(_thisProcess.Id, menuWindowHandles);
-
-            if (menuWindowHandles.Count > 0)
-            {
-                
-
-                //print("got it!");
-                _thisPrimaryWindow = menuWindowHandles[0];
-            }
-            //return IntPtr.Zero;
-            return _thisPrimaryWindow;
-            
-        }
-    }
-
-
-    //https://stackoverflow.com/questions/1888863/how-to-get-main-window-handle-from-process-id
-    /// <summary>
-    /// Best guess at the running game process's main window
-    /// </summary>
-    List<IntPtr> _runningWindowHandlesScratch = new List<IntPtr>();
-    IntPtr runningPrimaryWindowGuess 
-    {
-        get
-        {
-            _runningWindowHandlesScratch.Clear();
-            CollectProcessWindows(currentGameRunner.process.Id, _runningWindowHandlesScratch);
-
-            IntPtr ret = IntPtr.Zero;
-            foreach (IntPtr handle in _runningWindowHandlesScratch)
-            {
-                if (WinOsUtil.GetWindow(handle, GetWindowType.GW_OWNER) == IntPtr.Zero && WinOsUtil.IsWindowVisible(handle))
-                {
-                    #if UNITY_EDITOR
-                    if (ret != IntPtr.Zero)
-                    {
-                        //TODO: this would be smart to put in the audit/error messages section
-                        Debug.Log("Multiple windows seem like they could be the main window for this process!\nPlease manually specify the main windows title");
-                    }
-                    #endif
-                    ret = handle;
-                    #if !UNITY_EDITOR
-                    break;
-                    #endif
-
-                    //return handle;
-                }
-            }
-            return ret;
-        }
-    }
-
     IntPtr _joy2KeyPrimaryWindow = IntPtr.Zero;
 
 
-    XUTimer _windowCheckTimers = new XUTimer(.3f);
+ 
     System.Text.StringBuilder _sb = new System.Text.StringBuilder();
 
     // Pressing the button opens up the game.
@@ -174,7 +115,7 @@ public class ProcessRunner : MonoBehaviour
 
     void Awake()
     {
-        _windowCheckTimers.Start();
+
     }
 
 
@@ -193,89 +134,10 @@ public class ProcessRunner : MonoBehaviour
         }, 2);
 
     }
-    bool allWindowIter(IntPtr hWnd, IntPtr lParam)
-    {
-        //if (hWnd == shellWindow) return true;
-        if (!IsWindowVisible(hWnd))
-        {
-            return true;
-        }
 
-        int length = GetWindowTextLength(hWnd);
-        if (hWnd == IntPtr.Zero || length == 0) return true;
-
-        System.Text.StringBuilder sb = new System.Text.StringBuilder(512);
-        GetWindowText(hWnd, sb, sb.Capacity);
-
-        uint processId = 0;// IntPtr.Zero;
-        GetWindowThreadProcessId(hWnd, out processId);
-
-        string windowTitle = sb.ToString();
-
-
-
-        sb.Clear();
-        IntPtr queriableProcess = OpenProcess(ProcessAccessFlags.QueryLimitedInformation, false, (int) processId);
-
-        uint exePathLen = //GetModuleFileNameEx(new IntPtr(processId), sb, (uint)sb.Capacity);
-        GetProcessImageFileName(queriableProcess, sb, sb.Capacity);
-        CloseHandle(queriableProcess);
-        if (exePathLen == 0)
-        {
-            int errInt = System.Runtime.InteropServices.Marshal.GetLastWin32Error();
-            print(errInt);
-        }
-        if (sb.ToString().ToLower().Contains("chrome") || true)
-        {
-            Debug.Log(processId + ", '" + sb.ToString() + "' : " + windowTitle);
-        }
-
-        if (!_allWindowsCached.ContainsKey(windowTitle))
-        {
-            _allWindowsCached.Add(windowTitle, hWnd);
-        }
-        else
-        {
-            //TODO : support duplicate window names
-            #if UNITY_EDITOR
-            //Debug.LogError("Multiple windows with title: " + windowTitle);
-            #endif
-        }
-        
-        return true;
-    }
-    public static Dictionary<string, IntPtr> _allWindowsCached = new Dictionary<string, IntPtr>();
     private void Update()
     {
-        //----------------------------------------------
-        if (_windowCheckTimers.expired)
-        {
-            _allWindowsCached.Clear();
-            _windowCheckTimers.Restart();
-            //foreach (Process p in Process.GetProcesses())
-            //{
-                //if (!p.HasExited)
-                //{
-                //    if (p.MainModule.FileName.Contains("chrome"))
-                //    {
-                //        print(p.MainModule.FileName + " : " + p.MainWindowTitle);
-                //    }
-                //}
-                //if (!string.IsNullOrEmpty(p.MainWindowTitle))
-                //{
-                    //_allWindowsCached.Add(p.MainWindowTitle);
-                //}
-            //}
-            //IntPtr shellWindow = GetShellWindow();
 
-
-            //_allWindowsCached.Clear();
-
-            EnumWindows(allWindowIter, IntPtr.Zero);
-
-        }
-        
-        //----------------------------------------------
 
         if (_runningGame != null)
         {
@@ -283,35 +145,6 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
-    public static bool WindowIsPresent(string windowTitle)
-    {
-        return _allWindowsCached.ContainsKey(windowTitle);
-    }
-
-    public delegate bool WindowTitleFilter(string winTitle);
-    public static IntPtr GetWindowByTitle(WindowTitleFilter filter)
-    {
-        IntPtr ret = IntPtr.Zero;
-        foreach (string wt in _allWindowsCached.Keys)
-        {
-            if (filter(wt))
-            {
-                return _allWindowsCached[wt];
-            }
-        }
-        return ret;
-    }
-
-        public static IntPtr GetWindowByTitle(string windowTitle)
-    {
-        IntPtr ret = IntPtr.Zero;
-        if (_allWindowsCached.ContainsKey(windowTitle))
-        {
-            ret = _allWindowsCached[windowTitle];
-        }
-
-        return ret;
-    }
 
     void setJoyToKeyConfigIfNotAlreadySet(string configFile)
     {
@@ -427,94 +260,13 @@ public class ProcessRunner : MonoBehaviour
 		return IntPtr.Zero;
 	}
 
-    
-	// Puts all windows existing associated with the processId in the bucket
-	void CollectProcessWindows(int processId, List<IntPtr> bucket)
-	{
-        _allWindowsCached.Clear();
-
-        if ( processId == 0 ) return;
-
-		// look through all the windows
-		EnumWindows( delegate(IntPtr hWnd, IntPtr lParam)
-        {
-            // add the handle to the bucket if it's associatd with the given process
-            if ( DoesWindowMatchProcessId( hWnd, processId ) )
-			{
-				if( !bucket.Contains( hWnd ) )
-				{
-					bucket.Add(hWnd);
-				}
-			}
-			return true;
-		}, IntPtr.Zero);
-
-	}
-    
-	// returns true if the 'hWnd' is managed by the 'processId'
-	bool DoesWindowMatchProcessId( IntPtr hWnd, int processId )
-	{
-        //int threadId = GetWindowThreadProcessId( new HandleRef(new object(), hWnd), out winProcId);
-        uint uwinProcId;
-        GetWindowThreadProcessId(hWnd, out uwinProcId);
-        //winProcId = uwinProcId.ToString();
-
-        bool matched = uwinProcId.ToString().Equals(processId.ToString());
-        return matched;
-    }
-
- 
-    //https://stackoverflow.com/questions/17879890/understanding-attachthreadinput-detaching-lose-focus
-
-
-           // Forces the given window to show in the foreground
-    void ForceBringToForeground(IntPtr hWnd)
-	{
-        if (hWnd == IntPtr.Zero)
-        {
-#if UNITY_EDITOR
-            Debug.Log("Got bad window handle for foreground control");
-#endif
-            return;
-        }
-
-		IntPtr fgWnd = GetForegroundWindow();
-
-        if (hWnd == fgWnd)
-        {
-            //print("window already in foreground");
-            return;
-        }
-
-        //More detailed code and justification can be found here:
-        //https://stackoverflow.com/questions/17879890/understanding-attachthreadinput-detaching-lose-focus
-
-        //var currentThread = GetWindowThreadProcessId(_thisPrimaryWindow, IntPtr.Zero);
-        //    var activeThread = GetWindowThreadProcessId(fgWnd, IntPtr.Zero);
-        //    var windowThread = GetWindowThreadProcessId(hWnd, IntPtr.Zero);
-
-
-        SetForegroundWindow(hWnd);
-        //SetFocus(hWnd);
-        //https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
-        //ShowWindow(hWnd, 3);// 3); //orig by itself
-        ShowWindow(hWnd, 9);
-
-
-        //if (currentThread != activeThread)
-        //    AttachThreadInput(currentThread, activeThread, false);
-        //if (windowThread != currentThread)
-        //    AttachThreadInput(windowThread, currentThread, false);
-    }
-
-
 	public void BringThisToForeground()
     {
         //ForceBringToForeground(thisPrimaryWindow);
-#if !UNITY_EDITOR
+        #if !UNITY_EDITOR 
         string switcherWindowName = Application.productName;
-        ForceBringToForeground(GetWindowByTitle(switcherWindowName));
-#endif
+        ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(switcherWindowName));
+        #endif
         setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
     }
 
@@ -526,25 +278,8 @@ public class ProcessRunner : MonoBehaviour
 	
     public void BringRunningToForeground(GameData currentlySelectedGame)
     {
-        string windowTitle = currentlySelectedGame.windowTitle;
         setJoyToKeyConfigIfNotAlreadySet(currentlySelectedGame.joyToKeyConfig);
-
-
-
-
-        if (string.IsNullOrEmpty(windowTitle))
-        {
-            ForceBringToForeground(runningPrimaryWindowGuess);
-        }
-        else
-        {
-            ForceBringToForeground(GetWindowByTitle(windowTitle));
-        }
-
-           
-        //    /// Alt way <<<<<<<<<<<<<<<<
-        //    SendKeyStrokesToWindow(windowTitle);
-        //    //>>>>>>>>>>>>>>>>
+        currentGameRunner?.FocusWindow();
     }
 
     static string lastSentWindow = null;

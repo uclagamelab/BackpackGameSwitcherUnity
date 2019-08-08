@@ -106,7 +106,7 @@ public class SwitcherApplicationController : MonoBehaviour
             //BAD QUIRK: only take back control once the quit button is pressed
             //Mostly ok, is hacky fix to issue that checking whether a process exists/hasn't exited
             //is not a good way to determine if a game is running, or starting to run.
-            //TODO: More robustly detect if a game is running or not (detect a non-key-combo quite
+            //TODO: More robustly detect if a game is running or not (detect a non-key-combo quit)
         
             if (ProcessRunner.instance.IsGameRunning()) // have the game try to retake focus, if one is running.
             {
