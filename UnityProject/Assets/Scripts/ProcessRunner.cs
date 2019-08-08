@@ -196,28 +196,50 @@ public class ProcessRunner : MonoBehaviour
     bool allWindowIter(IntPtr hWnd, IntPtr lParam)
     {
         //if (hWnd == shellWindow) return true;
-        if (!IsWindowVisible(hWnd)) return true;
-
-        if (!IsWindowVisible(hWnd)) return true;
+        if (!IsWindowVisible(hWnd))
+        {
+            return true;
+        }
 
         int length = GetWindowTextLength(hWnd);
         if (hWnd == IntPtr.Zero || length == 0) return true;
 
-        System.Text.StringBuilder sb = new System.Text.StringBuilder(256);
-        GetWindowText(hWnd, sb, 256);
+        System.Text.StringBuilder sb = new System.Text.StringBuilder(512);
+        GetWindowText(hWnd, sb, sb.Capacity);
+
+        uint processId = 0;// IntPtr.Zero;
+        GetWindowThreadProcessId(hWnd, out processId);
 
         string windowTitle = sb.ToString();
+
+
+
+        sb.Clear();
+        IntPtr queriableProcess = OpenProcess(ProcessAccessFlags.QueryLimitedInformation, false, (int) processId);
+
+        uint exePathLen = //GetModuleFileNameEx(new IntPtr(processId), sb, (uint)sb.Capacity);
+        GetProcessImageFileName(queriableProcess, sb, sb.Capacity);
+        CloseHandle(queriableProcess);
+        if (exePathLen == 0)
+        {
+            int errInt = System.Runtime.InteropServices.Marshal.GetLastWin32Error();
+            print(errInt);
+        }
+        if (sb.ToString().ToLower().Contains("chrome") || true)
+        {
+            Debug.Log(processId + ", '" + sb.ToString() + "' : " + windowTitle);
+        }
+
         if (!_allWindowsCached.ContainsKey(windowTitle))
         {
-            _allWindowsCached.Add(sb.ToString(), hWnd);
+            _allWindowsCached.Add(windowTitle, hWnd);
         }
         else
         {
             //TODO : support duplicate window names
-            //Dictionary<string, HashSet<IntPtr>>
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             //Debug.LogError("Multiple windows with title: " + windowTitle);
-#endif
+            #endif
         }
         
         return true;
@@ -232,10 +254,17 @@ public class ProcessRunner : MonoBehaviour
             _windowCheckTimers.Restart();
             //foreach (Process p in Process.GetProcesses())
             //{
-            //    if (!string.IsNullOrEmpty(p.MainWindowTitle))
-            //    {
-            //        _allWindowsCached.Add(p.MainWindowTitle);
-            //    }
+                //if (!p.HasExited)
+                //{
+                //    if (p.MainModule.FileName.Contains("chrome"))
+                //    {
+                //        print(p.MainModule.FileName + " : " + p.MainWindowTitle);
+                //    }
+                //}
+                //if (!string.IsNullOrEmpty(p.MainWindowTitle))
+                //{
+                    //_allWindowsCached.Add(p.MainWindowTitle);
+                //}
             //}
             //IntPtr shellWindow = GetShellWindow();
 

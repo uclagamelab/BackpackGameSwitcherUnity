@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Security;
+using System.Text;
 using UnityEngine;
 
-public static class WinOsUtil 
+public static class WinOsUtil
 {
     //https://www.pinvoke.net/default.aspx/user32.GetWindow
     [DllImport("user32.dll", SetLastError = true)]
@@ -60,18 +64,77 @@ public static class WinOsUtil
 
 
     // Returnsthe process ID associated with the window
-    /*[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-	private static extern int GetWindowThreadProcessId(HandleRef handle, out int processId);
-	*/
-    [DllImport("user32.dll")]
-    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
+    //[DllImport("user32.dll")]
+    //public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
 
     [DllImport("user32.dll")]
     public static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint lpdwProcessId);
 
+
     // ???
     [DllImport("user32.dll")]
     public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+
+    [DllImport("psapi.dll")]
+    public static extern uint GetProcessImageFileName(
+    IntPtr hProcess,
+    [Out] StringBuilder lpImageFileName,
+    [In] [MarshalAs(UnmanagedType.U4)] int nSize
+);
+
+    [DllImport("psapi.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+    public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, [Out] StringBuilder lpBaseName, uint nSize);
+
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [PreserveSig]
+    public static extern uint GetModuleFileName
+    (
+        [In]
+     IntPtr hModule,
+
+        [Out]
+     StringBuilder lpFilename,
+
+        [In]
+     [MarshalAs(UnmanagedType.U4)]
+     int nSize
+    );
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr OpenProcess(
+     ProcessAccessFlags processAccess,
+     bool bInheritHandle,
+     int processId
+);
+    public static IntPtr OpenProcess(Process proc, ProcessAccessFlags flags)
+    {
+        return OpenProcess(flags, false, proc.Id);
+    }
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+    [SuppressUnmanagedCodeSecurity]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool CloseHandle(IntPtr hObject);
+
+    [Flags]
+    public enum ProcessAccessFlags : uint
+    {
+        All = 0x001F0FFF,
+        Terminate = 0x00000001,
+        CreateThread = 0x00000002,
+        VirtualMemoryOperation = 0x00000008,
+        VirtualMemoryRead = 0x00000010,
+        VirtualMemoryWrite = 0x00000020,
+        DuplicateHandle = 0x00000040,
+        CreateProcess = 0x000000080,
+        SetQuota = 0x00000100,
+        SetInformation = 0x00000200,
+        QueryInformation = 0x00000400,
+        QueryLimitedInformation = 0x00001000,
+        Synchronize = 0x00100000
+    }
 
     ///////////
     // [StructLayout(LayoutKind.Sequential)]
