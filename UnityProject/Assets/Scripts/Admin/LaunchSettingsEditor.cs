@@ -24,6 +24,9 @@ public class LaunchSettingsEditor : MonoBehaviour
     GenericLaunchSettingsEditor _genericSettingsEditor;
 
     [SerializeField]
+    WebsiteLaunchSettingsEditor _websiteSettingsEditor;
+
+    [SerializeField]
     Dropdown _typeDropDown;
 
     [SerializeField]
@@ -38,9 +41,10 @@ public class LaunchSettingsEditor : MonoBehaviour
             l.Add(new Droption(o));
             
         }
-        l.Reverse();
+        //l.Reverse();
         _typeDropDown.ClearOptions();
         _typeDropDown.AddOptions(l);
+        _typeDropDown.value = 0;
         _typeDropDown.onValueChanged.AddListener(OnDifferentTypeChosen);
         _launchAndRecordMouseButton.onClick.AddListener(LaunchAndRecordClicks);
     }
@@ -67,6 +71,7 @@ public class LaunchSettingsEditor : MonoBehaviour
     {
         _unityLaunchSettingsEditor.gameObject.SetActive(currentSelectedLaunchType == GameLaunchType.Unity);
         _genericSettingsEditor.gameObject.SetActive(currentSelectedLaunchType == GameLaunchType.Generic);
+        _websiteSettingsEditor.gameObject.SetActive(currentSelectedLaunchType == GameLaunchType.Website);
     }
     void OnSelectedGameChanged()
     {
@@ -99,8 +104,10 @@ public class LaunchSettingsEditor : MonoBehaviour
         GameInfoEditor.instance.currentSelectedGame.launchSettings.type = currentSelectedLaunchType;
 
         //Probably, they should all just subscribe to an event
+
         _unityLaunchSettingsEditor.ApplyChangesToInMemoryGameData();
         _genericSettingsEditor.ApplyChangesToInMemoryGameData();
+        _websiteSettingsEditor.ApplyChangesToInMemoryGameData();
     }
 
     private void OnEnable()
