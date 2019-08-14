@@ -8,7 +8,7 @@ pressing:
  - relevant line to fix is "if (_lastActionWasQuit)" in SwitcherApplicationController
 
 less important:
-* Replace builtin mouse recorder with joy to key version (would allow for long clicks, maybe other stuff)
+* Replace builtin mouse recorder with autoit version (would allow for long clicks, maybe other stuff)
 * Custom cursors, hiding the cursor for other apps: https://devblogs.microsoft.com/scripting/use-powershell-to-change-the-mouse-pointer-scheme/
 https://www.autoitscript.com/forum/topic/106233-hide-the-mouse-cursor/
 * Clean up the settings menu

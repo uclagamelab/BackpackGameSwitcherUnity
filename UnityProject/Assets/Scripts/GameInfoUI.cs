@@ -11,7 +11,11 @@ public class GameInfoUI : MonoBehaviour
     public Text titleText;
     public Text creditText;
     public Text descriptionText;
-    public Text instructionsText;
+
+    public GameObject tipsHeaderBar;
+    [UnityEngine.Serialization.FormerlySerializedAs("instructionsText")]
+    public Text tipsText;
+    
 
     [Space(10)]
 
@@ -38,7 +42,8 @@ public class GameInfoUI : MonoBehaviour
 
     private void Update()
     {
-        if (_cachedCurrentGameData != MenuVisualsGeneric.Instance.currentlySelectedGame && MenuVisualsGeneric.Instance.currentlySelectedGame != null)
+        bool gameChanged = _cachedCurrentGameData != MenuVisualsGeneric.Instance.currentlySelectedGame && MenuVisualsGeneric.Instance.currentlySelectedGame != null;
+        if (gameChanged)
         {
             _cachedCurrentGameData = MenuVisualsGeneric.Instance.currentlySelectedGame;
 
@@ -54,7 +59,11 @@ public class GameInfoUI : MonoBehaviour
             this.titleText.text = _cachedCurrentGameData.title;
             this.creditText.text = _cachedCurrentGameData.designers;
             this.descriptionText.text = _cachedCurrentGameData.description;
-            this.instructionsText.text = _cachedCurrentGameData.howToPlay;
+
+            this.tipsText.text = _cachedCurrentGameData.howToPlay;
+            bool tipsTextOn = _cachedCurrentGameData.howToPlay != string.Empty;
+            this.tipsText.enabled = tipsTextOn;
+            tipsHeaderBar.SetActive(tipsTextOn);
 
 
             if (joystickLabel != null)
