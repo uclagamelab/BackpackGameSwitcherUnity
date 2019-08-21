@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Text;
 
 public class SpeedyListItem : MonoBehaviour {
 
@@ -39,6 +40,7 @@ public class SpeedyListItem : MonoBehaviour {
         this._tabImage.transform.localScale = _scaleFlips[i % _scaleFlips.Length]; 
     }
 
+    StringBuilder _sbShared = new StringBuilder(128);
     public GameData gameData
     {
         get { return _gameData; }
@@ -46,8 +48,17 @@ public class SpeedyListItem : MonoBehaviour {
         {
             _gameData = value;
             title = gameData?.title;
-            _designerText.text = gameData?.designers;
-            _barSizer?.ForceUpdate();
+            _sbShared.Clear();
+            _sbShared.Append(gameData?.designers);
+           // _designerText.text = gameData?.designers;
+            if (!string.IsNullOrEmpty(gameData?.year))
+            {
+                _sbShared.Append(" (");
+                _sbShared.Append(gameData.year);
+                _sbShared.Append(")");
+            }
+            _designerText.text = _sbShared.ToString();
+           _barSizer?.ForceUpdate();
         }
     }
 

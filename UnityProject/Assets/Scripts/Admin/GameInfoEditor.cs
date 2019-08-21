@@ -200,6 +200,7 @@ public class GameInfoEditor : MonoBehaviour
     {
         public InputField _titleField;
         public InputField _authorField;
+        public InputField _yearField;
         public InputField _windowTitleField;
         public InputField _joyToKeyField;
         public InputField _exePathField;
@@ -276,6 +277,8 @@ public class GameInfoEditor : MonoBehaviour
 
             _titleField.text = game.title;
             _authorField.text = game.designers;
+            _yearField.text = game.year;
+
             _windowTitleField.text = game.windowTitle;
             _joyToKeyField.text = game.joyToKeyConfig;
 
@@ -298,6 +301,7 @@ public class GameInfoEditor : MonoBehaviour
             game.designers = _authorField.text;
             game.windowTitle = _windowTitleField.text;
             game.joyToKeyConfig = _joyToKeyField.text;
+            game.year = _yearField.text;
 
             game.description = _descriptionField.text;
             game.howToPlay = _instructionsField.text;

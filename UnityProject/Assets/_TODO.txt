@@ -1,24 +1,30 @@
-﻿TODO:
+﻿alternative way of managing controller remapping (akin to startup settings?)
+- JoyToKey 
+- AntiMicro
+- None
+
+
+TODO:
 pressing:
-* Application will crash if Cruise Control has no window title set, and a focus change happens
-	Also, it seems to move focus back to switcher momentarily while cruise control is opening (probably fix with more forgiving determination of whether game is running)
-* Add 'hidden' property to game, 'show hidden' to overall settings
 * Improve determination of whether a game is running or not, less dependent on process null/hasExited 
  - once launched say running, and only say has exited if window appears then disappears, or quit keycombo, but not before.
  - relevant line to fix is "if (_lastActionWasQuit)" in SwitcherApplicationController
 
 less important:
-* Replace builtin mouse recorder with autoit version (would allow for long clicks, maybe other stuff)
-* Custom cursors, hiding the cursor for other apps: https://devblogs.microsoft.com/scripting/use-powershell-to-change-the-mouse-pointer-scheme/
-https://www.autoitscript.com/forum/topic/106233-hide-the-mouse-cursor/
+* Make whole thing more joy to key agnostic (part of companion process?)
+* Put JoyToKey in companion software (maybe a bad idea?)
+	- hard to edit existing profiles
 * Clean up the settings menu
 * Ditch the command line arguments, and make changeable via settings menu (?)
 * finish making work with restart on crash
-* package joytokey profiles in game directories, and copy to joytokey directory
 * take another pass at the documentation
+* Replace builtin mouse recorder with autoit version (would allow for long clicks, maybe other stuff)
+* Custom cursors, hiding the cursor for other apps: https://devblogs.microsoft.com/scripting/use-powershell-to-change-the-mouse-pointer-scheme/
+https://www.autoitscript.com/forum/topic/106233-hide-the-mouse-cursor/
+* package joytokey profiles in game directories, and copy to joytokey directory
 * upload companion software somewhere? just add to git?
 * try to make a new skin, refactoring as necessary
-
+* autodetect window name
 
 Refactor thoughts
 
@@ -41,7 +47,7 @@ Assuming ctrl-k settings menu remains the same
 BUGS
 * If no valid folder, need to completely restart after setting a good one
 * Needing to restart when you change folders, other settings?
-* Bugs with applying changes.  
+* Bugs with applying changes.  (particulary with notes / instructions)
 
 GAME ISSUES:
 * Games that won't run full screen, don't have 1080p resolution (which ones?)

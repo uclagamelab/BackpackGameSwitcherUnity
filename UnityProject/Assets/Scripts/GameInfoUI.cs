@@ -58,6 +58,10 @@ public class GameInfoUI : MonoBehaviour
 
             this.titleText.text = _cachedCurrentGameData.title;
             this.creditText.text = _cachedCurrentGameData.designers;
+            if (!string.IsNullOrEmpty(_cachedCurrentGameData.year))
+            {
+                this.creditText.text = this.creditText.text + " (" + _cachedCurrentGameData.year + ")";
+            }
             this.descriptionText.text = _cachedCurrentGameData.description;
 
             this.tipsText.text = _cachedCurrentGameData.howToPlay;
@@ -69,7 +73,7 @@ public class GameInfoUI : MonoBehaviour
             if (joystickLabel != null)
             {
                 this.joystickLabel.text = _cachedCurrentGameData.instructions.joystickInstructions;
-                this.joystickFill.enabled = !string.IsNullOrEmpty(_cachedCurrentGameData?.instructions?.joystickInstructions);
+                this.joystickFill.gameObject.SetActive (!string.IsNullOrEmpty(_cachedCurrentGameData?.instructions?.joystickInstructions));
             }
 
 
@@ -82,7 +86,7 @@ public class GameInfoUI : MonoBehaviour
 
                 if (buttonDisplays[i].fill != null)
                 {
-                    buttonDisplays[i].fill.enabled = !string.IsNullOrEmpty(_cachedCurrentGameData.instructions.getButtonLabel(i + 1));
+                    buttonDisplays[i].fill.gameObject.SetActive(!string.IsNullOrEmpty(_cachedCurrentGameData.instructions.getButtonLabel(i + 1)));
                 }
             }
 
