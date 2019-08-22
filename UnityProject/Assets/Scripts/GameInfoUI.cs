@@ -2,15 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using System.Text;
 
 public class GameInfoUI : MonoBehaviour
 {
     static XUSingleTown<GameInfoUI> _InstanceHelper = new XUSingleTown<GameInfoUI>();
     public static GameInfoUI Instance => _InstanceHelper.instance;
 
-    public Text titleText;
-    public Text creditText;
-    public Text descriptionText;
+    [SerializeField]
+    Text titleText;
+    [SerializeField]
+    Text creditText;
+
+    [SerializeField]
+    TitleTabFancy _titleTab;
+
+    [SerializeField]
+    Text descriptionText;
 
     public GameObject tipsHeaderBar;
     [UnityEngine.Serialization.FormerlySerializedAs("instructionsText")]
@@ -55,6 +64,7 @@ public class GameInfoUI : MonoBehaviour
             _overrideIntructionsImageImage.gameObject.SetActive(hasOverrideInstructionsImage);
             _defaultInstructionsContainer.SetActive(!hasOverrideInstructionsImage);
 
+            _titleTab.UpdateWithGame(_cachedCurrentGameData);
 
             this.titleText.text = _cachedCurrentGameData.title;
             this.creditText.text = _cachedCurrentGameData.designers;
@@ -93,4 +103,40 @@ public class GameInfoUI : MonoBehaviour
         }
     }
 
+    
+    [System.Serializable]
+    class TitleTabFancy
+    {
+        StringBuilder _stringBuilder = new StringBuilder(256);
+        [SerializeField]
+        TextMeshProUGUI _titleText;
+        [SerializeField]
+        TextMeshProUGUI _designerText;
+        [SerializeField]
+        SizeByText _sizer;
+
+        internal void UpdateWithGame(GameData gd)
+        {
+            _titleText.text = gd.title;
+
+            _stringBuilder.Clear();
+            _stringBuilder.Append(gd.designers);
+            if (!string.IsNullOrEmpty(gd.year))
+            {
+                if (_stringBuilder.Length > 0)
+                {
+                    _stringBuilder.Append(' ');
+                }
+                _stringBuilder.Append('(');
+                _stringBuilder.Append(gd.year);
+                _stringBuilder.Append(')');
+            }
+     
+            _designerText.SetText(_stringBuilder);
+            _designerText.gameObject.SetActive(_stringBuilder.Length != 0);
+            _sizer.ForceUpdate();
+        }
+
+  
+    }
 }

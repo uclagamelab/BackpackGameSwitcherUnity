@@ -39,7 +39,6 @@ public class LaunchSettingsEditor : MonoBehaviour
         foreach (GameLaunchType o in System.Enum.GetValues(typeof(GameLaunchType)))
         {
             l.Add(new Droption(o));
-            
         }
         //l.Reverse();
         _typeDropDown.ClearOptions();
@@ -61,7 +60,7 @@ public class LaunchSettingsEditor : MonoBehaviour
             launchSettings.mouseStartupOptions = new MouseStartUpOptions();
             MouseRecorder.instance.StartRecording(launchSettings.mouseStartupOptions);
         }
-        
+
     }
     private void Start()
     {
@@ -90,12 +89,12 @@ public class LaunchSettingsEditor : MonoBehaviour
         get
         {
             Droption droption = ((Droption)_typeDropDown.options[_typeDropDown.value]);
-        if (droption != null)
+            if (droption != null)
             {
                 return droption.gameLaunchType;
             }
+
             return GameLaunchType.Unity;
-                
         }
     }
 

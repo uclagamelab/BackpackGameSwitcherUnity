@@ -9,12 +9,19 @@ public class SizeByText : MonoBehaviour {
     [SerializeField]
     float _speed = 0;
 
+    [SerializeField]
+    bool resizeX = true;
+
+    [SerializeField]
+    bool resizeY = false;
+
     //21, 300
     [SerializeField]
     ObservedText[] _srcTexts;
 
     public ObservedText[] srcTexts => _srcTexts;
 
+    [SerializeField]
     RectTransform rt;
     public float xPadding = 0;
     // Use this for initialization
@@ -32,31 +39,61 @@ public class SizeByText : MonoBehaviour {
     //    LateUpdate();
     //}
     // Update is called once per frame
+    [ContextMenu("Update Size")]
     public void ForceUpdate ()
     {
         foreach (ObservedText txt in _srcTexts)
         {
             txt.refText_Tmp.ForceMeshUpdate();
         }
-
-                float finalSize = -1;
-        //foreach (ObservedText obt in _srcTexts)
-        //{
-        //    float newSize= (obt.Length * obt.sizeFac) + obt.padding;
-        //    finalSize = Mathf.Max(newSize, finalSize);
-        //}
-        finalSize = Mathf.Max(200,getRenderedSize().x) + xPadding;
-        if (finalSize > 0)
+        Vector2 renderedSize = getRenderedSize();
+        if (resizeX)
         {
+            float finalSizeX = -1;
+            //foreach (ObservedText obt in _srcTexts)
+            //{
+            //    float newSize= (obt.Length * obt.sizeFac) + obt.padding;
+            //    finalSize = Mathf.Max(newSize, finalSize);
+            //}
+            finalSizeX = Mathf.Max(200, renderedSize.x) + xPadding;
+            if (finalSizeX > 0)
+            {
 
-            if (_speed == 0)
-            {
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, finalSize);
+                if (_speed == 0)
+                {
+                    rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, finalSizeX);
+                }
+                else
+                {
+
+                    rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Lerp(rt.sizeDelta.x, finalSizeX, _speed * Time.deltaTime));
+                }
             }
-            else
+        }
+
+
+        if (resizeY)
+        {
+            float finalSizeY = -1;
+            //foreach (ObservedText obt in _srcTexts)
+            //{
+            //    float newSize= (obt.Length * obt.sizeFac) + obt.padding;
+            //    finalSize = Mathf.Max(newSize, finalSize);
+            //}
+            finalSizeY = Mathf.Max(75, renderedSize.y) + xPadding;
+        
+            if (finalSizeY > 0)
             {
-                
-                rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Lerp(rt.sizeDelta.x, finalSize, _speed * Time.deltaTime));
+
+                if (_speed == 0)
+                {
+                    rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, finalSizeY);
+                }
+                else
+                {
+
+                    rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Lerp(rt.sizeDelta.y, finalSizeY, _speed * Time.deltaTime));
+                }
             }
         }
 
@@ -69,13 +106,19 @@ public class SizeByText : MonoBehaviour {
         {
             if (txt.refText_Tmp != null)
             {
-                Vector2 renVal = txt.refText_Tmp.GetRenderedValues();
-                if (renVal.x < 0 || renVal.y < 0)
+                Vector2 renVal = txt.refText_Tmp.GetRenderedValues(true);
+                if (renVal.x < 0)
                 {
-                    renVal = Vector2.zero;
+                    renVal.x = 0;
                 }
-                ret.x = Mathf.Max(ret.x, Mathf.Abs(renVal.x));
-                ret.y = Mathf.Max(ret.y, Mathf.Abs(renVal.y));
+
+                if (renVal.y < 0)
+                {
+                    renVal.y = 0;
+                }
+
+                ret.x += renVal.x;
+                ret.y += renVal.y;
             }
         }
         return ret;
@@ -95,11 +138,5 @@ public class SizeByText : MonoBehaviour {
                 return refText != null ? refText.text.Length : refText_Tmp != null ? refText_Tmp.text.Length : 0;
             }
         }
-
-
-        public float sizeFac = 40;
-        public float padding = 0;
-
-
     }
 }
