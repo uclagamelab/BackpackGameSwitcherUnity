@@ -5,15 +5,25 @@ using UnityEngine.UI;
 
 public class SizeByText : MonoBehaviour {
 
+    enum CombineMode
+    {
+        max, sum
+    }
+
     public bool manualOnly = false;
     [SerializeField]
     float _speed = 0;
 
     [SerializeField]
     bool resizeX = true;
+    [SerializeField]
+    CombineMode xCombine = CombineMode.max;
 
     [SerializeField]
     bool resizeY = false;
+
+    [SerializeField]
+    CombineMode yCombine = CombineMode.sum;
 
     //21, 300
     [SerializeField]
@@ -117,8 +127,24 @@ public class SizeByText : MonoBehaviour {
                     renVal.y = 0;
                 }
 
-                ret.x += renVal.x;
-                ret.y += renVal.y;
+                if (xCombine == CombineMode.sum)
+                {
+                    ret.x += renVal.x;
+                }
+                else
+                {
+                    ret.x = Mathf.Max(ret.x, renVal.x);
+                }
+
+                if (yCombine == CombineMode.sum)
+                {
+                    ret.y += renVal.y;
+                }
+                else
+                {
+                    ret.y = Mathf.Max(ret.y, renVal.y);
+                }
+                
             }
         }
         return ret;
