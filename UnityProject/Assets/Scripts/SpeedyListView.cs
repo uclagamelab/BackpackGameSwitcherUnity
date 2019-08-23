@@ -38,7 +38,7 @@ public class SpeedyListView : MonoBehaviour
     [SerializeField]
     List<SpeedyListItem> _listItems;
 
-    int _selectedTopIndex
+    public int stopIndex
     {
         get
         {
@@ -63,6 +63,7 @@ public class SpeedyListView : MonoBehaviour
     Vector2 _startAp;
 
     float _fuzzyIdx = 0;
+    public float fuzzyIdx => _fuzzyIdx;
     float fuzzIdxSelectionOffsetted => (_fuzzyIdx + _onScreenSelectionOffset) % _things.Count;
 
     float _height;
@@ -77,8 +78,20 @@ public class SpeedyListView : MonoBehaviour
     int _onScreenSelectionOffset = 8;
     
     float _speedAccumulator = 0;
-    const float _normalSpeed = 5;
-    const float _quickSpeed = 11;
+    public const float _normalSpeed = 5;
+    public const float _quickSpeed = 11;
+    #region PUBLIC THINGS FOR SOUND
+    public float speed => _speedAccumulator ;
+    public float speedNormalizedIsh =>
+        Mathf.Abs(_speedAccumulator) <= _normalSpeed
+        ?
+        Mathf.InverseLerp(0, _normalSpeed, Mathf.Abs(_speedAccumulator))
+        :
+        1 + Mathf.InverseLerp(_normalSpeed, _quickSpeed, Mathf.Abs(_speedAccumulator));
+
+    public event System.Action OnStoppedAtItem = () => { };
+    public event System.Action OnPassedItem = () => { };
+    #endregion
 
     private void Awake()
     {
@@ -107,7 +120,7 @@ public class SpeedyListView : MonoBehaviour
         {
             if (_things.Count > 0)
             {
-                int effIdx = (_selectedTopIndex + _onScreenSelectionOffset) % _things.Count;
+                int effIdx = (stopIndex + _onScreenSelectionOffset) % _things.Count;
                 if (effIdx < _things.Count)
                 {
                     return _things[effIdx].data;
@@ -133,9 +146,12 @@ public class SpeedyListView : MonoBehaviour
         private set;
     }
 
+    float _stabilizedIdx;
+    float _stabilizedStartTime = 0;
     static StringBuilder sb = new StringBuilder();
     void LateUpdate()
     {
+        
         sb.Clear();
         int targetIdleOpacity = SwitcherApplicationController.isIdle ? 1 : 0;
         if (this._attractAmt != targetIdleOpacity)
@@ -183,11 +199,11 @@ public class SpeedyListView : MonoBehaviour
         }
 
 
-        int lastSelectedIdx = _selectedTopIndex;
+        int lastSelectedIdx = stopIndex;
 
         if (!keyHeld)
         {          
-            _fuzzyIdx = Mathf.MoveTowards(_fuzzyIdx, _selectedTopIndex, Time.deltaTime * speed);
+            _fuzzyIdx = Mathf.MoveTowards(_fuzzyIdx, stopIndex, Time.deltaTime * speed);
 
             if (fuzzIdxSelectionOffsetted == (int)fuzzIdxSelectionOffsetted && fuzzIdxSelectionOffsetted != MenuVisualsGeneric.Instance.gameIdx)
             {
@@ -206,13 +222,27 @@ public class SpeedyListView : MonoBehaviour
 
         if ((int)lastFuzz != (int)_fuzzyIdx)
         {
+
+            OnPassedItem.Invoke();
             OnRepopulated();
         }
 
+        if (_stabilizedStartTime <= 0 && stopIndex != _stabilizedIdx && (Mathf.Approximately(_fuzzyIdx, stopIndex)) && Mathf.Abs(_speedAccumulator) <= _quickSpeed)
+        {
+            _stabilizedStartTime = .25f;
+            _stabilizedIdx = stopIndex;
+            OnStoppedAtItem.Invoke();
+        }
+        if (_stabilizedStartTime > 0)
+        {
+            _stabilizedStartTime = Mathf.Max(0, _stabilizedStartTime - Time.deltaTime);
+        }
+
+
         float fuzzIdxOffset = _fuzzyIdx % 1;
         _container.anchoredPosition = _startAp + Vector2.up * fuzzIdxOffset * _height;
-       
 
+        float prevSpeed = _speedAccumulator;
         if (keyHeld)
         {
             _keyHeldTimer += Time.deltaTime;
@@ -223,6 +253,11 @@ public class SpeedyListView : MonoBehaviour
             _keyHeldTimer = Mathf.Max(0, _keyHeldTimer - 2*Time.deltaTime);
             _speedAccumulator = Mathf.MoveTowards(_speedAccumulator, 0,  Time.deltaTime * 2f);
         }
+
+        //if (Mathf.Abs(_speedAccumulator) == 0 && Mathf.Abs(prevSpeed) != 0)
+        //{
+        //    OnItemPassed.Invoke();
+        //}
 
         UpdateTextViz();
     }

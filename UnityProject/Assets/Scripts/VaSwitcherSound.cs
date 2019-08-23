@@ -6,6 +6,8 @@ using UnityEngine.Audio;
 
 public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
+    [SerializeField]
+    SpeedyListView _speedyList;
 
     float sfxVolume
     {
@@ -29,6 +31,10 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     public AudioClip closeInfoSound;
     public AudioClip startGame;
     public AudioClip quitGame;
+
+    public AudioClip listPlink1;
+    public AudioClip listPlonk;
+
     AudioLowPassFilter musicFilter;
 
     public AudioClip infoMenuCursorMove1;
@@ -53,7 +59,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
     void Start () {
         //bgMusicSource = this.gameObject.AddComponent<AudioSource>();
-        oneShotPool = new AudioSource[5];
+        oneShotPool = new AudioSource[10];
         for (int i = 0; i < oneShotPool.Length; i++)
         {
             oneShotPool[i] = this.gameObject.AddComponent<AudioSource>();
@@ -75,9 +81,25 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
 
         musicFilter = bgMusicSource.GetComponent<AudioLowPassFilter>();
 
+        _speedyList.OnPassedItem += OnListPass;
+        _speedyList.OnStoppedAtItem += OnListStop;
     }
+    void OnListPass()
+    {
 
+        PlayOneShot(this.listPlink1, .25f, 1.5f + 2.1f * Mathf.Abs(_speedyList.speed));
+    }
+    void OnListStop()
+    {
+        //xxx
+        
+        
+            
+        //Mathf.Round(_speedyList.fuzzyIdx) == Mathf.Round(_speedyList.stopIndex) && 
 
+         PlayOneShot(this.listPlonk, .35f, 1.25f);
+        
+    }
 
     void OnInfoMenuCursorMove(bool open)
     {
