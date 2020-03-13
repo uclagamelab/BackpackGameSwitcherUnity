@@ -17,7 +17,7 @@ public class SwitcherPrefData
     public string _GamesFolder;
     public string _JoyToKeyFolder;
     public string _BGMusicFolder;
-    public DisplaySettings displaySettings;
+    //public DisplaySettings displaySettings;
     #endregion
 
     public string JoyToKeyFolder => ConvertIfExeRelative(_JoyToKeyFolder);

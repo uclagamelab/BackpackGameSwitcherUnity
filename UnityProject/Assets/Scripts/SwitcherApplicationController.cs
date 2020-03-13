@@ -45,10 +45,12 @@ public class SwitcherApplicationController : MonoBehaviour
     // Use this for initialization
     void Awake () {
         gameMenu = this.GetComponent<MenuVisualsGeneric>();
-        _defaultResolution = new Resolution();
-        _defaultResolution.width = SwitcherSettings.Data.displaySettings.resolutionWidth;
-        _defaultResolution.height = SwitcherSettings.Data.displaySettings.resolutionHeight;
-        _defaultIsFullScreen = SwitcherSettings.Data.displaySettings.fullScreen;
+        _defaultResolution = Screen.currentResolution;
+        _defaultIsFullScreen = Screen.fullScreen;
+        //    new Resolution();
+        //_defaultResolution.width = SwitcherSettings.Data.displaySettings.resolutionWidth;
+        //_defaultResolution.height = SwitcherSettings.Data.displaySettings.resolutionHeight;
+        //_defaultIsFullScreen = SwitcherSettings.Data.displaySettings.fullScreen;
     }
 
     void Start()
@@ -97,8 +99,7 @@ public class SwitcherApplicationController : MonoBehaviour
                 this.gameMenu.onQuitGame();
 
             }
-            ResetToDefaultResolutionIfDifferent();
-
+            this.delayedFunction(ResetToDefaultResolutionIfDifferent, .25f);
             gotAnExitCombo = false;
         }
 
