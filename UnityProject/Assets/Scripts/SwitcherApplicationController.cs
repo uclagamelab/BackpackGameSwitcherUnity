@@ -70,6 +70,12 @@ public class SwitcherApplicationController : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.R))
+        {
+            ResetToDefaultResolutionIfDifferent();
+        }
+
+
         //Don't focus steal while menu is open
         if (ToolsAndSettingsMenu.isOpen)
         {
