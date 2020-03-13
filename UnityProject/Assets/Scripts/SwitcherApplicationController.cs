@@ -1,5 +1,4 @@
 ﻿/*
- 
 Collects input from gamepads, keyboard etc... and controls the menu
 
 BAD ADDITIONS : 
@@ -46,8 +45,10 @@ public class SwitcherApplicationController : MonoBehaviour
     // Use this for initialization
     void Awake () {
         gameMenu = this.GetComponent<MenuVisualsGeneric>();
-        _defaultResolution = Screen.currentResolution;
-        _defaultIsFullScreen = Screen.fullScreen;
+        _defaultResolution = new Resolution();
+        _defaultResolution.width = SwitcherSettings.Data.displaySettings.resolutionWidth;
+        _defaultResolution.height = SwitcherSettings.Data.displaySettings.resolutionHeight;
+        _defaultIsFullScreen = SwitcherSettings.Data.displaySettings.fullScreen;
     }
 
     void Start()

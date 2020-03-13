@@ -17,6 +17,7 @@ public class SwitcherPrefData
     public string _GamesFolder;
     public string _JoyToKeyFolder;
     public string _BGMusicFolder;
+    public DisplaySettings displaySettings;
     #endregion
 
     public string JoyToKeyFolder => ConvertIfExeRelative(_JoyToKeyFolder);
@@ -35,4 +36,12 @@ public class SwitcherPrefData
     }
 
     public string GamesFolder => ConvertIfExeRelative(_GamesFolder);
+
+    [System.Serializable]
+    public class DisplaySettings
+    {
+        public int resolutionWidth = 1920;
+        public int resolutionHeight = 1080;
+        public bool fullScreen = true;
+    }
 }
