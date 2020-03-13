@@ -121,7 +121,7 @@ public class SpeedyListView : MonoBehaviour
     
     void AttractCycleNextGame()
     {
-        _autoKeyCounter = .1f;
+        _autoKeyCounter = -.15f;
     }
 
     public GameData currentGame
@@ -182,15 +182,13 @@ public class SpeedyListView : MonoBehaviour
         float lastFuzz = _fuzzyIdx;
         keyHeld = false;
 
-        bool autoRight = _autoKeyCounter > 0;
-        bool autoLeft = _autoKeyCounter < 0;
         _autoKeyCounter = Mathf.MoveTowards(_autoKeyCounter, 0, Time.deltaTime);
 
 
         if (!PreLaunchGameInfo.Instance.open)
         {
 
-            float scrollAmount = CrockoInput.GetListScroll();
+            float scrollAmount = Mathf.Clamp(CrockoInput.GetListScroll() + _autoKeyCounter,-1,1);
 
             if (Mathf.Abs(scrollAmount) > 0)
             {

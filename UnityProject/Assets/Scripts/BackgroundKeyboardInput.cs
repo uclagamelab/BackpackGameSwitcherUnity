@@ -97,8 +97,24 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     // Update is called once per frame
     float timer = 0;
     const float rate = 1/60f;
+
+    float _forceAttractCountDown = 0;
     void Update ()
     {
+        if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.A))
+        {
+            _timeOfLastInput = -1000;
+            _forceAttractCountDown = 0.5f;
+        }
+
+        if (_forceAttractCountDown > 0)
+        {
+            _forceAttractCountDown -= Time.deltaTime;
+            _forceAttractCountDown = _forceAttractCountDown < 0 ? 0 : _forceAttractCountDown;
+        }
+        bool forcingAttract = _forceAttractCountDown > 0;
+
+
         if (timer < rate)
         {
             timer += Time.deltaTime;
@@ -106,7 +122,9 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         }
         timer = 0;
 
-        bool gotMouseInput = Input.GetAxis("MouseDeltaX") != 0 || Input.GetAxis("MouseDeltaY") != 0;
+
+
+        bool gotMouseInput = Mathf.Abs(Input.GetAxis("MouseDeltaX")) > .1f || Mathf.Abs(Input.GetAxis("MouseDeltaY")) > .1f;
         //OK????
         for (int i = 0; i < 0xFE; i++)
         {
@@ -116,15 +134,19 @@ public class BackgroundKeyboardInput : MonoBehaviour {
                 continue;
             }
 
-           
+            
 
-            if (GetAsyncKeyState(i) != 0 || gotMouseInput)
+            if ((GetAsyncKeyState(i) != 0 || gotMouseInput) && !forcingAttract)
             {
                 //print("gotSOmethning : " + i.ToString("0x00"));
                 _timeOfLastInput = Time.time;
                 lastKeyHit = i;
             }
+
+
         }
+
+       
 
         bool lMouseButtonHeld = GetAsyncKeyState(Constants.VK_LBUTTON) != 0;
         if (!prevlMouseButtonHeld && lMouseButtonHeld)

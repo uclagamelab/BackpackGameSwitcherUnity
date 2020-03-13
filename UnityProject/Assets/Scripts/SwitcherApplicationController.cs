@@ -26,7 +26,6 @@ public class SwitcherApplicationController : MonoBehaviour
 
     bool generatedSimulatedKeypressForFocusSwitchToSwitcherApp = false;
 
-   
 
     float timeOfLastQuit = float.NegativeInfinity;
     bool didntQuitRecently
@@ -39,7 +38,7 @@ public class SwitcherApplicationController : MonoBehaviour
 
 
     static float idleTimeout = 6 * 60;
-    float attractAutoCycleDuration = 2;
+    const float attractAutoCycleDuration = 60;
 
     bool _defaultIsFullScreen = true;
     Resolution _defaultResolution;
