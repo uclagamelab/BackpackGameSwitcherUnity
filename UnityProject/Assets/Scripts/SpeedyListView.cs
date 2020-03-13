@@ -12,13 +12,13 @@ public class SpeedyListView : MonoBehaviour
         get;
         private set;
     }
-    struct PersonalGameThing
+    struct ListItemGameData
     {
         public string titleSansNewlines => data.title.Replace('\n', ' ');
         public string title => data.title;
         public int realIdx;
         public GameData data;
-        public PersonalGameThing(GameData dat, int idx)
+        public ListItemGameData(GameData dat, int idx)
         {
             realIdx = idx;
             this.data = dat;
@@ -33,7 +33,7 @@ public class SpeedyListView : MonoBehaviour
 
 
 
-    List<PersonalGameThing> _things = new List<PersonalGameThing>();
+    List<ListItemGameData> _listGameDatas = new List<ListItemGameData>();
 
     [SerializeField]
     List<SpeedyListItem> _listItems;
@@ -64,7 +64,7 @@ public class SpeedyListView : MonoBehaviour
 
     float _fuzzyIdx = 0;
     public float fuzzyIdx => _fuzzyIdx;
-    float fuzzIdxSelectionOffsetted => (_fuzzyIdx + _onScreenSelectionOffset) % _things.Count;
+    float fuzzIdxSelectionOffsetted => (_fuzzyIdx + _onScreenSelectionOffset) % _listGameDatas.Count;
 
     float _height;
     // Start is called before the first frame update
@@ -118,12 +118,12 @@ public class SpeedyListView : MonoBehaviour
     {
         get
         {
-            if (_things.Count > 0)
+            if (_listGameDatas.Count > 0)
             {
-                int effIdx = (stopIndex + _onScreenSelectionOffset) % _things.Count;
-                if (effIdx < _things.Count)
+                int effIdx = (stopIndex + _onScreenSelectionOffset) % _listGameDatas.Count;
+                if (effIdx < _listGameDatas.Count)
                 {
-                    return _things[effIdx].data;
+                    return _listGameDatas[effIdx].data;
                 }
             }
 
@@ -151,14 +151,14 @@ public class SpeedyListView : MonoBehaviour
     static StringBuilder sb = new StringBuilder();
     void LateUpdate()
     {
-        
+
         sb.Clear();
         int targetIdleOpacity = SwitcherApplicationController.isIdle ? 1 : 0;
         if (this._attractAmt != targetIdleOpacity)
         {
             this._attractAmt = Mathf.MoveTowards(this._attractAmt, targetIdleOpacity, Time.deltaTime);
         }
-       
+
 
         //Test attract cycling of games
         //if (Input.GetKeyDown(KeyCode.Alpha0))
@@ -166,7 +166,7 @@ public class SpeedyListView : MonoBehaviour
         //    AttractCycleNextGame();
         //}
 
-        float speed = Mathf.Lerp(_normalSpeed, _quickSpeed, Mathf.InverseLerp(.25f, 1,_speedAccumulator));
+        float speed = Mathf.Lerp(_normalSpeed, _quickSpeed, Mathf.InverseLerp(.25f, 1, _speedAccumulator));
         float lastFuzz = _fuzzyIdx;
         keyHeld = false;
 
@@ -182,7 +182,7 @@ public class SpeedyListView : MonoBehaviour
 
             if (Mathf.Abs(scrollAmount) > 0)
             {
-     
+
                 _scrollMomentumDirection = scrollAmount < 0 ? -1 : 1;
                 keyHeld = true;
                 _fuzzyIdx += scrollAmount * Time.deltaTime * speed;
@@ -190,8 +190,10 @@ public class SpeedyListView : MonoBehaviour
         }
 
 
-
-        _fuzzyIdx %= GameCatalog.Instance.gameCount;
+        if (GameCatalog.Instance.gameCount > 0)
+        {
+            _fuzzyIdx %= GameCatalog.Instance.gameCount;
+        }
 
         if (_fuzzyIdx < 0)
         {
@@ -305,21 +307,24 @@ public class SpeedyListView : MonoBehaviour
 
     void OnRepopulated()
     {
-        _things.Clear();
+        _listGameDatas.Clear();
         int gidx = 0;
         foreach (GameData gd in GameCatalog.Instance.games)
         {
-            _things.Add(new PersonalGameThing(gd, gidx));
+            _listGameDatas.Add(new ListItemGameData(gd, gidx));
             gidx++;
         }
-        _things.Sort((a, b) => string.Compare(a.title, b.title));
+        _listGameDatas.Sort((a, b) => string.Compare(a.title, b.title));
        // int fuzzFloored = (int)_fuzzyIdx;
         for (int i = 0; i < _listItems.Count; i++)
         {
-            int effIdx = ((int) _fuzzyIdx + i + _things.Count) % Mathf.Max(1,_things.Count);
-            _listItems[i].SetTabFlipIndex(_things[effIdx].realIdx);
-            _listItems[i].gameData = _things[effIdx].data;
-            _listItems[i].title = _things[effIdx].titleSansNewlines;
+            int effIdx = ((int) _fuzzyIdx + i + _listGameDatas.Count) % Mathf.Max(1,_listGameDatas.Count);
+            if (effIdx < _listGameDatas.Count)
+            {
+                _listItems[i].SetTabFlipIndex(_listGameDatas[effIdx].realIdx);
+                _listItems[i].gameData = _listGameDatas[effIdx].data;
+                _listItems[i].title = _listGameDatas[effIdx].titleSansNewlines;
+            }
 
         }
 

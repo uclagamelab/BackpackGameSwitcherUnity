@@ -29,7 +29,7 @@ public class GameData
 
     public GameLaunchSettings launchSettings;
 
-    public ControllerSettings controllerSettings;
+    //public ControllerSettings controllerSettings;
     #endregion ---------------------------------------------------------
 
     #region --- UNSERIALIZED ------------------------------------------

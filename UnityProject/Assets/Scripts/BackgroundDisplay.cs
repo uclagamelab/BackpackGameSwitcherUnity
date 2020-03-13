@@ -352,15 +352,24 @@ public class BackgroundDisplay : MonoBehaviour {
 
     public void setDisplayedGame(GameData game, int direction)
     {
-        
-        if (game.videoUrl != null)
+
+        if (game?.videoUrl != null)
         {
             BackgroundDisplay.Instance.setVideo(game.videoUrl, direction);
         }
-        else
+        else if (game?.previewImg != null)
         {
             BackgroundDisplay.Instance.setImage(game.previewImg, direction);
         }
+        else
+        {
+            BackgroundDisplay.Instance.setPlaceHolder(direction);
+        }
+    }
+
+    void setPlaceHolder(int direction)
+    {
+        setImage(null,  direction);
     }
 
     public void setImage(Texture img, int direction)
