@@ -15,6 +15,19 @@ public class BackgroundDisplay : MonoBehaviour {
     [SerializeField]
     CameraBlurrer bgBlurrer;
 
+    string _placeHolderVideoUrl;
+    string placeHolderVideoUrl
+    {
+        get
+        {
+            if (_placeHolderVideoUrl == null)
+            {
+                _placeHolderVideoUrl = System.IO.Path.Combine(Application.streamingAssetsPath, "placeholder_video.mp4");
+                _placeHolderVideoUrl = System.IO.File.Exists(_placeHolderVideoUrl) ? _placeHolderVideoUrl : "";
+            }
+            return _placeHolderVideoUrl;
+        }
+    }
  
 
     interface Fadeable
@@ -353,7 +366,7 @@ public class BackgroundDisplay : MonoBehaviour {
     public void setDisplayedGame(GameData game, int direction)
     {
 
-        if (game?.videoUrl != null)
+        if (!string.IsNullOrEmpty(game?.videoUrl))
         {
             BackgroundDisplay.Instance.setVideo(game.videoUrl, direction);
         }
@@ -363,13 +376,22 @@ public class BackgroundDisplay : MonoBehaviour {
         }
         else
         {
-            BackgroundDisplay.Instance.setPlaceHolder(direction);
+            BackgroundDisplay.Instance.setPlaceholder(direction);
         }
     }
 
-    void setPlaceHolder(int direction)
+    void setPlaceholder(int direction)
     {
-        setImage(null,  direction);
+        if (!string.IsNullOrEmpty(placeHolderVideoUrl))
+        {
+            setVideo(placeHolderVideoUrl, direction);
+        }
+        else
+        {
+            setImage(null, direction);
+        }
+
+
     }
 
     public void setImage(Texture img, int direction)

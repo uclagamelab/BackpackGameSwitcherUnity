@@ -1,4 +1,14 @@
-﻿using System.Collections;
+﻿/*
+ 
+This class displays the collection of games in srolling list of tabs.
+
+It was called 'speedy' in that it is much quicker to navigate compared
+to the first sliding video game selection made for the VNA version of 
+this software.
+ 
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -149,6 +159,8 @@ public class SpeedyListView : MonoBehaviour
     float _stabilizedIdx;
     float _stabilizedStartTime = 0;
     static StringBuilder sb = new StringBuilder();
+
+    bool smallNumberOfGames => GameCatalog.Instance.gameCount < _listItems.Count - 3;
     void LateUpdate()
     {
 
@@ -217,7 +229,7 @@ public class SpeedyListView : MonoBehaviour
             }
         }
 
-        bool shoulShowAlphaHelper = keyHeld && _keyHeldTimer > .75f;
+        bool shoulShowAlphaHelper = keyHeld && _keyHeldTimer > .75f && !smallNumberOfGames;
         _alphaHelperCanvasGroup.alpha = Mathf.MoveTowards(_alphaHelperCanvasGroup.alpha, 
             (shoulShowAlphaHelper ? 1 : 0), 
             (keyHeld ? Time.deltaTime * 2 : Time.deltaTime * 1f));
@@ -282,13 +294,13 @@ public class SpeedyListView : MonoBehaviour
             float rotationAmount = Mathf.Clamp(-rawDiffSigned / 4.5f, -1, 1);
             _listItems[i].transform.localEulerAngles = 30 * rotationAmount * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
 
-            float attractModePenalty = Mathf.Lerp(1, Mathf.InverseLerp(.95f ,.15f, rawDiff),_attractAmt);
+            //If too few games, only show 1 list item at a time (looks stupid to have 3 games repeating over the list)
+            //Also, only show the current selected game list item while in a attract mode (better view of video)
+            float tooFewGamesPenalty =  smallNumberOfGames ? 1 : 0;
+            float fadeOutNonSelectedGamesCoeff = Mathf.Lerp(1, Mathf.InverseLerp(.95f ,.15f, rawDiff),(_attractAmt + tooFewGamesPenalty));
 
             float postSelectedPenalty = Mathf.InverseLerp(1, .1f, rawDiffSigned);
-            _listItems[i].alpha = postSelectedPenalty * attractModePenalty;
-
-            //_listItems[i].darkenedAmount = Mathf.InverseLerp(0, .75f, rawDiff);
-
+            _listItems[i].alpha = postSelectedPenalty * fadeOutNonSelectedGamesCoeff;
 
             //Lift the tabs up a little bit as they approach the selected tab, to give it some extra margin
             float finalApproach =
