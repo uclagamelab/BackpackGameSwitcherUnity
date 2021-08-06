@@ -20,8 +20,6 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     [SerializeField]
     AudioMixerGroup _sfxAudioMixerGroup;
 
-    [SerializeField]
-    AudioMixerGroup _bgmGroup;
 
     MenuVisualsGeneric menu => MenuVisualsGeneric.Instance;
     public AudioClip cycleSound;
@@ -35,26 +33,18 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     public AudioClip listPlink1;
     public AudioClip listPlonk;
 
-    AudioLowPassFilter musicFilter;
+
 
     public AudioClip infoMenuCursorMove1;
 
-    List<FileInfo> bgMusicList = new List<FileInfo>();
-    int currentBgMusicIdx = 0;
-    public AudioSource bgMusicSource;
+
 
     AudioSource[] oneShotPool;
 
+    [SerializeField] AudioLowPassFilter musicFilter;
 
-    bool hasFocus = true;
 
-    bool multipleBGM
-    {
-        get
-        {
-            return bgMusicList.Count > 1;
-        }
-    }
+
 
 
     void Start () {
@@ -68,22 +58,34 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         }
         menu.addListener(this);
 
-        
-        bgMusicSource.volume = 0;
-        bgMusicSource.outputAudioMixerGroup = _bgmGroup;
-
-        LoadCustomMusic();
-        bgMusicSource.loop = !multipleBGM;
-
         menu.OnOpenCloseInfo+= onOpenCloseInfo;
 
         menu.InfoMenuCursorMove += OnInfoMenuCursorMove;
 
-        musicFilter = bgMusicSource.GetComponent<AudioLowPassFilter>();
-
         _speedyList.OnPassedItem += OnListPass;
         _speedyList.OnStoppedAtItem += OnListStop;
     }
+
+    void Update()
+    {
+        float targMusicVolume = 0;
+        if (menu.state != MenuVisualsGeneric.MenuState.LaunchGame && ProcessRunner.SwitcherAppHasFocus)
+        {
+            targMusicVolume = 1;
+        }
+        BgMusicPlayer.instance.targMusicVolume = targMusicVolume;
+
+        float targetCutoff = 22000;
+        if (PreLaunchGameInfo.Instance.open || (PreLaunchGameInfo.Instance.animating && !PreLaunchGameInfo.Instance.open))
+        {
+            targetCutoff = 850;
+        }
+
+        float maxDiff = 22000 - 850;
+        this.musicFilter.cutoffFrequency = Mathf.Lerp(this.musicFilter.cutoffFrequency, targetCutoff, 8 * Time.deltaTime);// 2*maxDiff * Time.deltaTime);
+        this.musicFilter.cutoffFrequency = Mathf.MoveTowards(this.musicFilter.cutoffFrequency, targetCutoff, maxDiff * Time.deltaTime);
+    }
+
     void OnListPass()
     {
 
@@ -118,143 +120,16 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         }
     }
 
-    void LoadCustomMusic()
-    {
-        bgMusicList.Clear();
-        string musicLocation = SwitcherSettings.Data.BGMusicFolder;//Application.streamingAssetsPath + "/BGMusic";
-
-        if (!Directory.Exists(musicLocation))
-        {
-            Debug.LogError("BGMusic warning: " + musicLocation + " does not exist");
-            return;
-        }
-
-        foreach (string path in Directory.GetFiles(musicLocation))
-        {
-            string[] okExtensions = {"ogg", "wav"};
-            FileInfo maybeFile = new FileInfo(path);
-            foreach (string ext in okExtensions)
-            {
-                if (maybeFile.Extension.ToLower().EndsWith(ext))
-                {
-                    //Debug.Log("!!!!!!!!!!!!!!!" + maybeFile);
-                   // fileToUse = maybeFile;
-                    bgMusicList.Add(maybeFile);
-                }
-            }
-        }
 
 
 
-        if (bgMusicList.Count > 0)
-        {
-            LoadNewSong(Random.Range(0, bgMusicList.Count));
-        }
-    }
-
-    void LoadNewSong(int bgmIdx)
-    {
-        currentBgMusicIdx = bgmIdx;
-        FileInfo fileToUse = bgMusicList[currentBgMusicIdx];
-        loadingNextSongRoutine = StartCoroutine(GetAudioClipFromDisk(fileToUse));
-    }
-
-    Coroutine loadingNextSongRoutine = null;
-
-    void OnNewMusicClipLoaded(AudioClip newClip)
-    {
-        this.bgMusicSource.clip = newClip;
-        if (hasFocus)
-        {
-            bgMusicSource.Play();
-        }
-    }
-
-    IEnumerator GetAudioClipFromDisk(FileInfo fileToUse)
-    {
-        WWW audRequest = new WWW(fileToUse.FullName);
-        yield return audRequest;
-        AudioClip newClip = audRequest.GetAudioClip();// false, false);
-        OnNewMusicClipLoaded(newClip);
-        loadingNextSongRoutine = null;
-    }
-	
-	void Update () {
-        float targMusicVolume = 0;
-        if (menu.state != MenuVisualsGeneric.MenuState.LaunchGame && hasFocus)
-        {
-            targMusicVolume = 1;
-        }
-
-
-        bool alreadyInProcessOfLoadingNextSong = loadingNextSongRoutine != null;
-
-        bool closeToEndOfSong = 
-            bgMusicSource.clip != null 
-            && 
-            !bgMusicSource.isPlaying 
-            && 
-            targMusicVolume == 1
-            && 
-            bgMusicSource.time != 0;//.time == bgMusicSource.clip.length;
-
-        bool shouldLoadNextSong = multipleBGM && closeToEndOfSong && targMusicVolume == 1;// && bgmMaxVolume != 0;
-
-        shouldLoadNextSong |= Input.GetKeyDown(KeyCode.Y);
-
-        shouldLoadNextSong &= !alreadyInProcessOfLoadingNextSong;
-        shouldLoadNextSong &= bgMusicList.Count > 0;
-
-        if (shouldLoadNextSong)
-        {
-            
-            if (bgMusicSource.clip != null)
-            {
-                bgMusicSource.clip.UnloadAudioData();
-                DestroyImmediate(bgMusicSource.clip);
-            }
-            
-            bgMusicSource.clip = null;
-               
-               currentBgMusicIdx = (currentBgMusicIdx + 1) % bgMusicList.Count;
-            LoadNewSong(currentBgMusicIdx);
-            //Debug.Log(currentBgMusicIdx + " / " + (bgMusicList.Count - 1));
-        }
-
-        this.bgMusicSource.volume =  Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume, .35f * Time.deltaTime);
-
-        bool shouldPlay = bgMusicSource.volume != 0 && bgMusicSource.clip != null;
-
-        if (bgMusicSource.isPlaying != shouldPlay)
-        {
-            if (shouldPlay)
-            {
-                bgMusicSource.Play();
-            }
-            else
-            {
-                bgMusicSource.Pause();
-            }
-        }
-
-        float targetCutoff = 22000;
-        if (PreLaunchGameInfo.Instance.open || (PreLaunchGameInfo.Instance.animating && !PreLaunchGameInfo.Instance.open))
-        {
-            targetCutoff = 850;
-        }
-
-        float maxDiff = 22000 - 850;
-        this.musicFilter.cutoffFrequency = Mathf.Lerp(this.musicFilter.cutoffFrequency, targetCutoff, 8 * Time.deltaTime);// 2*maxDiff * Time.deltaTime);
-        this.musicFilter.cutoffFrequency = Mathf.MoveTowards(this.musicFilter.cutoffFrequency, targetCutoff, maxDiff * Time.deltaTime);
 
 
 
-    }
 
-    void OnApplicationFocus(bool hasFocus)
-    {
-        this.hasFocus = hasFocus;
-    }
+
+
+
 
     void MenuVisualsGeneric.Listener.onCycleGame(int direction, bool userInitiated)
     {

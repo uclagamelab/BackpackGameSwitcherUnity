@@ -30,6 +30,7 @@ public class ProcessRunner : MonoBehaviour
 
     public string processStateHelper;
 
+    public static bool SwitcherAppHasFocus = true;
 
     //Add startup forgiveness timer, for games that change window
     public bool IsGameRunning()
@@ -472,4 +473,10 @@ public class ProcessRunner : MonoBehaviour
         }
         return false;
     }
+
+    void OnApplicationFocus(bool hasFocus)
+    {
+        SwitcherAppHasFocus = hasFocus;
+    }
+
 }
