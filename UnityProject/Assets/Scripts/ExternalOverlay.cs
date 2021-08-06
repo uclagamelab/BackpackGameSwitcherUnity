@@ -35,7 +35,13 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
             //ProcessStartInfo startInfo = new ProcessStartInfo(CompanionSoftware.Rainmeter);
             _rainmeterProcess = Process.Start(CompanionSoftware.Rainmeter);
         }
-        MenuVisualsGeneric.Instance.addListener(this);
+
+        if (MenuVisualsGeneric.Instance == null)
+        {
+            Debug.LogError("Disentangle External overlay from MenuVisualsGeneric");
+        }
+
+        MenuVisualsGeneric.Instance?.addListener(this);
     }
 
 

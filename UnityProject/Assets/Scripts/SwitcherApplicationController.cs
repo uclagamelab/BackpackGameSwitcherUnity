@@ -13,8 +13,6 @@ using UnityEngine.Events;
 
 public class SwitcherApplicationController : MonoBehaviour
 {
-    MenuVisualsGeneric gameMenu;
-
     bool gotAnExitCombo = false; //consumable event
 
     //float attractTimeOut = 120;
@@ -37,25 +35,24 @@ public class SwitcherApplicationController : MonoBehaviour
 
 
     static float idleTimeout = 6 * 60;
-    const float attractAutoCycleDuration = 60;
 
-    bool _defaultIsFullScreen = true;
-    Resolution _defaultResolution;
 
-    // Use this for initialization
+
+    public class Events
+    {
+        public System.Action OnAppQuittedOnItsOwn = () => { };
+        public System.Action OnEnterIdle = () => { };
+    }
+    public static Events events = new Events();
+
+
     void Awake () {
-        gameMenu = this.GetComponent<MenuVisualsGeneric>();
-        _defaultResolution = Screen.currentResolution;
-        _defaultIsFullScreen = Screen.fullScreen;
-        //    new Resolution();
-        //_defaultResolution.width = SwitcherSettings.Data.displaySettings.resolutionWidth;
-        //_defaultResolution.height = SwitcherSettings.Data.displaySettings.resolutionHeight;
-        //_defaultIsFullScreen = SwitcherSettings.Data.displaySettings.fullScreen;
+
     }
 
     void Start()
     {
-        BackgroundKeyboardInput.Events.onBackgroundKeyCombo += onBackgroundKeyCombo;
+        BackgroundKeyboardInput.Events.onBackgroundKeyCombo += onRequestQuit;
     }
 
     //TODO: Move this to process runner
@@ -72,18 +69,12 @@ public class SwitcherApplicationController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.R))
-        {
-            ResetToDefaultResolutionIfDifferent();
-        }
-
-
         //Don't focus steal while menu is open
         if (ToolsAndSettingsMenu.isOpen)
         {
             return;
         }
-        autoCycleGamesIfNoInput();
+
         bool aGameIsRunning = ProcessRunner.instance.IsGameRunning();
         //--------------------------------------------------------------------
         bool processWentNullOrExitedThisUpdate = !aGameIsRunning;
@@ -91,14 +82,15 @@ public class SwitcherApplicationController : MonoBehaviour
         {
             if (gotAnExitCombo)
             {
-                //print("game exited with combo!");
+                print("game exited with combo!");
             }
             else
             {
                 print("game exited some other way");
-                this.gameMenu.onQuitGame();
-
+     
             }
+
+            events.OnAppQuittedOnItsOwn.Invoke();
             this.delayedFunction(ResetToDefaultResolutionIfDifferent, .25f);
             gotAnExitCombo = false;
         }
@@ -120,7 +112,7 @@ public class SwitcherApplicationController : MonoBehaviour
                 //print("bringing to front");
                 generatedSimulatedKeypressForFocusSwitchToSwitcherApp = true;
 
-                ProcessRunner.instance.BringRunningToForeground(gameMenu.currentlySelectedGame); //this function should be robust to repeated calls
+                ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls
                 
                 
             }
@@ -155,26 +147,12 @@ public class SwitcherApplicationController : MonoBehaviour
             return;
         }
 
-        //--- LEGACY INPUT STYLE, JUST SLIDING THE BACKGROUND -----------------------
-        int selectionDirection = 0;
-        selectionDirection = CrockoInput.NoListVersion.GetNextGameDown() ? 1 : CrockoInput.NoListVersion.GetPreviousGameDown() ? -1 : 0;
-        if (selectionDirection != 0)
-        {
-            gameMenu.onCycleButtonPressed(selectionDirection);
-        }
-        //----------------------------------------------------------------------------
+  
 
 
         if (CrockoInput.GetOpenGameButtonDown())
         {
-
-            bool accepted = this.gameMenu.onStartGameButtonPress();
-            //if (accepted)
-            //{
-                _lastActionWasQuit = false;
-            //}
-
-
+            _lastActionWasQuit = false;
         }
     }
 
@@ -186,13 +164,13 @@ public class SwitcherApplicationController : MonoBehaviour
 
         if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout)
         {
-            onBackgroundKeyCombo();
+            onRequestQuit();
+            events.OnEnterIdle.Invoke();
         }
     }
 
-    float timeOfNextAttractAutoCyle = 0;
 
-    public static System.Action OnAttractCycleNextGame = () => { };
+
 
     public static bool isIdle
     {
@@ -203,37 +181,7 @@ public class SwitcherApplicationController : MonoBehaviour
         }
     }
 
-    void autoCycleGamesIfNoInput()
-    {
 
-        if (!ProcessRunner.instance.IsGameRunning())
-        {
-
-            if (isIdle)
-            {
-                //Debug.Log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
-                gameMenu.setAttractMode(true);
-                if (Time.time > timeOfNextAttractAutoCyle)
-                {
-                    //gameMenu.onCycleButtonPressed(1, false);
-                    OnAttractCycleNextGame.Invoke();
-                    timeOfNextAttractAutoCyle = Time.time + attractAutoCycleDuration;
-                }
-
-            }
-
-            /*if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout + 10)
-            {
-                Debug.Log("Refresh");
-               UnityEngine.SceneManagement.SceneManager.LoadScene(0);
-            }*/
-
-
-
-            
-        }
-
-    }
 
     /*void OnGUI()
     {
@@ -244,29 +192,17 @@ public class SwitcherApplicationController : MonoBehaviour
         }
     }*/
 
+   
     bool _lastActionWasQuit = true;
-    bool lastActionWasQuit()
-    {
-        return _lastActionWasQuit;
-    }
 
-    public void onBackgroundKeyCombo()
+
+    public void onRequestQuit()
     {
         _lastActionWasQuit = true;
         timeOfLastQuit = Time.time;
         gotAnExitCombo = true;
         
         ProcessRunner.instance.quitCurrentGame();
-        this.gameMenu.onQuitGame();
-
-        //if (!AttractMode.Instance.running)
-        //{
-            gameMenu.setAttractMode(true);
-        //}
     }
 
-    public void onApplicationFocus(bool focus)
-    {
-
-    }
 }

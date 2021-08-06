@@ -15,6 +15,9 @@ public class CursorManager : MonoBehaviour
     void Update()
     {
         bool shouldBeVisible = SwitcherSettings.AdminMode || ToolsAndSettingsMenu.isOpen;
+        #if UNITY_EDITOR
+        shouldBeVisible = true;
+        #endif
         if (shouldBeVisible != lastAppliedViz)
         {
             Cursor.visible = shouldBeVisible;

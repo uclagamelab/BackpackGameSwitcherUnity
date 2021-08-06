@@ -112,7 +112,7 @@ public class SpeedyListView : MonoBehaviour
         _height = _listItems[0].GetComponent<RectTransform>().sizeDelta.y;
 
         //_alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
-        SwitcherApplicationController.OnAttractCycleNextGame += AttractCycleNextGame;
+        MenuVisualsGeneric.OnAttractCycleNextGame += AttractCycleNextGame;
     }
     void Start()
     {

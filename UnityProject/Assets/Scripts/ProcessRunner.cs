@@ -290,9 +290,9 @@ public class ProcessRunner : MonoBehaviour
         BringThisToForeground();
     }
 	
-    public void BringRunningToForeground(GameData currentlySelectedGame)
+    public void BringRunningToForeground()
     {
-        setJoyToKeyConfigIfNotAlreadySet(currentlySelectedGame.joyToKeyConfig);
+        setJoyToKeyConfigIfNotAlreadySet(_runningGame.joyToKeyConfig);
         currentGameRunner?.FocusWindow();
     }
 

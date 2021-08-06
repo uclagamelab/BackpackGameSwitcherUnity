@@ -116,6 +116,8 @@ public class MenuVisualsGeneric : MonoBehaviour
 
 
         selectRandomGame();
+        SwitcherApplicationController.events.OnAppQuittedOnItsOwn += onQuitGame;
+        SwitcherApplicationController.events.OnEnterIdle += ()=> setAttractMode(true);
     }
 	
     public void setAttractMode(bool attract)
@@ -124,26 +126,6 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             this.state = MenuState.ChooseGame;
         }
-        /*this.showLoadingScreen(false);
-        AttractMode.Instance.running = attract;
-        this.gameInfoUI.gameObject.SetActive(!attract);
-        
-
-        if (attract)
-        {
-            foreach (Listener l in this.listners)
-            {
-                l.onEnterAttract();
-            }
-        }
-        else
-        {
-            foreach (Listener l in this.listners)
-            {
-                l.onLeaveAttract();
-            }
-        }*/
-    
     }
 
 
@@ -244,7 +226,45 @@ public class MenuVisualsGeneric : MonoBehaviour
     private void Update()
     {
         UpdateBackground();
+
+        bool aGameIsRunning = ProcessRunner.instance.IsGameRunning();
+        if (aGameIsRunning)
+        {
+            //--- LEGACY INPUT STYLE, JUST SLIDING THE BACKGROUND -----------------------
+            int selectionDirection = 0;
+            selectionDirection = CrockoInput.NoListVersion.GetNextGameDown() ? 1 : CrockoInput.NoListVersion.GetPreviousGameDown() ? -1 : 0;
+            if (selectionDirection != 0)
+            {
+                onCycleButtonPressed(selectionDirection);
+            }
+            //----------------------------------------------------------------------------
+        }
+        else
+        {
+            autoCycleGamesIfNoInput();
+        }
     }
+
+
+    float timeOfNextAttractAutoCyle = 0;
+    const float attractAutoCycleDuration = 60;
+    void autoCycleGamesIfNoInput()
+    {
+            if (SwitcherApplicationController.isIdle)
+            {
+                //Debug.Log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
+                setAttractMode(true);
+                if (Time.time > timeOfNextAttractAutoCyle)
+                {
+                    //gameMenu.onCycleButtonPressed(1, false);
+                    OnAttractCycleNextGame.Invoke();
+                    timeOfNextAttractAutoCyle = Time.time + attractAutoCycleDuration;
+                }
+
+            }
+    }
+
+    public static System.Action OnAttractCycleNextGame = () => { };
 
     //returns if accepted press
     public bool onStartGameButtonPress()
