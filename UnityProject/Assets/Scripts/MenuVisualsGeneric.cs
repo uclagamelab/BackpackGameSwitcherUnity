@@ -74,6 +74,51 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     #endregion
 
+    private void Awake()
+    {
+        state = MenuState.ChooseGame;
+        this.listners = new List<Listener>();
+    }
+
+    // Use this for initialization
+    void Start()
+    {
+        //updateInfoDisplay(currentlySelectedGame, 0);
+
+
+        selectRandomGame();
+        SwitcherApplicationController.events.OnAppQuittedOnItsOwn += onQuitGame;
+        SwitcherApplicationController.events.OnEnterIdle += () => setAttractMode(true);
+    }
+
+    private void Update()
+    {
+        UpdateBackground();
+
+        bool aGameIsRunning = ProcessRunner.instance.IsGameRunning();
+        if (aGameIsRunning)
+        {
+
+        }
+        else
+        {
+            //--- LEGACY INPUT STYLE, JUST SLIDING THE BACKGROUND -----------------------
+            int selectionDirection = 0;
+            selectionDirection = CrockoInput.NoListVersion.GetNextGameDown() ? 1 : CrockoInput.NoListVersion.GetPreviousGameDown() ? -1 : 0;
+            if (selectionDirection != 0)
+            {
+                onCycleButtonPressed(selectionDirection);
+            }
+            //----------------------------------------------------------------------------
+
+            if (CrockoInput.GetOpenGameButtonDown())
+            {
+                onStartGameButtonPress();
+            }
+
+            autoCycleGamesIfNoInput();
+        }
+    }
 
     public void selectRandomGame()
     {
@@ -101,24 +146,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         }
     }
 
-        private void Awake()
-    {
-        state = MenuState.ChooseGame;
-        this.listners = new List<Listener>();
-    }
 
-
-
-    // Use this for initialization
-    void Start ()
-    {
-        //updateInfoDisplay(currentlySelectedGame, 0);
-
-
-        selectRandomGame();
-        SwitcherApplicationController.events.OnAppQuittedOnItsOwn += onQuitGame;
-        SwitcherApplicationController.events.OnEnterIdle += ()=> setAttractMode(true);
-    }
 	
     public void setAttractMode(bool attract)
     {
@@ -220,28 +248,6 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             _lastAppliedGameData = currentlySelectedGame;
             BackgroundDisplay.Instance.setDisplayedGame(currentlySelectedGame, _lastVidMoveDirection);
-        }
-    }
-
-    private void Update()
-    {
-        UpdateBackground();
-
-        bool aGameIsRunning = ProcessRunner.instance.IsGameRunning();
-        if (aGameIsRunning)
-        {
-            //--- LEGACY INPUT STYLE, JUST SLIDING THE BACKGROUND -----------------------
-            int selectionDirection = 0;
-            selectionDirection = CrockoInput.NoListVersion.GetNextGameDown() ? 1 : CrockoInput.NoListVersion.GetPreviousGameDown() ? -1 : 0;
-            if (selectionDirection != 0)
-            {
-                onCycleButtonPressed(selectionDirection);
-            }
-            //----------------------------------------------------------------------------
-        }
-        else
-        {
-            autoCycleGamesIfNoInput();
         }
     }
 
