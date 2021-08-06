@@ -50,21 +50,21 @@ public class MouseRecorder : MonoBehaviour {
     {
         if (!recording)
         {
-            #if UNITY_EDITOR
-            if (Input.GetKey(KeyCode.R) && Input.GetKeyDown(KeyCode.E))
-            {
-                StartRecording(null);
-            }
-            #endif
+            //#if UNITY_EDITOR
+            //if (Input.GetKey(KeyCode.R) && Input.GetKeyDown(KeyCode.E))
+            //{
+            //    StartRecording(null);
+            //}
+            //#endif
         }
         else
         {
-            #if UNITY_EDITOR
-            if (Input.GetKey(KeyCode.R) && Input.GetKeyDown(KeyCode.E))
-            {
-                StopRecording();
-            }
-            #endif
+            //#if UNITY_EDITOR
+            //if (Input.GetKey(KeyCode.R) && Input.GetKeyDown(KeyCode.E))
+            //{
+            //    StopRecording();
+            //}
+            //#endif
 
 
 
