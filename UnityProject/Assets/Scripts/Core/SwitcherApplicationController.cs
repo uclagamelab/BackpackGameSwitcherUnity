@@ -22,7 +22,8 @@ public class SwitcherApplicationController : MonoBehaviour
     float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
     bool generatedSimulatedKeypressForFocusSwitchToSwitcherApp = false;
-
+    bool _defaultIsFullScreen = true;
+    Resolution _defaultResolution;
 
     float timeOfLastQuit = float.NegativeInfinity;
     bool didntQuitRecently
@@ -47,13 +48,15 @@ public class SwitcherApplicationController : MonoBehaviour
 
 
     void Awake () {
-
+        _defaultResolution = Screen.currentResolution;
+        _defaultIsFullScreen = Screen.fullScreen;
     }
 
     void Start()
     {
         BackgroundKeyboardInput.Events.onBackgroundKeyCombo += onRequestQuit;
     }
+
 
     //TODO: Move this to process runner
     public void ResetToDefaultResolutionIfDifferent()
