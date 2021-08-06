@@ -203,6 +203,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         shouldLoadNextSong |= Input.GetKeyDown(KeyCode.Y);
 
         shouldLoadNextSong &= !alreadyInProcessOfLoadingNextSong;
+        shouldLoadNextSong &= bgMusicList.Count > 0;
 
         if (shouldLoadNextSong)
         {
