@@ -26,6 +26,9 @@ public static class WinOsUtil
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
 
+    [DllImport("user32.dll")]
+    public static extern System.IntPtr GetActiveWindow();
+
     // focuses the given window
     [DllImport("user32.dll")]
     public static extern bool SetFocus(IntPtr hWnd);
@@ -59,8 +62,6 @@ public static class WinOsUtil
 
     [DllImport("USER32.DLL")]
     public static extern int GetWindowTextLength(IntPtr hWnd);
-
-
 
 
     // Returnsthe process ID associated with the window
