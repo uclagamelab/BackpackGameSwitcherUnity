@@ -21,7 +21,6 @@ public class SwitcherApplicationController : MonoBehaviour
 
     float lastFocusSwitchAttemptTime = float.NegativeInfinity;
 
-    bool generatedSimulatedKeypressForFocusSwitchToSwitcherApp = false;
     bool _defaultIsFullScreen = true;
     Resolution _defaultResolution;
 
@@ -83,6 +82,7 @@ public class SwitcherApplicationController : MonoBehaviour
         bool processWentNullOrExitedThisUpdate = !aGameIsRunning;
         if (processWentNullOrExitedThisUpdate && !gameProcessWentNullOrExitedLastUpdate)
         {
+            #if UNITY_EDITOR
             if (gotAnExitCombo)
             {
                 print("game exited with combo!");
@@ -90,8 +90,8 @@ public class SwitcherApplicationController : MonoBehaviour
             else
             {
                 print("game exited some other way");
-     
             }
+            #endif
 
             events.OnAppQuittedOnItsOwn.Invoke();
             this.delayedFunction(ResetToDefaultResolutionIfDifferent, .25f);
@@ -112,12 +112,7 @@ public class SwitcherApplicationController : MonoBehaviour
         
             if (ProcessRunner.instance.IsGameRunning()) // have the game try to retake focus, if one is running.
             {
-                //print("bringing to front");
-                generatedSimulatedKeypressForFocusSwitchToSwitcherApp = true;
-
-                ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls
-                
-                
+                ProcessRunner.instance.BringRunningToForeground(); //this function should be robust to repeated calls   
             }
             else//if (_lastActionWasQuit) //make the switcher retake focus.. if the user is trying to quit.
             {

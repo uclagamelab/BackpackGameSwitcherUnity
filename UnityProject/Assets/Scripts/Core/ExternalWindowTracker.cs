@@ -5,12 +5,31 @@ using UnityEngine;
 
 public class ExternalWindowTracker : MonoBehaviour
 {
+
     XUTimer _windowCheckTimers = new XUTimer(.3f);
     public static Dictionary<string, IntPtr> _allWindowsCached = new Dictionary<string, IntPtr>();
+    public static string editorWindowTitle = null;
+    [SerializeField] bool _editorFocusStealing = false;
+
+    public static bool EditorFocusStealing
+    {
+        get;
+        private set;
+    }
+
     // Start is called before the first frame update
     void Awake()
     {
+        
         _windowCheckTimers.Start();
+
+        #if UNITY_EDITOR
+        EditorFocusStealing = _editorFocusStealing;
+        System.Text.StringBuilder sb = new System.Text.StringBuilder(512);
+        WinOsUtil.GetWindowText(WinOsUtil.GetActiveWindow(), sb, sb.Capacity);
+        editorWindowTitle = sb.ToString();
+        Debug.Log(editorWindowTitle);
+        #endif
     }
 
     private void Update()

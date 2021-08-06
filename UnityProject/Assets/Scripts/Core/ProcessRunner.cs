@@ -274,10 +274,17 @@ public class ProcessRunner : MonoBehaviour
 		return IntPtr.Zero;
 	}
 
-	public void BringThisToForeground()
+   
+
+    public void BringThisToForeground()
     {
-        //ForceBringToForeground(thisPrimaryWindow);
-        #if !UNITY_EDITOR 
+
+#if UNITY_EDITOR
+        if (ExternalWindowTracker.EditorFocusStealing)
+        {
+            ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(ExternalWindowTracker.editorWindowTitle));
+        }
+        #else
         string switcherWindowName = Application.productName;
         ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(switcherWindowName));
         #endif
