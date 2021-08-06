@@ -82,16 +82,24 @@ public class SwitcherApplicationController : MonoBehaviour
         bool processWentNullOrExitedThisUpdate = !aGameIsRunning;
         if (processWentNullOrExitedThisUpdate && !gameProcessWentNullOrExitedLastUpdate)
         {
-            #if UNITY_EDITOR
             if (gotAnExitCombo)
             {
+                #if UNITY_EDITOR
                 print("game exited with combo!");
+                #endif
             }
             else
             {
+                #if UNITY_EDITOR
                 print("game exited some other way");
+                #endif
+
+                //if the program quit for some reason other than the key-combo, it might have extra
+                //companion processes that still need to be cleaned up
+                //probably ok to call redunantly, even in key combo case
+                ProcessRunner.instance.KillAllNonSafeProcesses();
+                  
             }
-            #endif
 
             events.OnAppQuittedOnItsOwn.Invoke();
             this.delayedFunction(ResetToDefaultResolutionIfDifferent, .25f);
