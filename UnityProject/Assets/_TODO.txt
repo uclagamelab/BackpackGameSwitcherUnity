@@ -3,9 +3,18 @@
 - AntiMicro
 - None
 
+Testing todo:
+quitting with combo
+app quitting on its own
+"attract mode", auto cycling
+
 
 TODO:
 pressing:
+* if app takes too long to start, switcher gives up, but app launches shortly after
+* get rid of references to Time.time, Time.unscaledTime etc...
+* Extract anything reusable from 'SwitcherApplicationController'
+* Sounds for scrolling list?
 * Improve determination of whether a game is running or not, less dependent on process null/hasExited 
  - once launched say running, and only say has exited if window appears then disappears, or quit keycombo, but not before.
  - relevant line to fix is "if (_lastActionWasQuit)" in SwitcherApplicationController
@@ -60,12 +69,10 @@ GAME ISSUES:
 * Mouse issues:
 	Add default mouse position to startup options
 
-* Preserve JSON data not explicitly included in the class
-
 
 FANCINESS:
-* Playlists
 * About section
+* Playlists
 * Sort by creator
 * Image galleries
 * Video player (for non-playable projects, etc...)
