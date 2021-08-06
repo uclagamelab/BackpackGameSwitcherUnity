@@ -23,7 +23,6 @@ public class MouseRecorder : MonoBehaviour {
     void Start () {
         BackgroundKeyboardInput.Events.onBackgroundMouseClick += OnBGMouseClick;
         BackgroundKeyboardInput.Events.onBackgroundKeyCombo += OnQuitComboReceived;
-
     }
 
     public void StartRecording(MouseStartUpOptions toPopulate)
