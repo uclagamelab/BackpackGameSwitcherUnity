@@ -53,13 +53,33 @@ public class GameInfoEditor : MonoBehaviour
     public Button _applyButton;
     
 
-
-
     public GameData currentSelectedGame
     {
         get;
         private set;
     }
+
+    void Start()
+    {
+        //GameCatalog.Instance.games
+        _gamesListItemTemplate.gameObject.SetActive(false);
+
+        foreach (GameData gam in GameCatalog.Instance.games)
+        {
+            GameListItem nuItem = GameObject.Instantiate(_gamesListItemTemplate.gameObject).GetComponent<GameListItem>();
+            nuItem.game = gam;
+            nuItem.gameObject.SetActive(true);
+            nuItem.text = gam.title;
+            nuItem.transform.SetParent(_gameListScrollRect.content, false);
+        }
+    }
+
+    private void OnEnable()
+    {
+        SetSelectedGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
+
+    }
+
     public void SetSelectedGame(GameData nuSelection)
     {
         currentSelectedGame = nuSelection;
@@ -157,26 +177,6 @@ public class GameInfoEditor : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        //GameCatalog.Instance.games
-        _gamesListItemTemplate.gameObject.SetActive(false);
-
-        foreach (GameData gam in GameCatalog.Instance.games)
-        {
-            GameListItem nuItem = GameObject.Instantiate(_gamesListItemTemplate.gameObject).GetComponent<GameListItem>();
-            nuItem.game = gam;
-            nuItem.gameObject.SetActive(true);
-            nuItem.text = gam.title;
-            nuItem.transform.SetParent(_gameListScrollRect.content, false);
-        }
-    }
-
-    private void OnEnable()
-    {
-        SetSelectedGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
-    }
 
     public void OpenSelectedFolderInWindowsExplorer()
     {
@@ -206,10 +206,14 @@ public class GameInfoEditor : MonoBehaviour
         public InputField _exePathField;
         public Button _exeBrowseFileButton;
 
+
         public InputField _descriptionField;
         public InputField _instructionsField;
         public InputField _notesField;
 
+        public Toggle _descriptionFieldToggle;
+        public Toggle _instructionsFieldToggle;
+        public Toggle _notesFieldToggle;
 
         //public InputField _exeNameField;
 
@@ -242,6 +246,10 @@ public class GameInfoEditor : MonoBehaviour
             //_authorField.onEndEdit.AddListener((s) => ApplyChangesToGameDataInMemory());
             //_windowTitleField.onEndEdit.AddListener((s) => ApplyChangesToGameDataInMemory());
             //_descriptionField.onEndEdit.AddListener((s) => ApplyChangesToGameDataInMemory());
+
+            _instructionsFieldToggle.onValueChanged.AddListener(refreshActiveTextField);
+            _descriptionFieldToggle.onValueChanged.AddListener(refreshActiveTextField);
+            _notesFieldToggle.onValueChanged.AddListener(refreshActiveTextField);
         }
         static readonly Crosstales.FB.ExtensionFilter[] exeFilters = new Crosstales.FB.ExtensionFilter[]{
 
@@ -266,6 +274,13 @@ public class GameInfoEditor : MonoBehaviour
 
         }
 
+        void refreshActiveTextField(bool _ = false)
+        {
+            _descriptionField.gameObject.SetActive(_descriptionFieldToggle.isOn);
+            _instructionsField.gameObject.SetActive(_instructionsFieldToggle.isOn);
+            _notesField.gameObject.SetActive(_notesFieldToggle.isOn);
+        }
+
         public void UpdateWithGame(GameData game)
         {
             _currentGame = game;
@@ -287,6 +302,8 @@ public class GameInfoEditor : MonoBehaviour
             _notesField.text = game.notes;
 
             _exePathField.text = game.exePath;
+
+            refreshActiveTextField();
         }
 
 
