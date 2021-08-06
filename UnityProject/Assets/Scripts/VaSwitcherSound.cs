@@ -20,7 +20,6 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     [SerializeField]
     AudioMixerGroup _sfxAudioMixerGroup;
 
-
     MenuVisualsGeneric menu => MenuVisualsGeneric.Instance;
     public AudioClip cycleSound;
     public AudioClip cycleSound2;
@@ -33,18 +32,11 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     public AudioClip listPlink1;
     public AudioClip listPlonk;
 
-
-
     public AudioClip infoMenuCursorMove1;
-
-
 
     AudioSource[] oneShotPool;
 
     [SerializeField] AudioLowPassFilter musicFilter;
-
-
-
 
 
     void Start () {
@@ -69,7 +61,7 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     void Update()
     {
         float targMusicVolume = 0;
-        if (menu.state != MenuVisualsGeneric.MenuState.LaunchGame && ProcessRunner.SwitcherAppHasFocus)
+        if (menu.state != MenuVisualsGeneric.MenuState.LaunchGame)
         {
             targMusicVolume = 1;
         }

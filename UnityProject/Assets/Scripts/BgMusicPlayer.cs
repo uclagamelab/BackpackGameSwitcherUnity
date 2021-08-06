@@ -15,19 +15,13 @@ public class BgMusicPlayer : MonoBehaviour
 
     Coroutine loadingNextSongRoutine = null;
 
-
-
     public float targMusicVolume;
 
     public static BgMusicPlayer instance { get; private set; }
+    bool newSongRequested;
 
-    bool multipleBGM
-    {
-        get
-        {
-            return bgMusicList.Count > 1;
-        }
-    }
+    bool multipleBGM => bgMusicList.Count > 1;
+
 
     void Awake()
     {
@@ -57,7 +51,8 @@ public class BgMusicPlayer : MonoBehaviour
 
         bool shouldLoadNextSong = multipleBGM && closeToEndOfSong && targMusicVolume == 1;// && bgmMaxVolume != 0;
 
-        shouldLoadNextSong |= Input.GetKeyDown(KeyCode.Y);
+        shouldLoadNextSong |= newSongRequested;
+        newSongRequested = false;
 
         shouldLoadNextSong &= !alreadyInProcessOfLoadingNextSong;
         shouldLoadNextSong &= bgMusicList.Count > 0;
@@ -92,9 +87,13 @@ public class BgMusicPlayer : MonoBehaviour
             }
         }
 
-       
+        float finalTargVolume = targMusicVolume;
+        if (!ProcessRunner.SwitcherAppHasFocus)
+        {
+            finalTargVolume = 0;
+        }
 
-        this.bgMusicSource.volume = Mathf.MoveTowards(this.bgMusicSource.volume, targMusicVolume, .35f * Time.deltaTime);
+        this.bgMusicSource.volume = Mathf.MoveTowards(this.bgMusicSource.volume, finalTargVolume, .35f * Time.deltaTime);
     }
 
     IEnumerator GetAudioClipFromDisk(FileInfo fileToUse)
@@ -104,6 +103,11 @@ public class BgMusicPlayer : MonoBehaviour
         AudioClip newClip = audRequest.GetAudioClip();// false, false);
         OnNewMusicClipLoaded(newClip);
         loadingNextSongRoutine = null;
+    }
+
+    public void requestNewSong()
+    {
+        newSongRequested = true;
     }
 
     void LoadNewSong(int bgmIdx)
