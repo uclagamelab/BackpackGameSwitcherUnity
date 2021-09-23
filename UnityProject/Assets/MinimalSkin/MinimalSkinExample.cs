@@ -12,6 +12,7 @@ public class MinimalSkinExample : MonoBehaviour
     GamePreviewDisplayTexture _previewer;
     public TMPro.TextMeshProUGUI _descriptionText;
     public TMPro.TextMeshProUGUI _titleText;
+    public TMPro.TextMeshProUGUI _authorYearText;
 
     int _currentSelectedGameIdx = 0;
     [SerializeField] string _streamingAssetsPlaceholderVideoName = "placeholder_video.mp4";
@@ -48,6 +49,11 @@ public class MinimalSkinExample : MonoBehaviour
     void refreshVisuals()
     {
         _titleText.text = currentGameData.title;
+        _authorYearText.text = currentGameData.designers;
+        if (!string.IsNullOrEmpty(currentGameData.year))
+        {
+            _authorYearText.text += " (" + currentGameData.year + ")";
+        }
         _descriptionText.text = currentGameData.description;
         _previewer.setVideo(currentGameData, _streamingAssetsPlaceholderVideoName);
     }
