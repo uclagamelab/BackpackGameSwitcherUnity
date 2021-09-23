@@ -146,19 +146,23 @@ public class MenuVisualsGeneric : MonoBehaviour
     }
 
 
-    float timeOfNextAttractAutoCyle = 0;
-    const float attractAutoCycleDuration = 60;
+    const float ATTRACT_AUTO_CYCLE_DURATION = 60;
+    float nextAttractAutoCyleTimer = ATTRACT_AUTO_CYCLE_DURATION;
     void autoCycleGamesIfNoInput()
     {
             if (SwitcherApplicationController.isIdle)
             {
                 //Debug.Log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
                 setAttractMode(true);
-                if (Time.time > timeOfNextAttractAutoCyle)
+                if (nextAttractAutoCyleTimer > 0)
+                {
+                    nextAttractAutoCyleTimer -= Time.deltaTime;
+                }
+                else
                 {
                     //gameMenu.onCycleButtonPressed(1, false);
                     OnAttractCycleNextGame.Invoke();
-                    timeOfNextAttractAutoCyle = Time.time + attractAutoCycleDuration;
+                    nextAttractAutoCyleTimer = ATTRACT_AUTO_CYCLE_DURATION;
                 }
 
             }
