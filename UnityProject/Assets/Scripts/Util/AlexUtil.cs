@@ -26,13 +26,14 @@ public static class Alextensions
 
     public static IEnumerator genericT(TFunction tfunc, float dur)
     {
-        float startTime = Time.time;
+        float timer = 0;
 
-        while (Time.time < startTime + dur)
+        while (timer < dur)
         {
-            float t = Mathf.Clamp01((Time.time - startTime) / dur);
+            float t = Mathf.Clamp01(timer / dur);
             tfunc(t);
             yield return new WaitForEndOfFrame();
+            timer += Time.deltaTime;
         }
         //force call with 1
         tfunc(1);
