@@ -11,7 +11,7 @@ public class CameraBlurrer : MonoBehaviour
     DepthOfField _dof;
     private void Start()
     {
-        _ppp = new PostProcessProfile();
+        _ppp = ScriptableObject.CreateInstance<PostProcessProfile>();
         _ppp.AddSettings<DepthOfField>();
         _dof = _ppp.GetSetting<DepthOfField>();
 
