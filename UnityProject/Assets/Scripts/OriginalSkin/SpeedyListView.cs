@@ -140,13 +140,7 @@ public class SpeedyListView : MonoBehaviour
             return null;
         }
     }
-    
-    void UpdateVideoToCurrentGame()
-    {
-       
-        int setIdx =  Mathf.FloorToInt(fuzzIdxSelectionOffsetted);
-        MenuVisualsGeneric.Instance.cycleToNextGame(setIdx - MenuVisualsGeneric.Instance.gameIdx, false, false);
-    }
+   
 
     float _keyHeldTimer = 0;
 

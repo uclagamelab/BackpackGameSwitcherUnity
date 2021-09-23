@@ -1,4 +1,10 @@
-﻿using System.Collections;
+﻿/*
+ 
+TODO: a lot of these are relative skin specific (the list, the prelaunch buttons)
+ 
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -60,27 +66,27 @@ public class CrockoInput : MonoBehaviour
         return (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.K);
     }
 
-    public class NoListVersion
+    public class PrelaunchMenuInput
     {
-        public static bool GetNextGameDown()
+        public static bool OnSelectRight()
         {
 
             bool ret = false;
-            ret |= GetMouseSwipe(1);
+            ret |= GetXMouseSwipe(1);
             ret |= Input.GetKeyDown(KeyCode.W);
             return !ToolsAndSettingsMenu.isOpen && ret;
         }
 
-        public static bool GetPreviousGameDown()
+        public static bool OnSelectLeft()
         {
             bool ret = false;
-            ret |= GetMouseSwipe(-1);
+            ret |= GetXMouseSwipe(-1);
             ret |= Input.GetKeyDown(KeyCode.S);
             return !ToolsAndSettingsMenu.isOpen && ret;
         }
     }
 
-    static bool GetMouseSwipe(int sign)
+    static bool GetXMouseSwipe(int sign)
     {
         bool ret = false;
         if (USE_TRACKBALL_INPUT)

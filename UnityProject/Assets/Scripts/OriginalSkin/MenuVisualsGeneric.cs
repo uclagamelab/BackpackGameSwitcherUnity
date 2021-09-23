@@ -6,7 +6,6 @@
  }
  */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,21 +14,12 @@ using UnityEngine.UI;
 
 public class MenuVisualsGeneric : MonoBehaviour
 {
-
-    [SerializeField]
-    CanvasGroup _slideshowTitleTabCanvasGroup;
-
     static XUSingleTown<MenuVisualsGeneric> _InstanceHelper = new XUSingleTown<MenuVisualsGeneric>();
     public static MenuVisualsGeneric Instance => _InstanceHelper.instance;
-
-
-    public Text _titleText;
-        public Text _creditText;
-
-    public delegate void OnCloseInfoCB(bool open);
-    public OnCloseInfoCB OnOpenCloseInfo = (open) => { };
-
-    public OnCloseInfoCB InfoMenuCursorMove = (dirIsRight) => { };
+    
+    public System.Action<bool> OnOpenCloseInfo = (open) => { };
+    public System.Action<bool> InfoMenuCursorMove = (dirIsRight) => { };
+    public System.Action OnStartGame = () => { };
 
     public enum MenuState { ChooseGame, GameInfo, LaunchGame };
     public MenuState state
@@ -38,7 +28,9 @@ public class MenuVisualsGeneric : MonoBehaviour
         private set;
     }
     #region FIELDS
-    List<Listener> listners;
+
+
+
     public int gameIdx
     {
         get;
@@ -47,9 +39,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     PreLaunchGameInfo gameInfoV2 => PreLaunchGameInfo.Instance;
 
-    bool animating = false;
 
-    public Text errorText;
     float attemptedLaunchTime = float.NegativeInfinity;
     #endregion
 
@@ -72,7 +62,6 @@ public class MenuVisualsGeneric : MonoBehaviour
     private void Awake()
     {
         state = MenuState.ChooseGame;
-        this.listners = new List<Listener>();
     }
 
     // Use this for initialization
@@ -99,7 +88,7 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             //--- LEGACY INPUT STYLE, JUST SLIDING THE BACKGROUND -----------------------
             int selectionDirection = 0;
-            selectionDirection = CrockoInput.NoListVersion.GetNextGameDown() ? 1 : CrockoInput.NoListVersion.GetPreviousGameDown() ? -1 : 0;
+            selectionDirection = CrockoInput.PrelaunchMenuInput.OnSelectRight() ? 1 : CrockoInput.PrelaunchMenuInput.OnSelectLeft() ? -1 : 0;
             if (selectionDirection != 0)
             {
                 onCycleButtonPressed(selectionDirection);
@@ -117,26 +106,18 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void selectRandomGame()
     {
-        gameIdx = 0;// Random.Range(0, GameCatalog.Instance.games.Count);
-        this.updateInfoDisplay(this.currentlySelectedGame, 0);
+        gameIdx = Random.Range(0, GameCatalog.Instance.games.Count);
     }
 
 
     public void onCycleButtonPressed(int selectionDirection, bool fromUser = true)
     {
-        if (state != MenuState.LaunchGame)
+        if (state != MenuState.LaunchGame && gameInfoV2.open)
         {
-            if (gameInfoV2.open)
+            bool infoInputAccepted = gameInfoV2.TakeDirectionInput(selectionDirection);
+            if (infoInputAccepted && fromUser)
             {
-                bool infoInputAccepted = gameInfoV2.TakeDirectionInput(selectionDirection);
-                if (infoInputAccepted && fromUser)
-                {
-                    InfoMenuCursorMove.Invoke(selectionDirection > 0);
-                }
-            }
-            else
-            {
-                //cycleToNextGame(-selectionDirection, false, fromUser);
+                InfoMenuCursorMove.Invoke(selectionDirection > 0);
             }
         }
     }
@@ -149,90 +130,6 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             this.state = MenuState.ChooseGame;
         }
-    }
-
-
-    public void cycleToNextGame(int selectionDirection, bool forceDuringAttractNoAnimation =false, bool fromUser = true)
-    {
-
-
-        if (BackgroundDisplay.Instance.animating
-            ||
-            animating
-            ||
-            PreLaunchGameInfo.Instance.animating
-            || 
-            GameCatalog.Instance.gameCount == 0)
-        {
-            return;
-        }
-
-
-            foreach (Listener l in this.listners)
-            {
-                l.onCycleGame(selectionDirection, fromUser);
-            }
-
-            if (!forceDuringAttractNoAnimation)
-            {
-            animating = true;
-
-            this.varyWithT((float t) =>
-            {
-                _slideshowTitleTabCanvasGroup.alpha = 1 - t;
-                if (t == 1)
-                {
-                    this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
-                    this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx], selectionDirection);
-                    this.varyWithT((float t2) =>
-                    {
-                        _slideshowTitleTabCanvasGroup.alpha = t2;
-                        if (t2 == 1)
-                        {
-                            animating = false;
-                        }
-                    }, .45f);
-                }
-            }, .25f);
-        }
-            else
-        {
-            this.gameIdx = (gameIdx + selectionDirection + GameCatalog.Instance.gameCount) % GameCatalog.Instance.gameCount;
-            this.updateInfoDisplay(GameCatalog.Instance.games[this.gameIdx], selectionDirection);
-        }
-
-           
-
-        
-      
-    }
-
-    void updateInfoDisplay(GameData currentGameData, int updateDirection)
-    {
-        if (currentGameData == null)
-        {
-            return;
-        }
-
-        BackgroundDisplay.Instance.visible = true;
-
-        //TODO : should move into GameInfoUi
-        _titleText.text = currentGameData.title.Replace('\n', ' '); ;
-        //gameInfoUI.descriptionText.text = currentGameData.description;
-
-        _creditText.text = "by " + currentGameData.designers + "";
-
-        //gameInfoUI.previewImage.texture = currentGameData.previewImg;
-        //if (currentGameData.videoUrl != null)
-        //{
-        //    BackgroundDisplay.Instance.setVideo(currentGameData.videoUrl, updateDirection);
-        //}
-        //else
-        //{
-        //    Debug.Log("only an image");
-        //    BackgroundDisplay.Instance.setImage(currentGameData.previewImg, updateDirection);
-        //}
-
     }
 
     GameData _lastAppliedGameData = null;
@@ -307,10 +204,8 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         attemptedLaunchTime = Time.time;
 
-        foreach (Listener l in this.listners)
-        {
-            l.onStartGame();
-        }
+        OnStartGame.Invoke();
+        
 
         this.delayedFunction(() => 
         {
@@ -322,56 +217,15 @@ public class MenuVisualsGeneric : MonoBehaviour
         return true;
     }
 
-    void showErrorText(string error)
-    {
-        this.varyWithT((float t) => {
-
-            errorText.text = error;
-
-            errorText.enabled = true;// (t * 8) % 1 > .3f;
-            if (t == 1)
-            {
-                errorText.enabled = false;
-            }
-        }, 3);
-    }
-
     public void onQuitGame()
     {
         //If coming out of a game, auto switch 1 game 
         //so you don't see video of the game you were just playing
         //and so you see the video scroll, if you're just walking up
-        
-        if (state == MenuState.LaunchGame)
-        {
-            //this.cycleToNextGame(1);
-
-            foreach (Listener l in this.listners)
-            {
-                l.onQuitGame();
-            }
-        }
 
         this.state = MenuState.ChooseGame;
-
-       
-       
-
-   
     }
 
 
-    public interface Listener
-    {
-        void onLeaveAttract();
-        void onEnterAttract();
-        void onCycleGame(int direction, bool userInitiated);
-        void onStartGame();
-        void onQuitGame();
-    }
-    public void addListener(Listener l)
-    {
-        this.listners.Add(l);
-    }
 
 }

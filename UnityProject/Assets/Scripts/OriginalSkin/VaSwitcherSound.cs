@@ -4,7 +4,7 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.Audio;
 
-public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
+public class VaSwitcherSound : MonoBehaviour {
 
     [SerializeField]
     SpeedyListView _speedyList;
@@ -48,7 +48,8 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
             oneShotPool[i].playOnAwake = false;
             oneShotPool[i].outputAudioMixerGroup = _sfxAudioMixerGroup;
         }
-        menu.addListener(this);
+        menu.OnStartGame += onStartGame;
+        ProcessRunner.Events.OnProcessExited += onQuitGame;
 
         menu.OnOpenCloseInfo+= onOpenCloseInfo;
 
@@ -58,6 +59,10 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         _speedyList.OnStoppedAtItem += OnListStop;
     }
 
+    private void OnDestroy()
+    {
+        ProcessRunner.Events.OnProcessExited -= onQuitGame;
+    }
     void Update()
     {
         float targMusicVolume = 0;
@@ -113,37 +118,6 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-    void MenuVisualsGeneric.Listener.onCycleGame(int direction, bool userInitiated)
-    {
-        if (!userInitiated)
-        {
-            return;
-        }
-
-        float pitch = .85f;// direction > 0 ? 0.85f : -0.85f;
-        AudioClip clip = direction > 0 ? cycleSound : cycleSound2;
-        this.delayedFunction(() =>
-       {
-
-           PlayOneShot(clip, .9f, pitch);
-       }, .05f);
-
-        this.delayedFunction(() =>
-        {
-            PlayOneShot(cycleFinishSound, .08f, 1.75f);
-        }, .4f);
-    }
-
     void PlayOneShot(AudioClip ac, float volume, float pitch)
     {
         
@@ -162,22 +136,13 @@ public class VaSwitcherSound : MonoBehaviour, MenuVisualsGeneric.Listener {
         }
     }
 
-    void MenuVisualsGeneric.Listener.onEnterAttract()
-    {
 
-    }
-
-    void MenuVisualsGeneric.Listener.onLeaveAttract()
-    {
-
-    }
-
-    void MenuVisualsGeneric.Listener.onQuitGame()
+    void onQuitGame()
     {
         PlayOneShot(quitGame, .25f, 1);
     }
 
-    void MenuVisualsGeneric.Listener.onStartGame()
+    void onStartGame()
     {
         PlayOneShot(startGame, .5f, 1);
     }
