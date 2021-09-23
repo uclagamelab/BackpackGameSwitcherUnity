@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using Debug = UnityEngine.Debug;
 
-public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
+public class ExternalOverlay : MonoBehaviour
 {
 
     static ExternalOverlay _instance;
@@ -36,12 +36,14 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
             _rainmeterProcess = Process.Start(CompanionSoftware.Rainmeter);
         }
 
-        if (MenuVisualsGeneric.Instance == null)
-        {
-            Debug.LogError("Disentangle External overlay from MenuVisualsGeneric");
-        }
+        ProcessRunner.Events.OnProcessLaunched += onStartGame;
+        ProcessRunner.Events.OnProcessExited += onQuitGame;
+    }
 
-        MenuVisualsGeneric.Instance?.addListener(this);
+    private void OnDestroy()
+    {
+        ProcessRunner.Events.OnProcessLaunched -= onStartGame;
+        ProcessRunner.Events.OnProcessExited -= onQuitGame;
     }
 
 
@@ -132,30 +134,14 @@ public class ExternalOverlay : MonoBehaviour, MenuVisualsGeneric.Listener
         
     }
 
-
-    void MenuVisualsGeneric.Listener.onLeaveAttract()
-    {
-
-    }
-
-    void MenuVisualsGeneric.Listener.onEnterAttract()
-    {
-
-    }
-
-    void MenuVisualsGeneric.Listener.onCycleGame(int direction, bool userInitiated)
-    {
-
-    }
-
-    void MenuVisualsGeneric.Listener.onStartGame()
+    void onStartGame()
     {
         //TODO: handle overlay differently, depending on game
         float defaultOverlayShowDuration = 5;
         ShowOverlay(defaultOverlayShowDuration);
     }
 
-    void MenuVisualsGeneric.Listener.onQuitGame()
+    void onQuitGame()
     {
         if (_overlayShowing)
         {

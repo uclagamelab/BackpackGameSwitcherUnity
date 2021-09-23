@@ -32,7 +32,16 @@ public class ProcessRunner : MonoBehaviour
 
     public static bool SwitcherAppHasFocus = true;
 
+    public class EventCallbacks 
+    {
+        public System.Action OnProcessLaunched = () => { };
+        public System.Action OnProcessExited = () => { };
+    }
+    public static EventCallbacks Events = new EventCallbacks();
+
     //Add startup forgiveness timer, for games that change window
+
+    bool _gameRunningLastFrame = false;
     public bool IsGameRunning()
     {
         bool processJustStarted = _runningGame != null && (Time.time - currentProcessStartTime) < 5;
@@ -138,7 +147,12 @@ public class ProcessRunner : MonoBehaviour
 
     private void Update()
     {
-
+        var gameRunningNow = IsGameRunning();
+        if (_gameRunningLastFrame && !gameRunningNow)
+        {
+            Events.OnProcessExited.Invoke();
+        }
+        _gameRunningLastFrame = gameRunningNow;
 
         if (_runningGame != null)
         {
@@ -249,6 +263,8 @@ public class ProcessRunner : MonoBehaviour
         }
 
         currentProcessStartTime = Time.time;
+
+        Events.OnProcessLaunched.Invoke();
     }
 
 
