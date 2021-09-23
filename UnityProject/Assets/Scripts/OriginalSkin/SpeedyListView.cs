@@ -77,8 +77,7 @@ public class SpeedyListView : MonoBehaviour
     float fuzzIdxSelectionOffsetted => (_fuzzyIdx + _onScreenSelectionOffset) % _listGameDatas.Count;
 
     float _height;
-    // Start is called before the first frame update
-    float _timeOfLastSwitch = 0;
+
 
     int _scrollMomentumDirection = 0;
 
@@ -210,15 +209,6 @@ public class SpeedyListView : MonoBehaviour
         if (!keyHeld)
         {          
             _fuzzyIdx = Mathf.MoveTowards(_fuzzyIdx, stopIndex, Time.deltaTime * speed);
-
-            if (fuzzIdxSelectionOffsetted == (int)fuzzIdxSelectionOffsetted && fuzzIdxSelectionOffsetted != MenuVisualsGeneric.Instance.gameIdx)
-            {
-                if (Time.time > _timeOfLastSwitch + 1)
-                {
-                    _timeOfLastSwitch = Time.time;
-                    //UpdateVideoToCurrentGame();
-                }
-            }
         }
 
         bool shoulShowAlphaHelper = keyHeld && _keyHeldTimer > .75f && !smallNumberOfGames;
