@@ -50,12 +50,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     
 
 
-    float _timeOfLastExitComboHit = float.NegativeInfinity;
-    public float timeOfLastExitComboHit
-    {
-        get { return _timeOfLastExitComboHit; }
-        protected set { _timeOfLastExitComboHit = value; }
-    }
+
 
 
     static BackgroundKeyboardInput _instance;
@@ -64,12 +59,12 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         get { return _instance; }
     }
 
-    float _timeOfLastInput = -420;// float.PositiveInfinity;
-    public float timeOfLastInput
+    float _secondsSinceLastInput = float.MaxValue;
+    public float secondsSinceLastInput
     {
         get
         {
-            return _timeOfLastInput;
+            return _secondsSinceLastInput;
         }
     }
 
@@ -89,7 +84,6 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     void Awake ()
     {
         _instance = this;
-        _timeOfLastExitComboHit = Time.time;
 
     }
     public int lastKeyHit = 0;
@@ -101,9 +95,12 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     float _forceAttractCountDown = 0;
     void Update ()
     {
+        _secondsSinceLastInput += Time.deltaTime;
+
+        //Force attrack with Shift-A
         if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.A))
         {
-            _timeOfLastInput = -1000;
+            _secondsSinceLastInput = 60 * 60; //1 hour
             _forceAttractCountDown = 0.5f;
         }
 
@@ -139,7 +136,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
             if ((GetAsyncKeyState(i) != 0 || gotMouseInput) && !forcingAttract)
             {
                 //print("gotSOmethning : " + i.ToString("0x00"));
-                _timeOfLastInput = Time.time;
+                _secondsSinceLastInput = 0;
                 lastKeyHit = i;
             }
 
@@ -167,7 +164,6 @@ public class BackgroundKeyboardInput : MonoBehaviour {
             {
                 
                 _keyComboPressed = true;
-                timeOfLastExitComboHit = Time.time;
                 Events.onBackgroundKeyCombo.Invoke();
             }
         }

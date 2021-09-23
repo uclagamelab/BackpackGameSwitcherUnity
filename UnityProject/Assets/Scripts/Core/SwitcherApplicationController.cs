@@ -168,7 +168,7 @@ public class SwitcherApplicationController : MonoBehaviour
         // quit out of a game, if runnning too long with no input.
 
 
-        if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout)
+        if (BackgroundKeyboardInput.Instance.secondsSinceLastInput > idleTimeout)
         {
             onRequestQuit();
             events.OnEnterIdle.Invoke();
@@ -182,7 +182,7 @@ public class SwitcherApplicationController : MonoBehaviour
     {
         get
         {
-            bool ret = Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout;
+            bool ret = BackgroundKeyboardInput.Instance.secondsSinceLastInput > idleTimeout;
             return ret;
         }
     }
