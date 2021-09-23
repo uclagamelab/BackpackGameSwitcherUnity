@@ -13,13 +13,14 @@ using UnityEngine.Events;
 
 public class SwitcherApplicationController : MonoBehaviour
 {
+    const float FOCUS_RETAKE_DELAY = 3;
     bool gotAnExitCombo = false; //consumable event
 
     //float attractTimeOut = 120;
 
     bool gameProcessWentNullOrExitedLastUpdate = true;
 
-    float lastFocusSwitchAttemptTime = float.NegativeInfinity;
+    float lastFocusSwitchAttemptTimer = float.NegativeInfinity;
 
     bool _defaultIsFullScreen = true;
     Resolution _defaultResolution;
@@ -101,9 +102,13 @@ public class SwitcherApplicationController : MonoBehaviour
         gameProcessWentNullOrExitedLastUpdate = processWentNullOrExitedThisUpdate;
 
         //Make Switcher Retake focus, if necessary
-        if (Time.time > lastFocusSwitchAttemptTime + 3)
+        if (lastFocusSwitchAttemptTimer > 0)
         {
-            lastFocusSwitchAttemptTime = Time.time;
+            lastFocusSwitchAttemptTimer -= Time.deltaTime;
+        }
+        else
+        {
+            lastFocusSwitchAttemptTimer = FOCUS_RETAKE_DELAY;
 
             //BAD QUIRK: only take back control once the quit button is pressed
             //Mostly ok, is hacky fix to issue that checking whether a process exists/hasn't exited
@@ -138,15 +143,6 @@ public class SwitcherApplicationController : MonoBehaviour
 
     void selectingGameUpdate()
     {
-        bool changedAttractTimeTooRecently = false;// Time.time < AttractMode.Instance.changeTime + .5f;
-
-        if (changedAttractTimeTooRecently)
-        {
-            return;
-        }
-
-  
-
 
         if (CrockoInput.GetOpenGameButtonDown())
         {

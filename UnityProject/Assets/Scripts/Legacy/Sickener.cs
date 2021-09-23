@@ -6,9 +6,15 @@ using UnityStandardAssets.ImageEffects;
 public class Sickener : MonoBehaviour {
 
     Twirl[] twirls;
+    float robustTime = 0;
+    private void OnEnable()
+    {
+        robustTime = 0;
+    }
 
-	// Use this for initialization
-	void Start () {
+
+    // Use this for initialization
+    void Start () {
         twirls = this.GetComponents<Twirl>();//new Twirl[5];
         for (int i = 0; i < twirls.Length; i++)
         {
@@ -20,7 +26,7 @@ public class Sickener : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         //Twirl twirl1 = this.GetComponent<Twirl>();
-        float t = Time.time  * .3f;
+        float t = robustTime * .3f;
         for (int i = 0; i < twirls.Length; i++)
         {
             Twirl twirl = twirls[i];
@@ -31,8 +37,9 @@ public class Sickener : MonoBehaviour {
             twirl.angle = Mathf.Lerp(-35, 35, this.ezPerlin(t, i + 100));
             twirl.radius =  Vector2.one * Mathf.Lerp(.2f, 0.8f, this.ezPerlin(t, i + 50));
         }
-     
-	}
+        robustTime += Time.deltaTime;
+        robustTime = robustTime % (24 * 60 * 60);
+    }
 
 
 }

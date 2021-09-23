@@ -10,8 +10,14 @@ public class StuffTunnel : MonoBehaviour {
 
     List<GameObject> allDebris;
 
-	// Use this for initialization
-	void Awake () {
+    float robustTime = 0;
+
+    private void OnEnable()
+    {
+        robustTime = 0;
+    }
+
+    void Awake () {
         baseSprites = Resources.LoadAll<Sprite>("PixelIcons");
 
         allDebris = new List<GameObject>();
@@ -31,13 +37,13 @@ public class StuffTunnel : MonoBehaviour {
         }
     }
 	
-	// Update is called once per frame
+
 	void Update () {
 
         this.transform.eulerAngles = new Vector3(
-            Mathf.Lerp(-20, 20, Mathf.PerlinNoise(.2003f * Time.time, .2f * 1.01747f * Time.time)), 
-            Mathf.Lerp(-20, 20, Mathf.PerlinNoise(.2f * 1.018f * Time.time, .2001f * Time.time)),  
-            Mathf.Lerp(-280, 280, Mathf.PerlinNoise(.05f * Time.time, .05f * 1.01037f * Time.time)));
+            Mathf.Lerp(-20, 20, Mathf.PerlinNoise(.2003f * robustTime, .2f * 1.01747f * robustTime)), 
+            Mathf.Lerp(-20, 20, Mathf.PerlinNoise(.2f * 1.018f * robustTime, .2001f * robustTime)),  
+            Mathf.Lerp(-280, 280, Mathf.PerlinNoise(.05f * robustTime, .05f * 1.01037f * robustTime)));
 
 		foreach(GameObject boj in this.allDebris)
         {
@@ -55,9 +61,9 @@ public class StuffTunnel : MonoBehaviour {
             if (boj.transform.position.z < this.transform.position.z)
             {
 
-                if (Time.time > lastBlipBack + .1f)
+                if (robustTime > lastBlipBack + .1f)
                 {
-                    lastBlipBack = Time.time;
+                    lastBlipBack = robustTime;
                     boj.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
 
 
@@ -85,7 +91,10 @@ public class StuffTunnel : MonoBehaviour {
                 }
             }
         }
-	}
+
+        robustTime += Time.deltaTime;
+        robustTime = robustTime % (24 * 60 * 60);
+    }
 }
 
 public class Drifter : MonoBehaviour

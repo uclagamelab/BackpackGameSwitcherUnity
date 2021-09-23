@@ -40,14 +40,11 @@ public class MenuVisualsGeneric : MonoBehaviour
     PreLaunchGameInfo gameInfoV2 => PreLaunchGameInfo.Instance;
 
 
-    float attemptedLaunchTime = float.NegativeInfinity;
+    const float IN_PROCESS_OF_LAUNCHING_MAX_TIME = 3;
+    float attemptedLaunchTimer = 0;
     #endregion
 
     #region PROPERTIES
-    bool inProcessOfLaunching
-    {
-        get { return Time.time < attemptedLaunchTime + 3; }
-    }
 
     public GameData currentlySelectedGame
     {
@@ -101,6 +98,11 @@ public class MenuVisualsGeneric : MonoBehaviour
             }
 
             autoCycleGamesIfNoInput();
+        }
+
+        if (attemptedLaunchTimer >= 0)
+        {
+            attemptedLaunchTimer -= Time.deltaTime;
         }
     }
 
@@ -197,12 +199,12 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         bool gameHasExe = currentlySelectedGame.executable != "";
 
-        if (inProcessOfLaunching || !gameHasExe)// || AttractMode.Instance.running)
+        if (attemptedLaunchTimer > 0 || !gameHasExe)// || AttractMode.Instance.running)
         {
             return false;
         }
 
-        attemptedLaunchTime = Time.time;
+        attemptedLaunchTimer = IN_PROCESS_OF_LAUNCHING_MAX_TIME;
 
         OnStartGame.Invoke();
         
