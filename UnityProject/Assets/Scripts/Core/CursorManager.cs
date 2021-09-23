@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class CursorManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
+    public bool whileChoosingGame = true;
     bool lastAppliedViz = true;
-    // Update is called once per frame
+
     void Update()
     {
-        bool shouldBeVisible = SwitcherSettings.AdminMode || ToolsAndSettingsMenu.isOpen;
+        bool shouldBeVisible = whileChoosingGame || SwitcherSettings.AdminMode || ToolsAndSettingsMenu.isOpen;
         #if UNITY_EDITOR
         shouldBeVisible = true;
         #endif
