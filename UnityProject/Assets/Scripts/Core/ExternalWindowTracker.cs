@@ -10,6 +10,7 @@ public class ExternalWindowTracker : MonoBehaviour
     public static Dictionary<string, IntPtr> _allWindowsCached = new Dictionary<string, IntPtr>();
     public static string editorWindowTitle = null;
     [SerializeField] bool _editorFocusStealing = false;
+    System.Text.StringBuilder _sb = new System.Text.StringBuilder(512);
 
     public static bool EditorFocusStealing
     {
@@ -24,9 +25,9 @@ public class ExternalWindowTracker : MonoBehaviour
 
         #if UNITY_EDITOR
         EditorFocusStealing = _editorFocusStealing;
-        System.Text.StringBuilder sb = new System.Text.StringBuilder(512);
-        WinOsUtil.GetWindowText(WinOsUtil.GetActiveWindow(), sb, sb.Capacity);
-        editorWindowTitle = sb.ToString();
+        _sb.Clear();
+        WinOsUtil.GetWindowText(WinOsUtil.GetActiveWindow(), _sb, _sb.Capacity);
+        editorWindowTitle = _sb.ToString();
         #endif
     }
 
@@ -101,14 +102,14 @@ public class ExternalWindowTracker : MonoBehaviour
         int length = WinOsUtil.GetWindowTextLength(hWnd);
         if (hWnd == IntPtr.Zero || length == 0) return true;
 
-        System.Text.StringBuilder sb = new System.Text.StringBuilder(512);
-        WinOsUtil.GetWindowText(hWnd, sb, sb.Capacity);
+        
+        _sb.Clear();
+        WinOsUtil.GetWindowText(hWnd, _sb, _sb.Capacity);
 
         uint processId = 0;// IntPtr.Zero;
         WinOsUtil.GetWindowThreadProcessId(hWnd, out processId);
 
-        string windowTitle = sb.ToString();
-
+        string windowTitle = _sb.ToString();
 
         if (!_allWindowsCached.ContainsKey(windowTitle))
         {
