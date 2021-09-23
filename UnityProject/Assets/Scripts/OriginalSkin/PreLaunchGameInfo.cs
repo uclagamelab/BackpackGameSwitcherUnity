@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityStandardAssets.ImageEffects;
 
 public class PreLaunchGameInfo : MonoBehaviour {
     static XUSingleTown<PreLaunchGameInfo> _InstanceHelper = new XUSingleTown<PreLaunchGameInfo>();

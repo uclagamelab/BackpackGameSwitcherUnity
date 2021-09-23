@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
-using UnityStandardAssets.ImageEffects;
 
 public class BackgroundDisplay : MonoBehaviour {
 
@@ -108,27 +107,13 @@ public class BackgroundDisplay : MonoBehaviour {
             bgBlurrer.enabled = false;
         }
 
-        /*
-        
-                    _rawImg.material.SetFloat("_BlurAmt", Mathf.InverseLerp(1, 0.9f, t));
-            _rawImg.material.SetFloat("_MipsBias", 6*Mathf.InverseLerp(1, 0, t));
-            _rawImg.material.SetFloat("_BlurDist", 12 * (1-t));
-         
-         */
-        blurAmt = Mathf.MoveTowards(blurAmt, targetBlurAmt, 6 * Time.deltaTime);
-        bgBlurrer.blurAmount = Mathf.InverseLerp(0, .1f, blurAmt);
-        bgBlurrer.blurSize = blurAmt * 4;
-
+        blurAmt = Mathf.MoveTowards(blurAmt, targetBlurAmt, 3 * Time.deltaTime);
+        bgBlurrer.blurAmount = blurAmt;
     }
 
 	// Update is called once per frame
 	void Update ()
     {
-
-        /*System.Array.Sort<Fadeable>(allThings, (Fadeable a, Fadeable b) => {
-            return a == thingToShow ? 0 : 1;
-        });*/
-
         blurUpdate();
 
 
