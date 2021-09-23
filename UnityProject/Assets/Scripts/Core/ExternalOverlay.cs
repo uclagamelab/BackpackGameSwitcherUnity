@@ -137,7 +137,7 @@ public class ExternalOverlay : MonoBehaviour
     void onStartGame()
     {
         //TODO: handle overlay differently, depending on game
-        float defaultOverlayShowDuration = 5;
+        float defaultOverlayShowDuration = 3.5f;
         ShowOverlay(defaultOverlayShowDuration);
     }
 
