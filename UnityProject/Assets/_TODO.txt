@@ -1,17 +1,25 @@
-﻿alternative way of managing controller remapping (akin to startup settings?)
+﻿EXTRA PRESSING:
+Make switcher get background input of gamepad, so it doesn't depend on joytokey? (background gamepad maybe not possible??)
+Periodically re-apply menu profile in joytokey, in case something went wrong in switching back.
+
+alternative way of managing controller remapping (akin to startup settings?)
 - JoyToKey 
 - AntiMicro
 - None
 
 Testing todo:
-quitting with combo
-app quitting on its own
 "attract mode", auto cycling
+
+-figure out lighttpd/local server?
+-re-update elsie's game
+-get DMA web credentials/download dma hosted webgl games.
+-Ask Ivy(?)/Ansleigh(?) for their games
+-Add tags (text file, separated by newlines? json???)
 
 
 TODO:
 pressing:
-* if app takes too long to start, switcher gives up, but app launches shortly after
+* if app takes too long to start, switcher gives up, but app launches shortly after (how to detect? wait longer, respect quit button if switcher doesn't have focu)
 * get rid of references to Time.time, Time.unscaledTime etc...
 * Extract anything reusable from 'SwitcherApplicationController'
 * Sounds for scrolling list?
