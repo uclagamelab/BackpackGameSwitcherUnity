@@ -20,7 +20,6 @@ public class ExternalWindowTracker : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        
         _windowCheckTimers.Start();
 
         #if UNITY_EDITOR
@@ -28,7 +27,6 @@ public class ExternalWindowTracker : MonoBehaviour
         System.Text.StringBuilder sb = new System.Text.StringBuilder(512);
         WinOsUtil.GetWindowText(WinOsUtil.GetActiveWindow(), sb, sb.Capacity);
         editorWindowTitle = sb.ToString();
-        Debug.Log(editorWindowTitle);
         #endif
     }
 
