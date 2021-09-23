@@ -260,7 +260,7 @@ public class ProcessRunner : MonoBehaviour
             ProcessRunner.instance.setJoyToKeyConfig(_runningGame.joyToKeyConfig);
         }
 
-        currentProcessStartTimer = 0;//Time.time;
+        currentProcessStartTimer = 0;
 
         Events.OnProcessLaunched.Invoke();
     }
