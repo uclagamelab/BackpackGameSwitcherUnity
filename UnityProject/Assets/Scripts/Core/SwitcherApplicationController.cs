@@ -24,14 +24,6 @@ public class SwitcherApplicationController : MonoBehaviour
     bool _defaultIsFullScreen = true;
     Resolution _defaultResolution;
 
-    float timeOfLastQuit = float.NegativeInfinity;
-    bool didntQuitRecently
-    {
-        get
-        {
-            return Time.time > timeOfLastQuit + .5f;
-        }
-    }
 
 
     static float idleTimeout = 6 * 60;
@@ -205,7 +197,6 @@ public class SwitcherApplicationController : MonoBehaviour
     public void onRequestQuit()
     {
         _lastActionWasQuit = true;
-        timeOfLastQuit = Time.time;
         gotAnExitCombo = true;
         
         ProcessRunner.instance.quitCurrentGame();

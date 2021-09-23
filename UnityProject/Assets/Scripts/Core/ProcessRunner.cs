@@ -44,7 +44,7 @@ public class ProcessRunner : MonoBehaviour
     bool _gameRunningLastFrame = false;
     public bool IsGameRunning()
     {
-        bool processJustStarted = _runningGame != null && (Time.time - currentProcessStartTime) < 5;
+        bool processJustStarted = _runningGame != null && currentProcessStartTimer < 5;
         bool windowBasedGameIsRunning = _runningGame != null && !string.IsNullOrEmpty(_runningGame.windowTitle) &&  ExternalWindowTracker.WindowIsPresent(_runningGame.windowTitle);
         bool processBasedGameIsRunning = _runningGame != null && (currentGameRunner.process != null && !currentGameRunner.process.HasExited);
         return processJustStarted || windowBasedGameIsRunning || processBasedGameIsRunning;
@@ -55,15 +55,8 @@ public class ProcessRunner : MonoBehaviour
     // DLL Imports
 
 
-    float currentProcessStartTime = float.PositiveInfinity;
+    float currentProcessStartTimer = 0;
 
-    float okToQuitTime
-    {
-        get
-        {
-            return currentProcessStartTime + 5;
-        }
-    }
 
     List<Process> safeProcesses;
 
@@ -157,6 +150,11 @@ public class ProcessRunner : MonoBehaviour
         if (_runningGame != null)
         {
             _runningGame.launchSettings.Runner().RunningUpdate();
+        }
+
+        if (gameRunningNow)
+        {
+            currentProcessStartTimer += Time.deltaTime;
         }
     }
 
@@ -262,7 +260,7 @@ public class ProcessRunner : MonoBehaviour
             ProcessRunner.instance.setJoyToKeyConfig(_runningGame.joyToKeyConfig);
         }
 
-        currentProcessStartTime = Time.time;
+        currentProcessStartTimer = 0;//Time.time;
 
         Events.OnProcessLaunched.Invoke();
     }

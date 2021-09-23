@@ -263,11 +263,11 @@ public class UnityExeRunner : AbstractGameRunner
 
 
 
-    float _lastResDialogKeySend = float.NegativeInfinity;
+    float _lastResDialogKeySendTimer = float.MaxValue;
 
     void SendKeyToResDialog()
     {
-        _lastResDialogKeySend = Time.time;
+        _lastResDialogKeySendTimer = 0;
         ProcessRunner.SendKeyStrokesToWindow(this.ResulotionDialogWindowTitle, "{ENTER}");
     }
 
@@ -285,11 +285,12 @@ public class UnityExeRunner : AbstractGameRunner
             }
             else if (_resDiaSkipState == DialogSkipState.DialogHasAppeared)
             {
+                _lastResDialogKeySendTimer += Time.deltaTime;
                 if (!ExternalWindowTracker.WindowIsPresent(this.ResulotionDialogWindowTitle))
                 {
                     _resDiaSkipState = DialogSkipState.DialogHasClosed;
                 }
-                else if (Time.time - _lastResDialogKeySend > .5f)
+                else if (_lastResDialogKeySendTimer > .5f)
                 {
                     Debug.Log("Sending");
                     SendKeyToResDialog();
