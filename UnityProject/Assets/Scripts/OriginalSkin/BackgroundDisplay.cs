@@ -33,201 +33,26 @@ public class BackgroundDisplay : MonoBehaviour {
     }
  
 
-    interface Fadeable
-    {
-        GameObject gameObject
-        {
-            get;
-        }
-        float alpha
-        {
-            get;
-            set;
-        }
 
-        Transform transform
-        {
-            get;
-        }
-
-    }
-
-    public void stopAllVideos()
-    {
-        //this.vid1.Stop();
-        //this.vid2.Stop();
-    }
-
-
-
-    public class FadeableVideo : Fadeable
-    {
-        public VideoPlayer _videoPlayer;
-        public RawImage _rawImgOuput;
-        RenderTexture _videoRenderTexture;
-
-        public bool isSeeking = false;
-
-        public float time
-        {
-            get
-            {
-                return (float) _videoPlayer.time;
-            }
-
-            set
-            {
-                isSeeking = true;
-                _videoPlayer.time = value;
-            }
-        }
-
-        public GameObject gameObject
-        {
-            get
-            {
-                return _rawImgOuput.gameObject;
-            }
-        }
-
-
-        public FadeableVideo(VideoPlayer videoPlayer)
-        {
-            RenderTextureDescriptor rtd = new RenderTextureDescriptor(1920, 1080);
-            rtd.depthBufferBits = 0;
-            //rtd.autoGenerateMips = false;
-            rtd.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.B8G8R8A8_UNorm;
-            rtd.colorFormat = RenderTextureFormat.BGRA32;
-            _videoRenderTexture = new RenderTexture(rtd);
-
-            this._videoPlayer = videoPlayer;
-            this._videoPlayer.targetTexture = _videoRenderTexture;
-            this._rawImgOuput = videoPlayer.GetComponent<RawImage>();
-            this._rawImgOuput.texture = _videoRenderTexture;
-            videoPlayer.seekCompleted += seekFinished;
-            //Debug.Log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
-
-        }
-
-        void seekFinished(VideoPlayer vp)
-        {
-           // Debug.Log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
-            isSeeking = false;
-        }
-
-        public Transform transform
-        {
-            get { return _rawImgOuput.transform; }
-        }
-
-        public float alpha
-        {
-            get
-            {
-                return _rawImgOuput.color.a;
-            }
-
-            set
-            {
-                Color newColor = _rawImgOuput.color;
-                newColor.a = value;
-                _rawImgOuput.color = newColor;
-            }
-        }
-
-        internal void setVideo(Texture staticImg)
-        {
-            _rawImgOuput.texture = staticImg;
-        }
-        internal void setVideo(string videoUrl)
-        {
-            if (_rawImgOuput.texture != _videoRenderTexture)
-            {
-                _rawImgOuput.texture = _videoRenderTexture;
-            }
-
-            if (_videoPlayer.url != videoUrl)
-            {
-                _videoPlayer.Stop();
-
-                _videoPlayer.url = videoUrl;
-            }
-
-            //
-            //targVideoPlayer.videoPlayer.time = (double)Random.Range(0, 100);
-            _videoPlayer.
-                //Play();//
-                Prepare();
-            //needToSeek = true;
-
-
-
-            //targVideoPlayer.videoPlayer.Pause();
-
-            RenderTexture savedRt = RenderTexture.active;
-            RenderTexture.active = _videoPlayer.targetTexture;
-            GL.Clear(true, true, Color.black);
-            RenderTexture.active = savedRt;
-        }
-    }
-
-
-    public class FadeableRawImage : Fadeable
-    {
-        public GameObject gameObject
-            {
-            get
-            {
-            return image.gameObject;
-            }
-        }
-        public RawImage image;
-        public FadeableRawImage(RawImage image)
-        {
-            this.image = image;
-        }
-
-        public Transform transform
-        {
-            get { return image.transform; }
-        }
-
-
-        public float alpha
-        {
-            get
-            {
-                return image.color.a;
-            }
-
-            set
-            {
-                Color c = image.color;
-                c.a = value;
-                image.color = c;
-            }
-        }
-    }
-
-
-
-    FadeableVideo videoPlayer1;
-    FadeableVideo videoPlayer2;
+    GamePreviewDisplayTexture videoPlayer1;
+    GamePreviewDisplayTexture videoPlayer2;
 
 
     static BackgroundDisplay _instance;
 
 
-    Fadeable prevThingToShow = null;
-    Fadeable thingToShow = null;
+    GamePreviewDisplayTexture prevThingToShow = null;
+    GamePreviewDisplayTexture thingToShow = null;
 
     [SerializeField]
-    VideoPlayer vid1;
+    RawImage previewTex1;
+
 
     [SerializeField]
-    VideoPlayer vid2;
+    RawImage previewTex2;
 
-    Fadeable[] _allFadeables;
+
+    GamePreviewDisplayTexture[] _allFadeables;
 
     //Showable video;
     //Showable image;
@@ -246,15 +71,15 @@ public class BackgroundDisplay : MonoBehaviour {
         _instance = this;
 
 
-        this.videoPlayer1 = new FadeableVideo(vid1);
-        this.videoPlayer2 = new FadeableVideo(vid2);
+        this.videoPlayer1 = new GamePreviewDisplayTexture(previewTex1);
+        this.videoPlayer2 = new GamePreviewDisplayTexture(previewTex2);
 
 
-        _allFadeables = new Fadeable[] { videoPlayer1, videoPlayer2};
+        _allFadeables = new GamePreviewDisplayTexture[] { videoPlayer1, videoPlayer2};
 
         //zero out all fadeables
         //so an irrelevant one doesn't block an active one
-        foreach (Fadeable f in _allFadeables)
+        foreach (GamePreviewDisplayTexture f in _allFadeables)
         {
             f.alpha = 0;
         }
@@ -320,7 +145,7 @@ public class BackgroundDisplay : MonoBehaviour {
         {
             
             //wait for the video player to be ready?
-            FadeableVideo vidToShow = ((FadeableVideo)thingToShow);
+            GamePreviewDisplayTexture vidToShow = ((GamePreviewDisplayTexture)thingToShow);
 
             float targetAlpha = 0;
             if (vidToShow._videoPlayer.isPrepared)//&& !vidToShow.isSeeking)
@@ -354,7 +179,7 @@ public class BackgroundDisplay : MonoBehaviour {
                 //
         }
 
-        foreach (Fadeable f in _allFadeables)
+        foreach (GamePreviewDisplayTexture f in _allFadeables)
             {
 
                 if (f == thingToShow)
@@ -383,15 +208,15 @@ public class BackgroundDisplay : MonoBehaviour {
 
         if (!string.IsNullOrEmpty(game?.videoUrl))
         {
-            BackgroundDisplay.Instance.setVideo(game.videoUrl, direction);
+            setVideo(game?.videoUrl, null, direction);
         }
         else if (game?.previewImg != null)
         {
-            BackgroundDisplay.Instance.setVideo(game.previewImg, direction);
+            setVideo(null, game.previewImg, direction);
         }
         else
         {
-            BackgroundDisplay.Instance.setPlaceholder(direction);
+            setPlaceholder(direction);
         }
     }
 
@@ -399,31 +224,18 @@ public class BackgroundDisplay : MonoBehaviour {
     {
         if (!string.IsNullOrEmpty(placeHolderVideoUrl))
         {
-            setVideo(placeHolderVideoUrl, direction);
+            setVideo(placeHolderVideoUrl, null, direction);
         }
         else
         {
-            setVideo(_placeHolderImg, direction);
+            setVideo(null, _placeHolderImg, direction);
         }
-
-
     }
 
-
-    bool needToSeek = false;
-    public void setVideo(Texture texture, int direction = 0)
-    {
-        setVideo(null, texture, direction);
-    }
-
-    public void setVideo(string videoUrl, int direction = 0)
-    {
-        setVideo(videoUrl, null, direction);
-    }
-    public void setVideo(string videoUrl, Texture texture, int direction = 0)
+    void setVideo(string videoUrl, Texture texture, int direction = 0)
     {
 
-        FadeableVideo targVideoPlayer = thingToShow == videoPlayer1 ? videoPlayer2 : videoPlayer1;
+        GamePreviewDisplayTexture targVideoPlayer = thingToShow == videoPlayer1 ? videoPlayer2 : videoPlayer1;
 
         var outgoingVideo = thingToShow;
 

@@ -211,7 +211,6 @@ public class MenuVisualsGeneric : MonoBehaviour
         {
             GameData currentGameData = currentlySelectedGame;
             ProcessRunner.instance.StartGame(currentGameData);
-            BackgroundDisplay.Instance.stopAllVideos();
         }, .1f);
 
         return true;
