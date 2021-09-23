@@ -162,14 +162,7 @@ public class BackgroundDisplay : MonoBehaviour {
 
                 if (!vidToShow._videoPlayer.isPlaying && vidToShow._videoPlayer.isPrepared)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
                 {
-                //vidToShow.alpha = 0;
-                
-                vidToShow._videoPlayer.transform.SetAsLastSibling();
-
-
-                    vidToShow._videoPlayer.Play();
-
-                    
+                    vidToShow._videoPlayer.transform.SetAsLastSibling();
                 }
     
             
@@ -206,7 +199,7 @@ public class BackgroundDisplay : MonoBehaviour {
     public void setDisplayedGame(GameData game, int direction)
     {
 
-        if (!string.IsNullOrEmpty(game?.videoUrl))
+        if (!string.IsNullOrEmpty(game?.videoUrl) || game.previewImg != null)
         {
             setVideo(game?.videoUrl, null, direction);
         }

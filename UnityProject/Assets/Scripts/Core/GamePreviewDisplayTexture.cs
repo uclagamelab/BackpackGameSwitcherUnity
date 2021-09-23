@@ -85,11 +85,31 @@ public class GamePreviewDisplayTexture
         }
     }
 
-    internal void setVideo(Texture staticImg)
+    public void setVideo(GameData game, string fallbackVideoUrl = null, Texture fallbackPreviewTexture = null)
+    {
+        if (!string.IsNullOrEmpty(game.videoUrl))
+        {
+            setVideo(game.videoUrl);
+        }
+        else if (game.previewImg != null)
+        {
+            setVideo(game.previewImg);
+        }
+        else if (!string.IsNullOrEmpty(fallbackVideoUrl))
+        {
+            setVideo(fallbackVideoUrl);
+        }
+        else
+        {
+            setVideo(fallbackPreviewTexture);
+        }
+    }
+
+    public void setVideo(Texture staticImg)
     {
         _rawImgOuput.texture = staticImg;
     }
-    internal void setVideo(string videoUrl)
+    public  void setVideo(string videoUrl)
     {
         if (_rawImgOuput.texture != _videoRenderTexture)
         {
@@ -118,5 +138,7 @@ public class GamePreviewDisplayTexture
         RenderTexture.active = _videoPlayer.targetTexture;
         GL.Clear(true, true, Color.black);
         RenderTexture.active = savedRt;
+
+        _videoPlayer.Play();
     }
 }
