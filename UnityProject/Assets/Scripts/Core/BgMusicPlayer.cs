@@ -11,10 +11,11 @@ public class BgMusicPlayer : MonoBehaviour
 
     List<FileInfo> bgMusicList = new List<FileInfo>();
     int currentBgMusicIdx = 0;
-    public AudioSource bgMusicSource;
+    [SerializeField] AudioSource bgMusicSource;
 
     Coroutine loadingNextSongRoutine = null;
 
+    [Range(0,1)]
     public float targMusicVolume;
 
     public static BgMusicPlayer instance { get; private set; }
