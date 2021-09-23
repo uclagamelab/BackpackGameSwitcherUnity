@@ -155,15 +155,13 @@ public class GameInfoEditor : MonoBehaviour
         
 
         _ezEditor.SetUp();
-
-        //_saveRawJsonButton.onClick.AddListener();
     }
 
     public void ShowPanel(object panel)
     {
-        this._ezEditorPanel.SetActive(_ezEditorPanel == panel);
-        this._jsonEditorPanel.SetActive(_jsonEditorPanel == panel);
-        this._startUpSettingsPanel.gameObject.SetActive(_startUpSettingsPanel == panel);
+        this._ezEditorPanel.SetActive((object)_ezEditorPanel == panel);
+        this._jsonEditorPanel.SetActive((object)_jsonEditorPanel == panel);
+        this._startUpSettingsPanel.gameObject.SetActive((object)_startUpSettingsPanel == panel);
     }
 
 

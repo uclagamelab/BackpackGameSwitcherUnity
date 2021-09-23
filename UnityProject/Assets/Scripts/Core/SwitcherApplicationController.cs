@@ -129,42 +129,17 @@ public class SwitcherApplicationController : MonoBehaviour
 
 
 
-        if (!aGameIsRunning)
+        if (aGameIsRunning)
         {
-
-            selectingGameUpdate();
-
-        }
-        else //A Game is running...
-        {
-            gameRunningUpdate();
+            if (BackgroundKeyboardInput.Instance.secondsSinceLastInput > idleTimeout)
+            {
+                onRequestQuit();
+                events.OnEnterIdle.Invoke();
+            }
         }
     }
 
-    void selectingGameUpdate()
-    {
-
-        if (CrockoInput.GetOpenGameButtonDown())
-        {
-            _lastActionWasQuit = false;
-        }
-    }
-
-    
-    void gameRunningUpdate()
-    {
-        // quit out of a game, if runnning too long with no input.
-
-
-        if (BackgroundKeyboardInput.Instance.secondsSinceLastInput > idleTimeout)
-        {
-            onRequestQuit();
-            events.OnEnterIdle.Invoke();
-        }
-    }
-
-
-
+  
 
     public static bool isIdle
     {
@@ -186,13 +161,9 @@ public class SwitcherApplicationController : MonoBehaviour
         }
     }*/
 
-   
-    bool _lastActionWasQuit = true;
-
 
     public void onRequestQuit()
     {
-        _lastActionWasQuit = true;
         gotAnExitCombo = true;
         
         ProcessRunner.instance.quitCurrentGame();

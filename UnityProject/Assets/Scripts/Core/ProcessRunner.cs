@@ -26,8 +26,6 @@ public class ProcessRunner : MonoBehaviour
     private string _currentJoyToKeyConfig = null;
     private readonly string SWITCHER_JOYTOKEY_CONFIG = "menuselect.cfg";
 
-    float lastFocusSwitchAttemptTime = float.NegativeInfinity;
-
     public string processStateHelper;
 
     public static bool SwitcherAppHasFocus = true;

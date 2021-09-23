@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [System.Serializable]
 public class GameData
@@ -98,7 +99,7 @@ public class GameData
         }
         catch (System.Exception e)
         {
-            Debug.LogError("problem parsing json in " + _gameFolder.FullName);
+            Debug.LogError("problem parsing json in " + _gameFolder.FullName + "\n" + e);
             valid = false;
             return;
         }
@@ -271,13 +272,15 @@ public class GameData
             this.exePath = chosenPath;
         }
     }
+
+    static readonly string[] overrideInstructionImgExtensions = new string[] { "*.png", "*.jpg" };
     IEnumerator setUpInstructionsOverlayRoutine(DirectoryInfo gameFolder)
     {
         string instructionsFolder = gameFolder.FullName + "/instructions";
         if (Directory.Exists(instructionsFolder))
         {
 
-            List<string> imgsInDirectory = GetFilesMultipleSearchPattern(instructionsFolder, new string[] { "*.png" });
+            List<string> imgsInDirectory = GetFilesMultipleSearchPattern(instructionsFolder, overrideInstructionImgExtensions);
             foreach (string v in imgsInDirectory)
             {
                 //Debug.Log(v + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -286,14 +289,13 @@ public class GameData
             {
                string ovlUrl = imgsInDirectory[0];
 
-                this.overrideInstructionsImage = new Texture2D(4, 4, TextureFormat.DXT5, false); //DXT5, assuming image is png
-                WWW instOvlWww = new WWW(ovlUrl);
-                yield return instOvlWww;
+                this.overrideInstructionsImage = null;
+                using (UnityWebRequest instOvlWww = UnityWebRequestTexture.GetTexture(ovlUrl))
+                {
+                    yield return instOvlWww.SendWebRequest();
 
-                instOvlWww.LoadImageIntoTexture(this.overrideInstructionsImage);
-
-                //GameObject sp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                //sp.GetComponent<Renderer>().material.mainTexture = this.instructionsOverlay;
+                    this.overrideInstructionsImage = DownloadHandlerTexture.GetContent(instOvlWww);
+                }
             }
 
 
@@ -492,12 +494,13 @@ public class GameData
 
         string textureURI = texturePath;
 
-        WWW textureReq = new WWW(textureURI);
 
-        yield return textureReq;
+        using (var textureReq = UnityWebRequestTexture.GetTexture(textureURI))
+        {
+            yield return textureReq.SendWebRequest();
 
-
-        this.previewImg = textureReq.texture;
+            this.previewImg = DownloadHandlerTexture.GetContent(textureReq);
+        }
     }
 
 }

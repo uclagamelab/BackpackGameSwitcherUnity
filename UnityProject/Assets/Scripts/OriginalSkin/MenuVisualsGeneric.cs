@@ -145,7 +145,6 @@ public class MenuVisualsGeneric : MonoBehaviour
         }
     }
 
-
     const float ATTRACT_AUTO_CYCLE_DURATION = 60;
     float nextAttractAutoCyleTimer = ATTRACT_AUTO_CYCLE_DURATION;
     void autoCycleGamesIfNoInput()

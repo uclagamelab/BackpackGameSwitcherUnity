@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Audio;
+using UnityEngine.Networking;
 
 public class BgMusicPlayer : MonoBehaviour
 {
@@ -99,11 +100,39 @@ public class BgMusicPlayer : MonoBehaviour
 
     IEnumerator GetAudioClipFromDisk(FileInfo fileToUse)
     {
-        WWW audRequest = new WWW(fileToUse.FullName);
-        yield return audRequest;
-        AudioClip newClip = audRequest.GetAudioClip();// false, false);
-        OnNewMusicClipLoaded(newClip);
-        loadingNextSongRoutine = null;
+        using (UnityWebRequest audRequest = UnityWebRequestMultimedia.GetAudioClip("file:///"+fileToUse.FullName, determineFromFileName(fileToUse.Name)))
+        {
+
+            yield return audRequest.SendWebRequest();
+            AudioClip newClip = DownloadHandlerAudioClip.GetContent(audRequest);
+            OnNewMusicClipLoaded(newClip);
+            loadingNextSongRoutine = null;
+        }
+    }
+
+    static AudioType determineFromFileName(string fileName)
+    {
+        if (fileName.EndsWith("ogg", true, System.Globalization.CultureInfo.InvariantCulture))
+        {
+            return AudioType.OGGVORBIS;
+        }
+        else if (fileName.EndsWith("mp3", true, System.Globalization.CultureInfo.InvariantCulture))
+        {
+            return AudioType.MPEG;
+        }
+        else if (fileName.EndsWith("wav", true, System.Globalization.CultureInfo.InvariantCulture))
+        {
+            return AudioType.WAV;
+        }
+        else if (fileName.EndsWith("aif", true, System.Globalization.CultureInfo.InvariantCulture))
+        {
+            return AudioType.AIFF;
+        }
+        else if (fileName.EndsWith("aiff", true, System.Globalization.CultureInfo.InvariantCulture))
+        {
+            return AudioType.AIFF;
+        }
+        return AudioType.OGGVORBIS;
     }
 
     public void requestNewSong()

@@ -121,7 +121,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
 
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
 
         }
