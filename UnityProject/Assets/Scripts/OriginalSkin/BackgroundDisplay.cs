@@ -198,53 +198,13 @@ public class BackgroundDisplay : MonoBehaviour {
 
     public void setDisplayedGame(GameData game, int direction)
     {
-
-        if (!string.IsNullOrEmpty(game?.videoUrl) || game.previewImg != null)
-        {
-            setVideo(game?.videoUrl, null, direction);
-        }
-        else if (game?.previewImg != null)
-        {
-            setVideo(null, game.previewImg, direction);
-        }
-        else
-        {
-            setPlaceholder(direction);
-        }
-    }
-
-    void setPlaceholder(int direction)
-    {
-        if (!string.IsNullOrEmpty(placeHolderVideoUrl))
-        {
-            setVideo(placeHolderVideoUrl, null, direction);
-        }
-        else
-        {
-            setVideo(null, _placeHolderImg, direction);
-        }
-    }
-
-    void setVideo(string videoUrl, Texture texture, int direction = 0)
-    {
-
         GamePreviewDisplayTexture targVideoPlayer = thingToShow == videoPlayer1 ? videoPlayer2 : videoPlayer1;
 
         var outgoingVideo = thingToShow;
 
-
         targVideoPlayer.alpha = 0;
-        if (!string.IsNullOrEmpty(videoUrl))
-        {
-            targVideoPlayer.setVideo(videoUrl);
-        }
-        else
-        {
-            targVideoPlayer.setVideo(texture);
-        }
 
-
-        //Debug.Log(targVideoPlayer.videoPlayer.isPrepared);
+        targVideoPlayer.setVideo(game, placeHolderVideoUrl);
 
         prevThingToShow = thingToShow;
         thingToShow = targVideoPlayer;
@@ -284,10 +244,5 @@ public class BackgroundDisplay : MonoBehaviour {
             }
             }
         }, 0.25f);
-    }
-
-    public void hide()
-    {
-        thingToShow = null;
     }
 }
