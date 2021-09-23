@@ -3,6 +3,7 @@
 Responsible for a fullscreen background image/video 
 
  */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,8 @@ public class BackgroundDisplay : MonoBehaviour {
 
     [SerializeField]
     CameraBlurrer bgBlurrer;
+
+    [SerializeField] Texture _placeHolderImg;
 
     string _placeHolderVideoUrl;
     string placeHolderVideoUrl
@@ -59,8 +62,9 @@ public class BackgroundDisplay : MonoBehaviour {
 
     public class FadeableVideo : Fadeable
     {
-        public VideoPlayer videoPlayer;
-        public RawImage img;
+        public VideoPlayer _videoPlayer;
+        public RawImage _rawImgOuput;
+        RenderTexture _videoRenderTexture;
 
         public bool isSeeking = false;
 
@@ -68,13 +72,13 @@ public class BackgroundDisplay : MonoBehaviour {
         {
             get
             {
-                return (float) videoPlayer.time;
+                return (float) _videoPlayer.time;
             }
 
             set
             {
                 isSeeking = true;
-                videoPlayer.time = value;
+                _videoPlayer.time = value;
             }
         }
 
@@ -82,15 +86,24 @@ public class BackgroundDisplay : MonoBehaviour {
         {
             get
             {
-                return img.gameObject;
+                return _rawImgOuput.gameObject;
             }
         }
 
 
         public FadeableVideo(VideoPlayer videoPlayer)
         {
-            this.videoPlayer = videoPlayer;
-            this.img = videoPlayer.GetComponent<RawImage>();
+            RenderTextureDescriptor rtd = new RenderTextureDescriptor(1920, 1080);
+            rtd.depthBufferBits = 0;
+            //rtd.autoGenerateMips = false;
+            rtd.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.B8G8R8A8_UNorm;
+            rtd.colorFormat = RenderTextureFormat.BGRA32;
+            _videoRenderTexture = new RenderTexture(rtd);
+
+            this._videoPlayer = videoPlayer;
+            this._videoPlayer.targetTexture = _videoRenderTexture;
+            this._rawImgOuput = videoPlayer.GetComponent<RawImage>();
+            this._rawImgOuput.texture = _videoRenderTexture;
             videoPlayer.seekCompleted += seekFinished;
             //Debug.Log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
 
@@ -104,25 +117,58 @@ public class BackgroundDisplay : MonoBehaviour {
 
         public Transform transform
         {
-            get { return img.transform; }
+            get { return _rawImgOuput.transform; }
         }
 
         public float alpha
         {
             get
             {
-                return img.color.a;
+                return _rawImgOuput.color.a;
             }
 
             set
             {
-                Color newColor = img.color;
+                Color newColor = _rawImgOuput.color;
                 newColor.a = value;
-                img.color = newColor;
+                _rawImgOuput.color = newColor;
             }
         }
 
+        internal void setVideo(Texture staticImg)
+        {
+            _rawImgOuput.texture = staticImg;
+        }
+        internal void setVideo(string videoUrl)
+        {
+            if (_rawImgOuput.texture != _videoRenderTexture)
+            {
+                _rawImgOuput.texture = _videoRenderTexture;
+            }
 
+            if (_videoPlayer.url != videoUrl)
+            {
+                _videoPlayer.Stop();
+
+                _videoPlayer.url = videoUrl;
+            }
+
+            //
+            //targVideoPlayer.videoPlayer.time = (double)Random.Range(0, 100);
+            _videoPlayer.
+                //Play();//
+                Prepare();
+            //needToSeek = true;
+
+
+
+            //targVideoPlayer.videoPlayer.Pause();
+
+            RenderTexture savedRt = RenderTexture.active;
+            RenderTexture.active = _videoPlayer.targetTexture;
+            GL.Clear(true, true, Color.black);
+            RenderTexture.active = savedRt;
+        }
     }
 
 
@@ -168,19 +214,12 @@ public class BackgroundDisplay : MonoBehaviour {
     FadeableVideo videoPlayer1;
     FadeableVideo videoPlayer2;
 
-    FadeableRawImage image1;
-    FadeableRawImage image2;
 
     static BackgroundDisplay _instance;
 
 
     Fadeable prevThingToShow = null;
     Fadeable thingToShow = null;
-
-    [SerializeField]
-    RawImage img1;
-    [SerializeField]
-    RawImage img2;
 
     [SerializeField]
     VideoPlayer vid1;
@@ -206,20 +245,12 @@ public class BackgroundDisplay : MonoBehaviour {
     {
         _instance = this;
 
-        //Two of each for cross fading
-
-        //VideoPlayer[] vids = this.GetComponentsInChildren<VideoPlayer>();
-        //RawImage[] imgs = this.GetComponentsInChildren<RawImage>();
-
-
-
-        this.image1 = new FadeableRawImage(img1);
-        this.image2 = new FadeableRawImage(img2);
 
         this.videoPlayer1 = new FadeableVideo(vid1);
         this.videoPlayer2 = new FadeableVideo(vid2);
 
-        _allFadeables = new Fadeable[] { videoPlayer1, videoPlayer2, image1, image2 };
+
+        _allFadeables = new Fadeable[] { videoPlayer1, videoPlayer2};
 
         //zero out all fadeables
         //so an irrelevant one doesn't block an active one
@@ -229,7 +260,7 @@ public class BackgroundDisplay : MonoBehaviour {
         }
     }
 
-     void Start()
+    void Start()
     {
         setDisplayedGame(MenuVisualsGeneric.Instance.currentlySelectedGame, 1);
     }
@@ -292,7 +323,7 @@ public class BackgroundDisplay : MonoBehaviour {
             FadeableVideo vidToShow = ((FadeableVideo)thingToShow);
 
             float targetAlpha = 0;
-            if (vidToShow.videoPlayer.isPrepared)//&& !vidToShow.isSeeking)
+            if (vidToShow._videoPlayer.isPrepared)//&& !vidToShow.isSeeking)
             {
                 targetAlpha = 1;
                 /*if (vidToShow.alpha == 0)
@@ -304,14 +335,14 @@ public class BackgroundDisplay : MonoBehaviour {
             vidToShow.alpha = Mathf.MoveTowards(vidToShow.alpha, targetAlpha, Time.deltaTime / .65f);
 
 
-                if (!vidToShow.videoPlayer.isPlaying && vidToShow.videoPlayer.isPrepared)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
+                if (!vidToShow._videoPlayer.isPlaying && vidToShow._videoPlayer.isPrepared)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
                 {
                 //vidToShow.alpha = 0;
                 
-                vidToShow.videoPlayer.transform.SetAsLastSibling();
+                vidToShow._videoPlayer.transform.SetAsLastSibling();
 
 
-                    vidToShow.videoPlayer.Play();
+                    vidToShow._videoPlayer.Play();
 
                     
                 }
@@ -346,22 +377,6 @@ public class BackgroundDisplay : MonoBehaviour {
         //image1.alpha = thingToShow == image1 ? 1 : 0;
 	}
 
-    public bool visible
-    {
-        get
-        {
-            return this.image1.image.enabled ||  this.image2.image.enabled  || this.videoPlayer1.img.enabled || this.videoPlayer2.img.enabled;
-        }
-
-        set
-        {
-            this.image1.image.enabled = value;
-            this.image2.image.enabled = value;
-            this.videoPlayer1.img.enabled = value;
-            this.videoPlayer2.img.enabled = value;
-
-        }
-    }
 
     public void setDisplayedGame(GameData game, int direction)
     {
@@ -372,7 +387,7 @@ public class BackgroundDisplay : MonoBehaviour {
         }
         else if (game?.previewImg != null)
         {
-            BackgroundDisplay.Instance.setImage(game.previewImg, direction);
+            BackgroundDisplay.Instance.setVideo(game.previewImg, direction);
         }
         else
         {
@@ -388,34 +403,24 @@ public class BackgroundDisplay : MonoBehaviour {
         }
         else
         {
-            setImage(null, direction);
+            setVideo(_placeHolderImg, direction);
         }
 
 
     }
 
-    public void setImage(Texture img, int direction)
-    {
-
-        Fadeable outgoingThing = thingToShow;
- 
-        FadeableRawImage targImg = thingToShow == image1 ? image2 : image1;
-        targImg.image.texture = img;
-
-
-        targImg.image.transform.SetAsFirstSibling();
-
-       
-
-        prevThingToShow = thingToShow;
-        thingToShow = targImg;
-
-        animateChangedObject(direction);
-    }
-
 
     bool needToSeek = false;
+    public void setVideo(Texture texture, int direction = 0)
+    {
+        setVideo(null, texture, direction);
+    }
+
     public void setVideo(string videoUrl, int direction = 0)
+    {
+        setVideo(videoUrl, null, direction);
+    }
+    public void setVideo(string videoUrl, Texture texture, int direction = 0)
     {
 
         FadeableVideo targVideoPlayer = thingToShow == videoPlayer1 ? videoPlayer2 : videoPlayer1;
@@ -424,41 +429,17 @@ public class BackgroundDisplay : MonoBehaviour {
 
 
         targVideoPlayer.alpha = 0;
-        if (targVideoPlayer.videoPlayer.url != videoUrl)
+        if (!string.IsNullOrEmpty(videoUrl))
         {
-            targVideoPlayer.videoPlayer.Stop();
-            
-            targVideoPlayer.videoPlayer.url = videoUrl;
-            //
-
-
-
-
-
+            targVideoPlayer.setVideo(videoUrl);
+        }
+        else
+        {
+            targVideoPlayer.setVideo(texture);
         }
 
 
-
-        //
-        //targVideoPlayer.videoPlayer.time = (double)Random.Range(0, 100);
-        targVideoPlayer.videoPlayer.
-            //Play();//
-            Prepare();
-        //needToSeek = true;
-
-
-
-        //targVideoPlayer.videoPlayer.Pause();
-
-        RenderTexture savedRt = RenderTexture.active;
-        RenderTexture.active = targVideoPlayer.videoPlayer.targetTexture;
-        GL.Clear(true, true, Color.black);
-        RenderTexture.active = savedRt;
-
-
         //Debug.Log(targVideoPlayer.videoPlayer.isPrepared);
-
-
 
         prevThingToShow = thingToShow;
         thingToShow = targVideoPlayer;
