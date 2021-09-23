@@ -135,13 +135,13 @@ public class MenuVisualsGeneric : MonoBehaviour
     }
 
     GameData _lastAppliedGameData = null;
-    int _lastVidMoveDirection = 1;
+
     void UpdateBackground()
     {
         if (!SpeedyListView.instance.keyHeld && currentlySelectedGame != _lastAppliedGameData && !BackgroundDisplay.Instance.animating)
         {
             _lastAppliedGameData = currentlySelectedGame;
-            BackgroundDisplay.Instance.setDisplayedGame(currentlySelectedGame, _lastVidMoveDirection);
+            BackgroundDisplay.Instance.setDisplayedGame(currentlySelectedGame, SpeedyListView.instance.lastMovedDirection);
         }
     }
 

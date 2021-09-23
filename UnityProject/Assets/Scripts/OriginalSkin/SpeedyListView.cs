@@ -41,7 +41,11 @@ public class SpeedyListView : MonoBehaviour
     [SerializeField]
     Color _selectedItemColor = Color.magenta;
 
-
+    public int lastMovedDirection
+    {
+        get;
+        private set;
+    }
 
     List<ListItemGameData> _listGameDatas = new List<ListItemGameData>();
 
@@ -105,6 +109,7 @@ public class SpeedyListView : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        lastMovedDirection = 1;
         GameCatalog.Events.OnRepopulated += OnRepopulated;
         _container = _listItems[0].transform.parent.GetComponent<RectTransform>();
         _startAp = _container.anchoredPosition;
@@ -187,6 +192,7 @@ public class SpeedyListView : MonoBehaviour
             {
 
                 _scrollMomentumDirection = scrollAmount < 0 ? -1 : 1;
+                lastMovedDirection = _scrollMomentumDirection;
                 keyHeld = true;
                 _fuzzyIdx += scrollAmount * Time.deltaTime * speed;
             }

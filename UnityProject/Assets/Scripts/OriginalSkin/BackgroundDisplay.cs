@@ -211,13 +211,18 @@ public class BackgroundDisplay : MonoBehaviour {
             float t = EasingFunctions.Calc(rawT, EasingFunctions.QuadEaseIn);
             if (prevThingToShow != null)
             {
-                prevThingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * t * Screen.width, 0);
+                prevThingToShow.gameObject.GetComponent<RawImageFitter>().offset = 
+                //new Vector2(direction * t * Screen.width, 0);
+                new Vector2(0, direction * t * Screen.height);
                
             }
 
             //thingToShow.alpha = 0;// Mathf.InverseLerp(.25f, 1, t);
             //thingToShow.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one, thingToShow.alpha);//.withY(1);
-            thingToShow.gameObject.GetComponent<RawImageFitter>().offset = new Vector2(direction * (t - 1) * Screen.width, 0);
+            thingToShow.gameObject.GetComponent<RawImageFitter>().offset = 
+                //new Vector2(direction * (t - 1) * Screen.width, 0);
+                new Vector2(0, direction * (t - 1) * Screen.height);
+            
             if (t == 1)
             {
                 animating = false;
