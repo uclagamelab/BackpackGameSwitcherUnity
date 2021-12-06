@@ -455,7 +455,7 @@ public class ProcessRunner : MonoBehaviour
                 }
                 catch (Exception e)
                 {
-                    UnityEngine.Debug.LogError(e);
+                    Debug.LogError(e);
                 }
             }
         }

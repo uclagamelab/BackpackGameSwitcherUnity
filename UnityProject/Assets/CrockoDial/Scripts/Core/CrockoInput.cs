@@ -11,30 +11,45 @@ using UnityEngine;
 public class CrockoInput : MonoBehaviour
 {
     static bool USE_TRACKBALL_INPUT = false;
+
     private void Awake()
     {
         USE_TRACKBALL_INPUT = XUCommandLineArguments.Contains("-trackball_input");
+        BackgroundKeyboardInput.Events.onBackgroundKeyCombo += onBackgroundKeyCombo;
+    }
+
+    static float _postQuitInputSuppressTimer = 0;
+    static bool suppressInputTemporarilyPostQuit => _postQuitInputSuppressTimer > 0;
+    void onBackgroundKeyCombo()
+    {
+        if (ProcessRunner.instance.IsGameRunning())
+        {
+            _postQuitInputSuppressTimer = .3f;
+        }
     }
     
     public static bool GetOpenGameButtonDown()
     {
         return 
-            !ToolsAndSettingsMenu.isOpen &&
-            CrockoInput.trackBallSubmitDown || //Trackball version
-            Input.GetKeyDown(KeyCode.Return)
-            || Input.GetKeyDown(KeyCode.KeypadEnter)
-            || Input.GetKeyDown(KeyCode.Space)
+            !ToolsAndSettingsMenu.isOpen
+            && !suppressInputTemporarilyPostQuit
+            && (
+                CrockoInput.trackBallSubmitDown || //Trackball version
+                Input.GetKeyDown(KeyCode.Return)
+                || Input.GetKeyDown(KeyCode.KeypadEnter)
+                || Input.GetKeyDown(KeyCode.Space)
+            )
             ;
     }
 
     public static bool GetListScrollForward(ButtonPhase phase)
     {
-        return !ToolsAndSettingsMenu.isOpen && GetKeyState(KeyCode.UpArrow, phase);
+        return !ToolsAndSettingsMenu.isOpen && !suppressInputTemporarilyPostQuit && GetKeyState(KeyCode.UpArrow, phase);
     }
 
     public static bool GetListScrollBack(ButtonPhase phase)
     {
-        return !ToolsAndSettingsMenu.isOpen && GetKeyState(KeyCode.DownArrow, phase);
+        return !ToolsAndSettingsMenu.isOpen && !suppressInputTemporarilyPostQuit && GetKeyState(KeyCode.DownArrow, phase);
     }
 
     public static float GetListScroll()
@@ -73,10 +88,10 @@ public class CrockoInput : MonoBehaviour
     {
         public static bool OnSelectRight()
         {
-
             bool ret = false;
             ret |= GetXMouseSwipe(1);
             ret |= Input.GetKeyDown(KeyCode.RightArrow);
+            ret &= !suppressInputTemporarilyPostQuit;
             return !ToolsAndSettingsMenu.isOpen && ret;
         }
 
@@ -85,6 +100,7 @@ public class CrockoInput : MonoBehaviour
             bool ret = false;
             ret |= GetXMouseSwipe(-1);
             ret |= Input.GetKeyDown(KeyCode.LeftArrow);
+            ret &= !suppressInputTemporarilyPostQuit;
             return !ToolsAndSettingsMenu.isOpen && ret;
         }
     }
@@ -130,6 +146,11 @@ public class CrockoInput : MonoBehaviour
     static bool trackBallSubmitDown = false;
     private void Update()
     {
+        if (_postQuitInputSuppressTimer >= 0)
+        {
+            _postQuitInputSuppressTimer -= Time.deltaTime;
+        }
+
         if (USE_TRACKBALL_INPUT)
         {
             trackBallSubmitDown = false;
