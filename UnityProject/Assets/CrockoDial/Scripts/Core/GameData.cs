@@ -387,7 +387,7 @@ public class GameData
 
     void setUpImages(DirectoryInfo gameFolder)
     {
-        List<string> previewImageFolderContents = GetFilesMultipleSearchPattern(gameFolder.FullName + "/image", new string[] { "*.png", "*.jpg", "*.gif" });
+        List<string> previewImageFolderContents = GetFilesMultipleSearchPattern(Path.Combine(gameFolder.FullName, "image"), new string[] { "*.png", "*.jpg", "*.gif" });
 
         if (previewImageFolderContents.Count > 0)
         {
@@ -474,9 +474,9 @@ public class GameData
     List<string> GetFilesMultipleSearchPattern(string path, string[] searchPatterns)
     {
         List<string> allResults = new List<string>();
-        foreach (string searchPattern in searchPatterns)
+        if (Directory.Exists(path))
         {
-            if (Directory.Exists(path))
+            foreach (string searchPattern in searchPatterns)
             {
                 string[] results = Directory.GetFiles(path, searchPattern);
                 foreach (string individResult in results)

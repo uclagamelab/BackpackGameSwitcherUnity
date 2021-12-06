@@ -291,7 +291,7 @@ public class ProcessRunner : MonoBehaviour
     public void BringThisToForeground()
     {
 
-#if UNITY_EDITOR
+        #if !UNITY_EDITOR
         if (ExternalWindowTracker.EditorFocusStealing)
         {
             ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(ExternalWindowTracker.editorWindowTitle));

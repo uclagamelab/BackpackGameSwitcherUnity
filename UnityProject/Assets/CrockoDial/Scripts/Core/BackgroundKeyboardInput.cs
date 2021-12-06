@@ -47,13 +47,14 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         public static System.Action onBackgroundKeyCombo = () => { };
         public static System.Action onBackgroundMouseClick = () => { };
     }
-    
 
 
+    public float _escapeTimer = 0;
 
 
 
     static BackgroundKeyboardInput _instance;
+
     public static BackgroundKeyboardInput Instance
     {
         get { return _instance; }
@@ -93,9 +94,20 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     const float rate = 1/60f;
 
     float _forceAttractCountDown = 0;
+
     void Update ()
     {
         _secondsSinceLastInput += Time.deltaTime;
+
+        bool escapeHeld = GetAsyncKeyState(27) != 0;
+        if (!escapeHeld)
+        {
+            _escapeTimer = 0;
+        }
+        else
+        {
+            _escapeTimer += Time.deltaTime;
+        }
 
         //Force attrack with Shift-A
         if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.A))
@@ -153,13 +165,17 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         }
         prevlMouseButtonHeld = lMouseButtonHeld;
 
+
+
         bool altShiftBheld = GetAsyncKeyState(0x10) != 0 && GetAsyncKeyState(0x12) != 0 && GetAsyncKeyState(0x42) != 0;
+        altShiftBheld |= _escapeTimer >= 2;
+
+
         //bool ctrlCHeld = GetAsyncKeyState(0x11) != 0 && GetAsyncKeyState(0x43) != 0;
         // virtual key codes for "ctrl" and "c"
         //if(GetAsyncKeyState(0x11)!=0 && GetAsyncKeyState(0x43)!=0)
         if (altShiftBheld)
         {
-
             if (!_keyComboPressed)
             {
                 

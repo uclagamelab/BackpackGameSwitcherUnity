@@ -117,13 +117,14 @@ public class BackgroundDisplay : MonoBehaviour {
         blurUpdate();
 
 
-        bool thingToShowIsAVideo = thingToShow == videoPlayer1 || thingToShow == videoPlayer2;
+        bool thingToShowIsAVideo = !string.IsNullOrEmpty(thingToShow._videoPlayer.url);
 
+        float targetAlpha = 0;
         if (!thingToShowIsAVideo)
         {
             if (thingToShow != null)
             {
-                thingToShow.alpha = Mathf.MoveTowards(thingToShow.alpha, 1, Time.deltaTime / .65f);
+                targetAlpha = 1;
             }
         }
         else //thing to show is a video
@@ -132,7 +133,6 @@ public class BackgroundDisplay : MonoBehaviour {
             //wait for the video player to be ready?
             GamePreviewDisplayTexture vidToShow = ((GamePreviewDisplayTexture)thingToShow);
 
-            float targetAlpha = 0;
             if (vidToShow._videoPlayer.isPrepared)//&& !vidToShow.isSeeking)
             {
                 targetAlpha = 1;
@@ -142,7 +142,7 @@ public class BackgroundDisplay : MonoBehaviour {
                     
                 }*/
             }
-            vidToShow.alpha = Mathf.MoveTowards(vidToShow.alpha, targetAlpha, Time.deltaTime / .65f);
+      
 
 
                 if (!vidToShow._videoPlayer.isPlaying && vidToShow._videoPlayer.isPrepared)// && vidToShow.transform.GetSiblingIndex() != vidToShow.transform.parent.childCount -1)
@@ -156,6 +156,8 @@ public class BackgroundDisplay : MonoBehaviour {
 
                 //
         }
+
+        thingToShow.alpha = Mathf.MoveTowards(thingToShow.alpha, targetAlpha, Time.deltaTime / .65f);
 
         foreach (GamePreviewDisplayTexture f in _allFadeables)
             {

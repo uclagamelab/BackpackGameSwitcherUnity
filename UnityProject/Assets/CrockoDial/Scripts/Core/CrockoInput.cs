@@ -21,17 +21,20 @@ public class CrockoInput : MonoBehaviour
         return 
             !ToolsAndSettingsMenu.isOpen &&
             CrockoInput.trackBallSubmitDown || //Trackball version
-            Input.GetKeyDown(KeyCode.UpArrow);
+            Input.GetKeyDown(KeyCode.Return)
+            || Input.GetKeyDown(KeyCode.KeypadEnter)
+            || Input.GetKeyDown(KeyCode.Space)
+            ;
     }
 
     public static bool GetListScrollForward(ButtonPhase phase)
     {
-        return !ToolsAndSettingsMenu.isOpen && GetKeyState(KeyCode.LeftArrow, phase);
+        return !ToolsAndSettingsMenu.isOpen && GetKeyState(KeyCode.UpArrow, phase);
     }
 
     public static bool GetListScrollBack(ButtonPhase phase)
     {
-        return !ToolsAndSettingsMenu.isOpen && GetKeyState(KeyCode.RightArrow, phase);
+        return !ToolsAndSettingsMenu.isOpen && GetKeyState(KeyCode.DownArrow, phase);
     }
 
     public static float GetListScroll()
@@ -73,7 +76,7 @@ public class CrockoInput : MonoBehaviour
 
             bool ret = false;
             ret |= GetXMouseSwipe(1);
-            ret |= Input.GetKeyDown(KeyCode.W);
+            ret |= Input.GetKeyDown(KeyCode.RightArrow);
             return !ToolsAndSettingsMenu.isOpen && ret;
         }
 
@@ -81,7 +84,7 @@ public class CrockoInput : MonoBehaviour
         {
             bool ret = false;
             ret |= GetXMouseSwipe(-1);
-            ret |= Input.GetKeyDown(KeyCode.S);
+            ret |= Input.GetKeyDown(KeyCode.LeftArrow);
             return !ToolsAndSettingsMenu.isOpen && ret;
         }
     }
