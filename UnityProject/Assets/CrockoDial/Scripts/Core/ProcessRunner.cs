@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using Debug = UnityEngine.Debug;
 using static WinOsUtil;
+using Microsoft.Win32;
 
 public class ProcessRunner : MonoBehaviour
 {
@@ -120,19 +121,21 @@ public class ProcessRunner : MonoBehaviour
     }
 
 
-	void Start()
+	IEnumerator Start()
 	{
-
-        //this.killAllPrevProcesses();
-
         setJoyToKeyConfig(SWITCHER_JOYTOKEY_CONFIG);
 
-
         //Not sure if delay is actually necessary
-        this.delayedFunction(() =>
-        {
+        yield return new WaitForSeconds(2);
             recordSafeProcesses();
-        }, 2);
+        if (SwitcherSettings.Data._ShutDownExplorerWhileRunning)
+        {
+            #if UNITY_EDITOR
+            Debug.Log("<Shutdown of explorer would happen here>");
+            #else
+            SetWindowsExplorerRunning(false);
+            #endif
+        }
 
     }
 
@@ -243,6 +246,62 @@ public class ProcessRunner : MonoBehaviour
         return Process.Start(startInfo);
     }
 
+    [ContextMenu("restartExplorer")]
+    public void restartExplorer()
+    {
+        SetWindowsExplorerRunning(true);
+    }
+
+    [ContextMenu("kill explorer")]
+    public void killExplorer()
+    {
+        SetWindowsExplorerRunning(false);
+    }
+
+    public void SetWindowsExplorerRunning(bool on)
+    {
+        if (on)
+        {
+            string targetExe = "explorer";
+            Process[] processes = Process.GetProcessesByName(targetExe);
+
+            bool shouldRestart = true;
+            
+            foreach (var p in processes)
+            {
+                shouldRestart &= p.HasExited;
+            }
+            
+            if (shouldRestart)
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                startInfo.FileName = "explorer.exe";
+                Process.Start(startInfo);
+            }
+        }
+        else
+        {
+            //RegistryKey ourKey = Registry.LocalMachine;
+            //ourKey = ourKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", true);
+            //ourKey.SetValue("AutoRestartShell", 0);
+
+            //TryKillNamedExe("explorer.exe");
+            string targetExe = "explorer";
+            Process[] processes = Process.GetProcessesByName(targetExe);
+            foreach (Process p in processes)
+            {
+                bool canCheck = !p.HasExited;
+                if (canCheck)
+                {
+                    //Debug.Log(p.MainModule.FileName);
+                    //p.Kill();
+                    p.CloseMainWindow();
+                    //p.Close();
+                }
+            }
+        }
+    }
+
     public void StartGame(GameData gameToStart)
     {
         //ProcessRunner.instance.OpenProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/, currentGameData.joyToKeyConfig);
@@ -291,15 +350,15 @@ public class ProcessRunner : MonoBehaviour
     public void BringThisToForeground()
     {
 
-        #if !UNITY_EDITOR
+#if !UNITY_EDITOR
         if (ExternalWindowTracker.EditorFocusStealing)
         {
             ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(ExternalWindowTracker.editorWindowTitle));
         }
-        #else
+#else
         string switcherWindowName = Application.productName;
         ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(switcherWindowName));
-        #endif
+#endif
         setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
     }
 
@@ -440,6 +499,12 @@ public class ProcessRunner : MonoBehaviour
     private void OnApplicationQuit()
     {
         TerminateProcess(_joy2KeyProcess);
+        #if !UNITY_EDITOR
+        if (SwitcherSettings.Data._ShutDownExplorerWhileRunning)
+        {
+            SetWindowsExplorerRunning(true);
+        }
+        #endif
     }
 
     public void KillAllNonSafeProcesses(int exitCode = 0)

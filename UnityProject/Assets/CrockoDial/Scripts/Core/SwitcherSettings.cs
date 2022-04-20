@@ -17,6 +17,7 @@ public class SwitcherPrefData
     public string _GamesFolder;
     public string _JoyToKeyFolder;
     public string _BGMusicFolder;
+    public bool _ShutDownExplorerWhileRunning;
     //public DisplaySettings displaySettings;
     #endregion
 

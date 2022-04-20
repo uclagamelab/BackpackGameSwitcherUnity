@@ -87,11 +87,11 @@ public class GamePreviewDisplayTexture
 
     public void setVideo(GameData game, string fallbackVideoUrl = null, Texture fallbackPreviewTexture = null)
     {
-        if (!string.IsNullOrEmpty(game.videoUrl))
+        if (!string.IsNullOrEmpty(game?.videoUrl))
         {
             setVideo(game.videoUrl);
         }
-        else if (game.previewImg != null)
+        else if (game?.previewImg != null)
         {
             setVideo(game.previewImg);
         }

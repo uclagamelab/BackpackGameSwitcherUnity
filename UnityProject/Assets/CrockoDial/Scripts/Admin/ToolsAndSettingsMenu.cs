@@ -99,6 +99,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         }
 
         checkForegroundLockout();
+        checkAutoRestart();
     }
 
     void checkForegroundLockout()
@@ -118,12 +119,33 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
                         + "HKEY_CURRENT_USER\\Control Panel\\Desktop\\ForegroundLockTimeout";
                 }
             }
-
-
         }
         catch (System.Exception)
         {
 
+        }
+    }
+
+    [ContextMenu("Check Autorestart")]
+    void checkAutoRestart()
+    {
+        try
+        {
+            int autoRestartShellOn = (int)Registry.GetValue("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\WinLogon", "AutoRestartShell", -1);
+
+            if (autoRestartShellOn != 0)
+            {
+                this.resultMessage.text += 
+                    "\n\n"
+                    + "Full support for hiding the taskbar, and windows explorer requires you open regedit and set the value to 0:"
+                    + "\n\nHKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\WinLogon\\AutoRestartShell"
+                    ;
+            }
+
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Error checking registry values for restarting shell: \n" + e);
         }
     }
 
