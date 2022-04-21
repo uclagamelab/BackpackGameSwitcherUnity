@@ -42,6 +42,7 @@ public class SwitcherApplicationController : MonoBehaviour
     void Awake () {
         _defaultResolution = Screen.currentResolution;
         _defaultIsFullScreen = Screen.fullScreen;
+        Application.targetFrameRate = 60;
     }
 
     void Start()
