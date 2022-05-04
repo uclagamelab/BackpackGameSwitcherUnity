@@ -18,6 +18,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     [SerializeField]
     Transform allMenu;
     public Text resultMessage;
+    InputField resultMessageOutput;
 
     [SerializeField]
     InputField gamesDirInputField;
@@ -66,7 +67,9 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         //_generateJoyToKeyAppAssociationFileButton.onClick.AddListener(GenerateJoyToKeyExeAssociationFile);
 
 
-        isOpen = allMenu.gameObject.activeSelf; 
+        isOpen = allMenu.gameObject.activeSelf;
+
+        resultMessageOutput = resultMessage.GetComponent<InputField>();
 
     }
 
@@ -85,7 +88,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     public void showSetup(bool show)
     {
         isOpen = show;
-        this.resultMessage.text = "";
+        this.resultMessageOutput.text = "";
         this.allMenu.gameObject.SetActive(show);
         if (show)
         {
@@ -94,7 +97,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
             bool noGames = GameCatalog.Instance.gameCount == 0;
             if (noGames)
             {
-                this.resultMessage.text = "Couldn't load any games!\n";
+                this.resultMessageOutput.text = "Couldn't load any games!\n";
             }
         }
 
@@ -112,7 +115,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
                 if (ForegroundLockTimeout != 0)
                 {
-                    this.resultMessage.text += "\n" 
+                    this.resultMessageOutput.text += "\n" 
                         +
                         "If you are running windows 10, you need to open " +
                         "regedit, and set following value to 0:\n\n"
@@ -135,7 +138,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
             if (autoRestartShellOn != 0)
             {
-                this.resultMessage.text += 
+                this.resultMessageOutput.text += 
                     "\n\n"
                     + "Full support for hiding the taskbar, and windows explorer requires you open regedit and set the value to 0:"
                     + "\n\nHKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\WinLogon\\AutoRestartShell"
@@ -191,7 +194,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
             dat.Audit(_auditStringBuilder);
         }
 
-        resultMessage.text = _auditStringBuilder.ToString();
+        resultMessageOutput.text = _auditStringBuilder.ToString();
         Debug.Log(_auditStringBuilder);
     }
     
