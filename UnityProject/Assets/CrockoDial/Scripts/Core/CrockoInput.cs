@@ -81,7 +81,11 @@ public class CrockoInput : MonoBehaviour
 
     public static bool GetAdminMenuKeyComboDown()
     {
-        return (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.K);
+        bool ctrlHeld = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+        #if UNITY_EDITOR
+        ctrlHeld &= Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt); //Unity has its own ctrl-k now.... 
+        #endif
+        return ctrlHeld && Input.GetKeyDown(KeyCode.K);
     }
 
     public class PrelaunchMenuInput

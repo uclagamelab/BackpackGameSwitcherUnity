@@ -206,7 +206,6 @@ public class GameData
     //string _instructionsFilePathCached = null;
     string instructionsFilePath;
     string notesFilePath;
-    string launchSettingsFilePath;
 
     string findOrCreateDoubleExtensionTextFile(string extension, string defaultVal)
     {
