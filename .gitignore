@@ -36,22 +36,27 @@ sysinfo.txt
 UnityProject/.vs/
 UnityProject/Library/
 UnityProject/Temp/
-UnityProject/Assets/StreamingAssets/~Special/JoyToKey/JoyToKey.log
-UnityProject/Assets/_ignore/
-UnityProject/Assets/_ignore.meta
+UnityProject/obj/
+UnityProject/Logs/Packages-Update.log
+UnityProject/.vsconfig
+UnityProject/Logs/
+UnityProject/UserSettings/
+
+# - Project specific -
+UnityProject/Assets/settings.json
+UnityProject/Assets/settings.json.meta
+UnityProject/Assets/TextMesh Pro/Documentation/TextMesh Pro User Guide 2016.pdf.meta
+UnityProject/Assets/TextMesh Pro/Documentation/TextMesh Pro User Guide 2016.pdf
+UnityProject/Assets/TextMesh Pro/Documentation.meta
+UnityProject/mouse.exe
+UnityProject/Assets/StreamingAssets/~Special/mouse.exe
+UnityProject/Assets/StreamingAssets/~Special/mouse.exe.meta
+
 UnityProject/Assets/Plugins/crosstales/FileBrowser/Demo/
 UnityProject/Assets/Plugins/crosstales/FileBrowser/Documentation/
 UnityProject/Assets/Plugins/crosstales/FileBrowser/Documentation.meta
 UnityProject/Assets/Plugins/crosstales/FileBrowser/Demo.meta
-UnityProject/obj/
-UnityProject/mouse.exe
-UnityProject/Assets/TextMesh Pro/Documentation/TextMesh Pro User Guide 2016.pdf.meta
-UnityProject/Assets/TextMesh Pro/Documentation/TextMesh Pro User Guide 2016.pdf
-UnityProject/Assets/TextMesh Pro/Documentation.meta
-UnityProject/Assets/StreamingAssets/~Special/mouse.exe
-UnityProject/Assets/StreamingAssets/~Special/mouse.exe.meta
-UnityProject/Logs/Packages-Update.log
-UnityProject/.vsconfig
-UnityProject/Assets/settings.json
-UnityProject/Logs/
-UnityProject/UserSettings/
+
+UnityProject/Assets/StreamingAssets/~Special/JoyToKey/JoyToKey.log
+UnityProject/Assets/_ignore/
+UnityProject/Assets/_ignore.meta
