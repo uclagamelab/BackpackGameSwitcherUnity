@@ -159,6 +159,7 @@ public class SpeedyListView : MonoBehaviour
     static StringBuilder sb = new StringBuilder();
 
     bool smallNumberOfGames => GameCatalog.Instance.gameCount < _listItems.Count - 3;
+    bool _firedStopEvent = false;
     void LateUpdate()
     {
 
@@ -213,8 +214,21 @@ public class SpeedyListView : MonoBehaviour
         int lastSelectedIdx = stopIndex;
 
         if (!keyHeld)
-        {          
+        {
+            float fuzzPrev = _fuzzyIdx;
             _fuzzyIdx = Mathf.MoveTowards(_fuzzyIdx, stopIndex, Time.deltaTime * speed);
+
+            float plinkDistance = .05f;
+
+            if (!_firedStopEvent && fuzzPrev != _fuzzyIdx && Mathf.Abs(_fuzzyIdx - stopIndex) < plinkDistance)
+            {
+                _firedStopEvent = true;
+                OnStoppedAtItem.Invoke();
+            }
+        }
+        else
+        {
+            _firedStopEvent = speed == 0;
         }
 
         bool shoulShowAlphaHelper = keyHeld && _keyHeldTimer > .75f && !smallNumberOfGames;
@@ -222,10 +236,15 @@ public class SpeedyListView : MonoBehaviour
             (shoulShowAlphaHelper ? 1 : 0), 
             (keyHeld ? Time.deltaTime * 2 : Time.deltaTime * 1f));
 
+        if (DirectionalRound(lastFuzz, _scrollMomentumDirection) != DirectionalRound(_fuzzyIdx, _scrollMomentumDirection))
+        {
+            if (!_firedStopEvent) OnPassedItem.Invoke();
+        }
+
         if ((int)lastFuzz != (int)_fuzzyIdx)
         {
 
-            OnPassedItem.Invoke();
+           
             OnRepopulated();
         }
 
@@ -233,7 +252,7 @@ public class SpeedyListView : MonoBehaviour
         {
             _stabilizedStartTime = .25f;
             _stabilizedIdx = stopIndex;
-            OnStoppedAtItem.Invoke();
+            //OnStoppedAtItem.Invoke();
         }
         if (_stabilizedStartTime > 0)
         {
@@ -264,6 +283,10 @@ public class SpeedyListView : MonoBehaviour
         UpdateTextViz();
     }
 
+    static int DirectionalRound(float n, float direction)
+    {
+        return direction <= 0 ? (int)n : Mathf.CeilToInt(n);
+    }
     void UpdateTextViz()
     {
 

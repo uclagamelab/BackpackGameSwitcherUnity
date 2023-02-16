@@ -85,19 +85,11 @@ public class VaSwitcherSound : MonoBehaviour {
 
     void OnListPass()
     {
-
-        PlayOneShot(this.listPlink1, .25f, 1.5f + 2.1f * Mathf.Abs(_speedyList.speed));
+        PlayOneShot(this.listPlink1, .25f, 1.0f + 1.0f * Mathf.Abs(_speedyList.speed));
     }
     void OnListStop()
     {
-        //xxx
-        
-        
-            
-        //Mathf.Round(_speedyList.fuzzyIdx) == Mathf.Round(_speedyList.stopIndex) && 
-
          PlayOneShot(this.listPlonk, .35f, 1.25f);
-        
     }
 
     void OnInfoMenuCursorMove(bool open)

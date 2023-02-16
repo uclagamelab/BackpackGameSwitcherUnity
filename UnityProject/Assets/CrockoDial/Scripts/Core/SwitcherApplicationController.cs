@@ -151,18 +151,6 @@ public class SwitcherApplicationController : MonoBehaviour
         }
     }
 
-
-
-    /*void OnGUI()
-    {
-        AlexUtil.DrawText(Vector2.one * 75, BackgroundKeyboardInput.Instance.lastKeyHit + ", " + BackgroundKeyboardInput.Instance.timeOfLastInput, 24, Color.magenta, null);
-        if (Time.time > BackgroundKeyboardInput.Instance.timeOfLastInput + idleTimeout)
-        {
-            AlexUtil.DrawText(Vector2.one * 10, "" + (timeOfNextAttractAutoCyle - Time.time), 24, Color.magenta, null);
-        }
-    }*/
-
-
     public void onRequestQuit()
     {
         gotAnExitCombo = true;
