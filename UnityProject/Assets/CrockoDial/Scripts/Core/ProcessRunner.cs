@@ -281,26 +281,33 @@ public class ProcessRunner : MonoBehaviour
         }
         else
         {
-            //RegistryKey ourKey = Registry.LocalMachine;
-            //ourKey = ourKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon", true);
-            //ourKey.SetValue("AutoRestartShell", 0);
-
-            //TryKillNamedExe("explorer.exe");
-            string targetExe = "explorer";
-            Process[] processes = Process.GetProcessesByName(targetExe);
-            foreach (Process p in processes)
+            if (IsWindow11)
             {
-                bool canCheck = !p.HasExited;
-                if (canCheck)
+                //I suspect this method is probably fine also for previous versions of windows, may ask tyler to test.
+                var psinfo = new ProcessStartInfo();
+                psinfo.WindowStyle = ProcessWindowStyle.Hidden;
+                psinfo.FileName = "taskkill";
+                psinfo.Arguments = "/f /im explorer.exe";
+                Process.Start(psinfo);
+            }
+            else
+            {
+                string targetExe = "explorer";
+                Process[] processes = Process.GetProcessesByName(targetExe);
+                foreach (Process p in processes)
                 {
-                    //Debug.Log(p.MainModule.FileName);
-                    //p.Kill();
-                    p.CloseMainWindow();
-                    //p.Close();
+                    bool canCheck = !p.HasExited;
+                    if (canCheck)
+                    {
+                        p.CloseMainWindow();
+                    }
                 }
             }
         }
     }
+
+    public bool IsWindow11 => SystemInfo.operatingSystem.StartsWith("Windows 11");
+
 
     public void StartGame(GameData gameToStart)
     {
