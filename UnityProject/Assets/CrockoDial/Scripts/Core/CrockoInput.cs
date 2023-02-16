@@ -8,13 +8,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum CrockoInputMode { joystick = 0, trackball=1, regularMouse=2 }
 public class CrockoInput : MonoBehaviour
 {
     static bool USE_TRACKBALL_INPUT = false;
 
     private void Awake()
     {
-        USE_TRACKBALL_INPUT = XUCommandLineArguments.Contains("-trackball_input");
+        USE_TRACKBALL_INPUT = SwitcherSettings.Data._controlMode == CrockoInputMode.trackball;
         BackgroundKeyboardInput.Events.onBackgroundKeyCombo += onBackgroundKeyCombo;
     }
 

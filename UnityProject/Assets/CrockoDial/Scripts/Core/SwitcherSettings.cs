@@ -18,6 +18,7 @@ public class SwitcherPrefData
     public string _JoyToKeyFolder;
     public string _BGMusicFolder;
     public bool _ShutDownExplorerWhileRunning;
+    public CrockoInputMode _controlMode = CrockoInputMode.joystick;
     //public DisplaySettings displaySettings;
     #endregion
 

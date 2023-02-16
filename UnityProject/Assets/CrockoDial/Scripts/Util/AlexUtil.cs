@@ -16,6 +16,17 @@ using System.Collections.Generic;
 public static class Alextensions
 {
 
+    public static V GetOrDefault<K, V>(this Dictionary<K, V> dict, K key, V optionalDefault = default(V))
+    {
+        if (typeof(K).IsClass && key == null) //null keys are not allowed
+        {
+            return optionalDefault;
+        }
+
+        return !dict.ContainsKey(key) ? optionalDefault : dict[key];
+    }
+
+
 
     public delegate void TFunction(float t);
 
