@@ -132,7 +132,7 @@ public class BgMusicPlayer : MonoBehaviour
         {
             return AudioType.AIFF;
         }
-        return AudioType.OGGVORBIS;
+        return AudioType.UNKNOWN;
     }
 
     public void requestNewSong()
@@ -169,17 +169,14 @@ public class BgMusicPlayer : MonoBehaviour
 
         foreach (string path in Directory.GetFiles(musicLocation))
         {
-            string[] okExtensions = { "ogg", "wav" };
+            //string[] okExtensions = { "ogg", "wav", "mp3" };
             FileInfo maybeFile = new FileInfo(path);
-            foreach (string ext in okExtensions)
+            var fileType = determineFromFileName(maybeFile.Name);
+            if (fileType != AudioType.UNKNOWN)
             {
-                if (maybeFile.Extension.ToLower().EndsWith(ext))
-                {
-                    //Debug.Log("!!!!!!!!!!!!!!!" + maybeFile);
-                    // fileToUse = maybeFile;
-                    bgMusicList.Add(maybeFile);
-                }
+                bgMusicList.Add(maybeFile);
             }
+            
         }
 
 
