@@ -258,6 +258,7 @@ public class ProcessRunner : MonoBehaviour
         SetWindowsExplorerRunning(false);
     }
 
+    bool _haveKilledExplorer = false;
     public void SetWindowsExplorerRunning(bool on)
     {
         if (on)
@@ -281,6 +282,7 @@ public class ProcessRunner : MonoBehaviour
         }
         else
         {
+            _haveKilledExplorer = true;
             if (IsWindow11)
             {
                 //I suspect this method is probably fine also for previous versions of windows, may ask tyler to test.
@@ -505,13 +507,13 @@ public class ProcessRunner : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        TerminateProcess(_joy2KeyProcess);
         #if !UNITY_EDITOR
-        if (SwitcherSettings.Data._ShutDownExplorerWhileRunning)
+        if (_haveKilledExplorer || SwitcherSettings.Data._ShutDownExplorerWhileRunning)
         {
             SetWindowsExplorerRunning(true);
         }
         #endif
+        TerminateProcess(_joy2KeyProcess);
     }
 
     public void KillAllNonSafeProcesses(int exitCode = 0)
