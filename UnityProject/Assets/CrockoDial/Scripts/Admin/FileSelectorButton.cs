@@ -4,14 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using Crosstales.FB;
 using System.IO;
+using System;
+using System.Reflection;
 
 public class FileSelectorButton : MonoBehaviour
 {
+    public string _fieldName;
     bool detectIfExeRelative => _baseDirectory != BaseDirectoryType.JoyToKey;
     public enum BaseDirectoryType
     {
         JoyToKey,
         GamesDirectory,
+        CompanionSoftwareDirectory,
         Other,
     }
 
@@ -38,6 +42,10 @@ public class FileSelectorButton : MonoBehaviour
         _targetField = this.transform.parent.GetComponentInChildren<InputField>();
     }
 
+    private void OnEnable()
+    {
+        refreshFromSettings();
+    }
 
     public string StartingDirectoryIfNoHistory()
     {
@@ -53,6 +61,10 @@ public class FileSelectorButton : MonoBehaviour
                 startDirectory = SwitcherSettings.Data.GamesFolder;
             }
             else if (_baseDirectory == BaseDirectoryType.JoyToKey)
+            {
+                startDirectory = SwitcherSettings.Data.JoyToKeyFolder;
+            }
+            else if (_baseDirectory == BaseDirectoryType.CompanionSoftwareDirectory)
             {
                 startDirectory = SwitcherSettings.Data.JoyToKeyFolder;
             }
@@ -97,6 +109,45 @@ public class FileSelectorButton : MonoBehaviour
 
             _targetField.text = finalVal;
             OnValidPathChosen.Invoke(finalVal);
+            applyToSettings(finalVal);
         }
     }
+
+    void refreshFromSettings()
+    {
+        var dat = SwitcherSettings.Data;
+        Type ty = dat.GetType();
+        FieldInfo fi = ty.GetField(_fieldName);
+        if (fi == null)
+        {
+            _targetField.interactable = false;
+        }
+        else
+        {
+            string curValue = (string)fi.GetValue(dat);
+ 
+            if (_targetField.text != curValue)
+            {
+                _targetField.text = curValue;
+            }
+        }
+    }
+
+    void applyToSettings(string newVal)
+    {
+        var dat = SwitcherSettings.Data;
+        Type ty = dat.GetType();
+        FieldInfo fi = ty.GetField(_fieldName);
+        string newValue = _targetField.text;
+        if (fi == null)
+        {
+            _targetField.interactable = false;
+        }
+        else
+        {
+            fi.SetValue(dat, newValue);
+            SwitcherSettings.ApplyChanges();
+        }
+    }
+
 }

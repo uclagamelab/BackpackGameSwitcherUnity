@@ -13,7 +13,7 @@ public class VaSwitcherSound : MonoBehaviour {
     {
         get
         {
-            return 3.5f;// * _sfxVolFromeSettings;
+            return SwitcherSettings.Data._SFXVolume;
         }
     }
 
@@ -85,27 +85,27 @@ public class VaSwitcherSound : MonoBehaviour {
 
     void OnListPass()
     {
-        PlayOneShot(this.listPlink1, .25f, 1.0f + 1.0f * Mathf.Abs(_speedyList.speed));
+        PlayOneShot(this.listPlink1, 1, 1.0f + 1.0f * Mathf.Abs(_speedyList.speed));
     }
     void OnListStop()
     {
-         PlayOneShot(this.listPlonk, .35f, 1.25f);
+         PlayOneShot(this.listPlonk, .25f,1f);
     }
 
     void OnInfoMenuCursorMove(bool open)
     {
-        PlayOneShot(infoMenuCursorMove1, .075f, 1);
+        PlayOneShot(infoMenuCursorMove1, .225f, 1);
     }
 
         void onOpenCloseInfo(bool open)
     {
         if (open)
         {
-            PlayOneShot(openInfoSound, .20f, 0.75f);
+            PlayOneShot(openInfoSound, .75f, 0.75f);
         }
         else
         {
-            PlayOneShot(closeInfoSound, .25f, .75f);
+            PlayOneShot(closeInfoSound, .85f, .75f);
         }
     }
 
@@ -131,11 +131,11 @@ public class VaSwitcherSound : MonoBehaviour {
 
     void onQuitGame()
     {
-        PlayOneShot(quitGame, .25f, 1);
+        PlayOneShot(quitGame, 1, 1);
     }
 
     void onStartGame()
     {
-        PlayOneShot(startGame, .5f, 1);
+        PlayOneShot(startGame, 1.25f, 1);
     }
 }

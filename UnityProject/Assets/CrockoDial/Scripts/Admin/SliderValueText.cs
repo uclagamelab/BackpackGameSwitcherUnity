@@ -6,10 +6,12 @@ using UnityEngine.UI;
 public class SliderValueText : MonoBehaviour {
     public Slider slider;
     Text text;
-	// Use this for initialization
+
 	void Start () {
         text = this.GetComponent<Text>();
         slider.onValueChanged.AddListener(ValChan);
+
+        ValChan(slider.value);
     }
 
     void ValChan(float val)

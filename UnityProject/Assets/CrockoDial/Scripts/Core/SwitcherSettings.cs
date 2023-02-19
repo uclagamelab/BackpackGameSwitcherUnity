@@ -8,6 +8,8 @@ public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData
     public static bool AdminMode => false;
     #endregion
     protected override string fileName => "settings.json";
+
+    
 }
 
 [System.Serializable]
@@ -16,13 +18,20 @@ public class SwitcherPrefData
     #region SERIALIZED
     public string _GamesFolder;
     public string _JoyToKeyFolder;
+    public string _CompanionSoftwareFolder;
     public string _BGMusicFolder;
+    public float _BGMusicVolume;
+    public float _SFXVolume = 1;
     public bool _ShutDownExplorerWhileRunning;
+    public bool _EnableRainmeter;
     public CrockoInputMode _controlMode = CrockoInputMode.joystick;
     //public DisplaySettings displaySettings;
     #endregion
 
+    public System.Action OnValuesUpdated = () => { };
+
     public string JoyToKeyFolder => ConvertIfExeRelative(_JoyToKeyFolder);
+    public string CompanionSoftwareFolder => ConvertIfExeRelative(_CompanionSoftwareFolder);
     public string BGMusicFolder => ConvertIfExeRelative(_BGMusicFolder);
 
     static string ConvertIfExeRelative(string rawPath)

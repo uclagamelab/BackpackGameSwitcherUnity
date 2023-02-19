@@ -53,6 +53,7 @@ public class XUGenericPeristentDataSingleton<T> : XUGenericPersistentData<T> whe
     public static void ClearSaveData()
     {
         instance.clearSaveData();
+        SwitcherSettings.Data.OnValuesUpdated();
     }
 
 }

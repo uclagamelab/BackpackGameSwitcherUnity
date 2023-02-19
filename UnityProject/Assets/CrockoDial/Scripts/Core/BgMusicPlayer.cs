@@ -18,6 +18,7 @@ public class BgMusicPlayer : MonoBehaviour
 
     [Range(0,1)]
     public float targMusicVolume;
+    float _volumeUnscaled = 0;
 
     public static BgMusicPlayer instance { get; private set; }
     bool newSongRequested;
@@ -95,8 +96,11 @@ public class BgMusicPlayer : MonoBehaviour
             finalTargVolume = 0;
         }
 
-        this.bgMusicSource.volume = Mathf.MoveTowards(this.bgMusicSource.volume, finalTargVolume, .35f * Time.deltaTime);
+
+        _volumeUnscaled = Mathf.MoveTowards(_volumeUnscaled, finalTargVolume, .35f * Time.deltaTime);
+        this.bgMusicSource.volume = _volumeUnscaled * SwitcherSettings.Data._BGMusicVolume;
     }
+
 
     IEnumerator GetAudioClipFromDisk(FileInfo fileToUse)
     {

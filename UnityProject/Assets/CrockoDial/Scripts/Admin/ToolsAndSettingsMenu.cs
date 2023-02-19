@@ -20,16 +20,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     public Text resultMessage;
     InputField resultMessageOutput;
 
-    [SerializeField]
-    InputField gamesDirInputField;
-
-    [SerializeField]
-    [UnityEngine.Serialization.FormerlySerializedAs("joyToKeyInputField")]
-    InputField joyToKeyDirInputField;
-
-    [SerializeField]
-    InputField bgMusicDirInputField;
-
     [Header("Windows")]
     [SerializeField]
     GameObject _mainSettingsWindow;
@@ -52,8 +42,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     void Awake ()
     {
-        loadValuesFromSettings();
-
         string[] args = System.Environment.GetCommandLineArgs();
         if (System.Array.Find<string>(args, (string s)=> { return s.Equals("--setup"); }) != null)
         {
@@ -92,8 +80,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         this.allMenu.gameObject.SetActive(show);
         if (show)
         {
-            loadValuesFromSettings();
-
             bool noGames = GameCatalog.Instance.gameCount == 0;
             if (noGames)
             {
@@ -152,18 +138,8 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         }
     }
 
-    void loadValuesFromSettings()
-    {
-        this.gamesDirInputField.text = SwitcherSettings.Data._GamesFolder;
-        this.joyToKeyDirInputField.text = SwitcherSettings.Data._JoyToKeyFolder;
-        this.bgMusicDirInputField.text = SwitcherSettings.Data._BGMusicFolder;
-    }
-
     public void saveCurrentValuesToSettings()
     {
-        SwitcherSettings.Data._GamesFolder = this.gamesDirInputField.text;
-        SwitcherSettings.Data._JoyToKeyFolder = this.joyToKeyDirInputField.text;
-        SwitcherSettings.Data._BGMusicFolder = this.bgMusicDirInputField.text;
         SwitcherSettings.ApplyChanges();
 
         //Apply the settings
@@ -181,7 +157,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     public void restoreDefaults()
     {
         SwitcherSettings.ClearSaveData();
-        loadValuesFromSettings();
+        SwitcherSettings.Data.OnValuesUpdated();
     }
 
     System.Text.StringBuilder _auditStringBuilder = new System.Text.StringBuilder();

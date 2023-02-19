@@ -13,11 +13,13 @@ public class ExternalOverlay : MonoBehaviour
     static ExternalOverlay _instance;
     float _autoTimeout = 0;
     const float MAX_OVERLAY_ON_TIME = 10;
-    static bool _overlayAllowed = true;
+    static bool _installationFound = true;
+    static bool overlayAllowed => 
+        _installationFound 
+        && !SwitcherSettings.AdminMode 
+        && SwitcherSettings.Data._EnableRainmeter;
 
     bool _overlayShowing = false;
-
-    //"C:\\Program Files\\Rainmeter\\Rainmeter.exe";
 
     static Process _rainmeterProcess = null;
 
@@ -25,19 +27,18 @@ public class ExternalOverlay : MonoBehaviour
     {
         _instance = this;
         bool rainmeterInstalled = File.Exists(CompanionSoftware.Rainmeter);
-        _overlayAllowed = rainmeterInstalled && !SwitcherSettings.AdminMode;
+        _installationFound = rainmeterInstalled;
     }
 
     private void Start()
     {
-        if (_overlayAllowed)
+        if (overlayAllowed)
         {
-            //ProcessStartInfo startInfo = new ProcessStartInfo(CompanionSoftware.Rainmeter);
             _rainmeterProcess = Process.Start(CompanionSoftware.Rainmeter);
+            ProcessRunner.Events.OnProcessLaunched += onStartGame;
+            ProcessRunner.Events.OnProcessExited += onQuitGame;
         }
 
-        ProcessRunner.Events.OnProcessLaunched += onStartGame;
-        ProcessRunner.Events.OnProcessExited += onQuitGame;
     }
 
     private void OnDestroy()
@@ -58,7 +59,7 @@ public class ExternalOverlay : MonoBehaviour
         if (Application.isPlaying)
         {
         #endif
-            if (!_overlayAllowed) //-------- Don't show if disabled ---------------
+            if (!overlayAllowed) //-------- Don't show if disabled ---------------
             {
                 return;
             }
@@ -96,7 +97,7 @@ public class ExternalOverlay : MonoBehaviour
     }
     static void HideOverlay()
     {
-        if (!_overlayAllowed)
+        if (!overlayAllowed)
         {
             return;
         }
@@ -115,7 +116,7 @@ public class ExternalOverlay : MonoBehaviour
 
     private void Update()
     {
-        if (!_overlayAllowed)
+        if (!overlayAllowed)
         {
             return;
         }
