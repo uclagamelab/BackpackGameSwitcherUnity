@@ -183,7 +183,7 @@ public class ProcessRunner : MonoBehaviour
         ProcessStartInfo startInfo = new ProcessStartInfo();
 
         startInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(joyToKeyExe); //"C:\\Users\\Garrett Johnson\\Desktop";
-        startInfo.FileName = joyToKeyExe;
+        startInfo.FileName = System.IO.Path.GetFileName(joyToKeyExe); ;
         startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
 
 
