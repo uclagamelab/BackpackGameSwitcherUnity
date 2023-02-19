@@ -5,12 +5,16 @@ using UnityEngine;
 public class CursorManager : MonoBehaviour
 {
 
-    public bool whileChoosingGame = true;
+    bool visibleWhileChoosingAGame = false;
     bool lastAppliedViz = true;
+    private void Start()
+    {
+        visibleWhileChoosingAGame = SwitcherSettings.Data._controlMode == CrockoInputMode.regularMouse;
+    }
 
     void Update()
     {
-        bool shouldBeVisible = whileChoosingGame || SwitcherSettings.AdminMode || ToolsAndSettingsMenu.isOpen;
+        bool shouldBeVisible = visibleWhileChoosingAGame || SwitcherSettings.AdminMode || ToolsAndSettingsMenu.isOpen;
         #if UNITY_EDITOR
         shouldBeVisible = true;
         #endif
