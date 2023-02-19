@@ -44,12 +44,6 @@ public class GameCatalog : MonoBehaviour
         cleanPath = cleanPath.Replace('\\', '/');
         repopulateCatalog(cleanPath);
     }
-
-    void Start () 
-	{
-        
-	}
-    
     
     public void repopulateCatalog(string gamesFolderPath)
     {

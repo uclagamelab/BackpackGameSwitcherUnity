@@ -34,12 +34,19 @@ public class FileSelectorButton : MonoBehaviour
 
     public bool _setFileNameInsteadOfFullPath = true;
     public System.Action<string> OnValidPathChosen = (string chosenFile) => { };
+    
 
-    // Start is called before the first frame update
     void Awake()
     {
         this.GetComponent<Button>().onClick.AddListener(onClick);
         _targetField = this.transform.parent.GetComponentInChildren<InputField>();
+        if (!string.IsNullOrEmpty(_fieldName))
+        {
+            _targetField.onEndEdit.AddListener(
+                (string newVal) => {
+                    this.applyToSettings(newVal, false);
+                });
+        }
     }
 
     private void OnEnable()
@@ -115,6 +122,10 @@ public class FileSelectorButton : MonoBehaviour
 
     void refreshFromSettings()
     {
+        if (string.IsNullOrEmpty(_fieldName))
+        {
+            return;
+        }
         var dat = SwitcherSettings.Data;
         Type ty = dat.GetType();
         FieldInfo fi = ty.GetField(_fieldName);
@@ -133,8 +144,12 @@ public class FileSelectorButton : MonoBehaviour
         }
     }
 
-    void applyToSettings(string newVal)
+    void applyToSettings(string newVal, bool writeToDisk = true)
     {
+        if (string.IsNullOrEmpty(_fieldName))
+        {
+            return;
+        }
         var dat = SwitcherSettings.Data;
         Type ty = dat.GetType();
         FieldInfo fi = ty.GetField(_fieldName);
@@ -146,7 +161,10 @@ public class FileSelectorButton : MonoBehaviour
         else
         {
             fi.SetValue(dat, newValue);
-            SwitcherSettings.ApplyChanges();
+            if (writeToDisk)// || (fi.GetValue(dat) as string) != newVal)
+            {
+                SwitcherSettings.ApplyChanges();
+            }
         }
     }
 

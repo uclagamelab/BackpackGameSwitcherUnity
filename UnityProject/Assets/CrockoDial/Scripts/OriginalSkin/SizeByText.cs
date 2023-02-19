@@ -25,18 +25,14 @@ public class SizeByText : MonoBehaviour {
     [SerializeField]
     CombineMode yCombine = CombineMode.sum;
 
-    //21, 300
     [SerializeField]
     ObservedText[] _srcTexts;
 
     public ObservedText[] srcTexts => _srcTexts;
-
-    [SerializeField]
-    RectTransform rt;
+    RectTransform rt => this.transform as RectTransform;
     public float xPadding = 0;
     // Use this for initialization
     void Awake() {
-        rt = this.GetComponent<RectTransform>();
         if (manualOnly)
         {
             this.enabled = false;
