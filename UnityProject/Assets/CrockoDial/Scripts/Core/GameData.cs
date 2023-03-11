@@ -41,7 +41,7 @@ public class GameData
     public string howToPlay;    //not included in JSON (has dedicated separate file)
     [System.NonSerialized]
     public string notes;    //not included in JSON (has dedicated separate file)
-
+    public bool previewVideoHasAudio { get; private set; }
 
     [System.NonSerialized]
     DirectoryInfo _gameFolder = null;
@@ -109,6 +109,12 @@ public class GameData
         this.howToPlay = diskInstructions;
         this.notes = diskNotes;
 
+        this.previewVideoHasAudio = true;
+        if (string.IsNullOrEmpty(videoUrl) || System.IO.Path.GetFileNameWithoutExtension(videoUrl).EndsWith("[NO_AUDIO]", System.StringComparison.InvariantCultureIgnoreCase))
+        {
+            previewVideoHasAudio = false;
+        }
+
 
         if (string.IsNullOrEmpty(this.title))
         {
@@ -129,7 +135,24 @@ public class GameData
         // --- Find the instructions ------------------------
 
         //--- set up video ---------------
-        setUpVideo(_gameFolder);
+        string videoFolder = _gameFolder.FullName + "/video";
+        if (Directory.Exists(videoFolder))
+        {
+            //try to find a .lnk
+            //TODO : figure out valid video types...
+            List<string> videosInDirectory = GetFilesMultipleSearchPattern(videoFolder, new string[] { "*.mp4", "*.mov", "*.ogv", "*.flv" });
+            foreach (string v in videosInDirectory)
+            {
+                //Debug.Log(v + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            }
+            if (videosInDirectory.Count > 0)
+            {
+                this.videoUrl = videosInDirectory[0];
+            }
+        }
+        this.previewVideoHasAudio = !string.IsNullOrEmpty(videoUrl) && !System.IO.Path.GetFileNameWithoutExtension(videoUrl).EndsWith("[NO_AUDIO]", System.StringComparison.InvariantCultureIgnoreCase);
+        
+
 
         setUpInstructionsOverlay(_gameFolder);
 
@@ -303,26 +326,6 @@ public class GameData
 
     }
 
-    void setUpVideo(DirectoryInfo gameFolder)
-    {
-
-        string videoFolder = gameFolder.FullName + "/video";
-        if (Directory.Exists(videoFolder))
-        {
-            //try to find a .lnk
-            //TODO : figure out valid video types...
-            List<string> videosInDirectory = GetFilesMultipleSearchPattern(videoFolder, new string[] { "*.mp4", "*.mov", "*.ogv", "*.flv" });
-            foreach (string v in videosInDirectory)
-            {
-                //Debug.Log(v + "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            }
-            if (videosInDirectory.Count > 0)
-            {
-                this.videoUrl = videosInDirectory[0];
-            }
-        }
-
-    }
     //void setUpExe_LEGACY(DirectoryInfo gameFolder)
     //{
     //    string platform = "windows";

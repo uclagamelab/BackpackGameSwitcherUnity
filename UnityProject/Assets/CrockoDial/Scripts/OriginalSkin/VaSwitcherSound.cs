@@ -57,6 +57,17 @@ public class VaSwitcherSound : MonoBehaviour {
 
         _speedyList.OnPassedItem += OnListPass;
         _speedyList.OnStoppedAtItem += OnListStop;
+
+        BgMusicPlayer.instance.AddMasterVolumeOverrider(volumeRequest);
+    }
+
+    private void volumeRequest(ref BgMusicPlayer.ForceMode mode, ref int priority)
+    {
+        if (menu.state == MenuVisualsGeneric.MenuState.LaunchGame)
+        {
+            priority = 500;
+            mode = BgMusicPlayer.ForceMode.WantOff;
+        }
     }
 
     private void OnDestroy()
@@ -65,13 +76,6 @@ public class VaSwitcherSound : MonoBehaviour {
     }
     void Update()
     {
-        float targMusicVolume = 0;
-        if (menu.state != MenuVisualsGeneric.MenuState.LaunchGame)
-        {
-            targMusicVolume = 1;
-        }
-        BgMusicPlayer.instance.targMusicVolume = targMusicVolume;
-
         float targetCutoff = 22000;
         if (PreLaunchGameInfo.Instance.open || (PreLaunchGameInfo.Instance.animating && !PreLaunchGameInfo.Instance.open))
         {

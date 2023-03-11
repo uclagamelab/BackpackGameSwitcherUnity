@@ -9,6 +9,10 @@ public class GamePreviewDisplayTexture
     public VideoPlayer _videoPlayer;
     public RawImage _rawImgOuput;
     RenderTexture _videoRenderTexture;
+    public AudioSource _audioOuput;
+    GameData _viewedGameData;
+ 
+
 
     public bool isSeeking = false;
 
@@ -52,17 +56,36 @@ public class GamePreviewDisplayTexture
         _videoPlayer.skipOnDrop = true;
         _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
         _videoPlayer.aspectRatio = VideoAspectRatio.FitOutside;
-        _videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
+
+        _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        _audioOuput = BgMusicPlayer.instance.gameObject.AddComponent<AudioSource>(); //<- a little hacky, but so the low pass filter effect gets applied as it is for the bg music.
+        _audioOuput.volume = 0;
+        _audioOuput.outputAudioMixerGroup = BgMusicPlayer.instance.bgmGroup;
+        _videoPlayer.SetTargetAudioSource(0, _audioOuput);
 
         this._videoPlayer.targetTexture = _videoRenderTexture;
         this._rawImgOuput.texture = _videoRenderTexture;
         _videoPlayer.seekCompleted += seekFinished;
+        _videoPlayer.prepareCompleted += prepareFinished;
+        BgMusicPlayer.instance.AddBGMVolumeOverrider(bgMusicForcer);
+    }
+
+    private void bgMusicForcer(ref BgMusicPlayer.ForceMode mode, ref int priority)
+    {
+        if (_viewedGameData != null && _viewedGameData.previewVideoHasAudio && this.alpha > .5f && SwitcherSettings.Data._PreviewVideoVolume > 0)
+        {
+            mode = BgMusicPlayer.ForceMode.WantOff;
+            priority = 100;
+        }
     }
 
     void seekFinished(VideoPlayer vp)
     {
-        // Debug.Log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
         isSeeking = false;
+    }
+
+    void prepareFinished(VideoPlayer vp)
+    {
     }
 
     public Transform transform
@@ -82,11 +105,15 @@ public class GamePreviewDisplayTexture
             Color newColor = _rawImgOuput.color;
             newColor.a = value;
             _rawImgOuput.color = newColor;
+            _audioOuput.volume = 
+                _viewedGameData == null || !_viewedGameData.previewVideoHasAudio ?  0 : 
+                value * SwitcherSettings.Data._PreviewVideoVolume;
         }
     }
 
     public void setVideo(GameData game, string fallbackVideoUrl = null, Texture fallbackPreviewTexture = null)
     {
+        _viewedGameData = game;
         if (!string.IsNullOrEmpty(game?.videoUrl))
         {
             setVideo(game.videoUrl);
@@ -109,6 +136,8 @@ public class GamePreviewDisplayTexture
     {
         _rawImgOuput.texture = staticImg;
     }
+
+
     public  void setVideo(string videoUrl)
     {
         if (_rawImgOuput.texture != _videoRenderTexture)

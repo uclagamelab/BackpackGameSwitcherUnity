@@ -21,6 +21,7 @@ public class SwitcherPrefData
     public string _CompanionSoftwareFolder;
     public string _BGMusicFolder;
     public float _BGMusicVolume;
+    public float _PreviewVideoVolume = 0;
     public float _SFXVolume = 1;
     public bool _ShutDownExplorerWhileRunning;
     public bool _EnableRainmeter;

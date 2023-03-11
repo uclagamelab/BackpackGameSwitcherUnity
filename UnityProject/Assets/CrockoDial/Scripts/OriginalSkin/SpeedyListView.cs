@@ -314,6 +314,12 @@ public class SpeedyListView : MonoBehaviour
             _listItems[i].alpha = postSelectedPenalty * fadeOutNonSelectedGamesCoeff;
 
             //Lift the tabs up a little bit as they approach the selected tab, to give it some extra margin
+
+            float slideOff = Mathf.Max(rawDiff - 1, 0) / Mathf.Max(1, _listItems.Count - 1);
+            //slideOff = 1 - slideOff;
+            slideOff *= slideOff;
+            //slideOff = 1 - slideOff;
+
             float finalApproach =
                 rawDiffSigned < -1 ?
                 Mathf.InverseLerp(-4.5f, -1,  rawDiffSigned)
@@ -323,7 +329,9 @@ public class SpeedyListView : MonoBehaviour
             _listItems[i].transform.localPosition =
                 upwardsBump
                 +
-                _listItems[i].initialPosition.withX(Mathf.Pow(Mathf.InverseLerp(0, 1.1f, rawDiff), 2) * -35);
+                _listItems[i].initialPosition.withX(Mathf.Pow(Mathf.InverseLerp(0, 1.1f, rawDiff), 2) * -35)
+                //+ Vector3.left * slideOff * 450
+                ;
             //+ Mathf.Lerp(0, -800, rawDiff * _attractAmt));
         }
     }

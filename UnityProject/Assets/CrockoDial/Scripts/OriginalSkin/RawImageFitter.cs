@@ -6,7 +6,16 @@ using UnityEngine.Video;
 
 public class RawImageFitter : MonoBehaviour {
 
-    public Vector2 offset;
+    public Vector2 _offset;
+    public Vector2 offset
+    {
+        get => _offset;
+        set 
+        { 
+            _offset = value;
+            forceUpdate();
+        }
+    }
 
     public Vector2 sz = Vector2.zero;
 
@@ -29,7 +38,7 @@ public class RawImageFitter : MonoBehaviour {
     {
     get 
         {
-            return rawImg.texture;
+            return rawImg?.texture;
         }
     }
 
@@ -48,6 +57,10 @@ public class RawImageFitter : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate ()
+    {
+
+    }
+	void forceUpdate()
     {
 		if (tex != null)
         {

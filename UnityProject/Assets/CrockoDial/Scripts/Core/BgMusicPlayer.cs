@@ -7,8 +7,9 @@ using UnityEngine.Networking;
 
 public class BgMusicPlayer : MonoBehaviour
 {
-    [SerializeField]
-    AudioMixerGroup _bgmGroup;
+    [SerializeField] AudioMixer _mixer;
+    [SerializeField] AudioMixerGroup _bgmGroup;
+    public AudioMixerGroup bgmGroup => _bgmGroup;
 
     List<FileInfo> bgMusicList = new List<FileInfo>();
     int currentBgMusicIdx = 0;
@@ -18,20 +19,34 @@ public class BgMusicPlayer : MonoBehaviour
 
     [Range(0,1)]
     public float targMusicVolume;
-    float _volumeUnscaled = 0;
+    float _bgmVolumeSmooth = 0;
+
+    float _smoothMasterVolume = 1;
 
     public static BgMusicPlayer instance { get; private set; }
     bool newSongRequested;
 
     bool multipleBGM => bgMusicList.Count > 1;
 
+    public enum ForceMode { WantOn, WantOff };
+    public delegate void VolumeOverrider(ref ForceMode mode, ref int priority);
+    List<VolumeOverrider> _bgmVolumeOverriders = new();
+    List<VolumeOverrider> _masterVolumeOverriders = new();
+    public void AddBGMVolumeOverrider(VolumeOverrider overrider)
+    {
+        _bgmVolumeOverriders.Add(overrider);
+    }
+
+    public void AddMasterVolumeOverrider(VolumeOverrider overrider)
+    {
+        _masterVolumeOverriders.Add(overrider);
+    }
 
     void Awake()
     {
         instance = this;
         bgMusicSource.volume = 0;
         bgMusicSource.outputAudioMixerGroup = _bgmGroup;
-
         LoadCustomMusic();
         bgMusicSource.loop = !multipleBGM;
 
@@ -41,6 +56,7 @@ public class BgMusicPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        targMusicVolume = 1;
         bool alreadyInProcessOfLoadingNextSong = loadingNextSongRoutine != null;
 
         bool closeToEndOfSong =
@@ -77,6 +93,7 @@ public class BgMusicPlayer : MonoBehaviour
         }
 
         bool shouldPlay = bgMusicSource.volume != 0 && bgMusicSource.clip != null;
+        shouldPlay &= SwitcherSettings.Data._BGMusicVolume > 0;
 
         if (bgMusicSource.isPlaying != shouldPlay)
         {
@@ -90,15 +107,49 @@ public class BgMusicPlayer : MonoBehaviour
             }
         }
 
-        float finalTargVolume = targMusicVolume;
-        if (!ProcessRunner.SwitcherAppHasFocus)
+        bool speedUpLerp = false;
+        float finalTargBGMVolume = targMusicVolume;
+
         {
-            finalTargVolume = 0;
+            int bestPriority = int.MinValue;
+            foreach (var overrider in _bgmVolumeOverriders)
+            {
+                int priority = int.MinValue;
+                ForceMode mode = ForceMode.WantOn;
+                overrider.Invoke(ref mode, ref priority);
+                if (priority > bestPriority)
+                {
+                    speedUpLerp = true;
+                    bestPriority = priority;
+                    finalTargBGMVolume = mode == ForceMode.WantOff ? 0 : 1;
+                }
+            }
         }
 
+            
+        float masterTargVolume = 1;
+        {
+            int bestPriority = int.MinValue;
+            foreach (var overrider in _masterVolumeOverriders)
+            {
+                int priority = int.MinValue;
+                ForceMode mode = ForceMode.WantOn;
+                overrider.Invoke(ref mode, ref priority);
+                if (priority > bestPriority)
+                {
+                    speedUpLerp = true;
+                    bestPriority = priority;
+                    masterTargVolume = mode == ForceMode.WantOff ? 0 : 1;
+                }
+            }
+        }
+        masterTargVolume = ProcessRunner.SwitcherAppHasFocus ? 1f : 0;
+        _smoothMasterVolume = Mathf.MoveTowards(_smoothMasterVolume, masterTargVolume, Time.deltaTime * .3f);
+        _mixer.SetFloat("master_volume", Mathf.Lerp(-80, 0, EasingFunctions.Calc(_smoothMasterVolume, EasingFunctions.QuadEaseOut)));
 
-        _volumeUnscaled = Mathf.MoveTowards(_volumeUnscaled, finalTargVolume, .35f * Time.deltaTime);
-        this.bgMusicSource.volume = _volumeUnscaled * SwitcherSettings.Data._BGMusicVolume;
+        _bgmVolumeSmooth = Mathf.MoveTowards(_bgmVolumeSmooth, finalTargBGMVolume, speedUpLerp ? 5 * Time.deltaTime : .35f * Time.deltaTime);
+        this.bgMusicSource.volume = _bgmVolumeSmooth * SwitcherSettings.Data._BGMusicVolume;
+
     }
 
 
