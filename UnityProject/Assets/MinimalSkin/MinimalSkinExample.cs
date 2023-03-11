@@ -58,9 +58,4 @@ public class MinimalSkinExample : MonoBehaviour
         _previewer.setVideo(currentGameData, _streamingAssetsPlaceholderVideoName);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

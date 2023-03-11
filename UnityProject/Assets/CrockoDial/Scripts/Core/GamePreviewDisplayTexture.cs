@@ -68,6 +68,7 @@ public class GamePreviewDisplayTexture
         _videoPlayer.seekCompleted += seekFinished;
         _videoPlayer.prepareCompleted += prepareFinished;
         BgMusicPlayer.instance.AddBGMVolumeOverrider(bgMusicForcer);
+        this.alpha = 1;
     }
 
     private void bgMusicForcer(ref BgMusicPlayer.ForceMode mode, ref int priority)
@@ -105,10 +106,15 @@ public class GamePreviewDisplayTexture
             Color newColor = _rawImgOuput.color;
             newColor.a = value;
             _rawImgOuput.color = newColor;
-            _audioOuput.volume = 
-                _viewedGameData == null || !_viewedGameData.previewVideoHasAudio ?  0 : 
-                value * SwitcherSettings.Data._PreviewVideoVolume;
+            refreshOutputAudio();
         }
+    }
+
+    void refreshOutputAudio()
+    {
+        _audioOuput.volume =
+        _viewedGameData == null || !_viewedGameData.previewVideoHasAudio ? 0 :
+        alpha * SwitcherSettings.Data._PreviewVideoVolume;
     }
 
     public void setVideo(GameData game, string fallbackVideoUrl = null, Texture fallbackPreviewTexture = null)
@@ -130,6 +136,7 @@ public class GamePreviewDisplayTexture
         {
             setVideo(fallbackPreviewTexture);
         }
+        refreshOutputAudio();
     }
 
     public void setVideo(Texture staticImg)

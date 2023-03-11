@@ -76,7 +76,7 @@ public class GameInfoEditor : MonoBehaviour
 
     private void OnEnable()
     {
-        SetSelectedGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
+        if (MenuVisualsGeneric.Instance != null) SetSelectedGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
 
     }
 
