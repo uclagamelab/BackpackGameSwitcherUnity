@@ -59,6 +59,7 @@ public class GamePreviewDisplayTexture
 
         _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
         _audioOuput = BgMusicPlayer.instance.gameObject.AddComponent<AudioSource>(); //<- a little hacky, but so the low pass filter effect gets applied as it is for the bg music.
+        _audioOuput.Stop();
         _audioOuput.volume = 0;
         _audioOuput.outputAudioMixerGroup = BgMusicPlayer.instance.bgmGroup;
         _videoPlayer.SetTargetAudioSource(0, _audioOuput);
