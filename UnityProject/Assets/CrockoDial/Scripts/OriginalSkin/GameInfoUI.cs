@@ -21,6 +21,12 @@ public class GameInfoUI : MonoBehaviour
     [SerializeField]
     Text descriptionText;
 
+    [SerializeField]
+    RectTransform descriptionColumn;
+    [SerializeField]
+    Rect descriptionColumnNoControls = default;
+    Rect descriptionColumnDefault = default;
+
     public GameObject tipsHeaderBar;
     [UnityEngine.Serialization.FormerlySerializedAs("instructionsText")]
     public Text tipsText;
@@ -46,7 +52,8 @@ public class GameInfoUI : MonoBehaviour
 
     private void Start()
     {
-        
+        descriptionColumnDefault.position = descriptionColumn.offsetMin;
+        descriptionColumnDefault.size = descriptionColumn.offsetMax;
     }
 
     private void Update()
@@ -55,7 +62,7 @@ public class GameInfoUI : MonoBehaviour
         if (gameChanged)
         {
             _cachedCurrentGameData = MenuVisualsGeneric.Instance.currentlySelectedGame;
-
+            
             bool hasOverrideInstructionsImage = _cachedCurrentGameData.overrideInstructionsImage != null;
             if (hasOverrideInstructionsImage)
             {
@@ -63,7 +70,7 @@ public class GameInfoUI : MonoBehaviour
             }
             _overrideIntructionsImageImage.gameObject.SetActive(hasOverrideInstructionsImage);
             _defaultInstructionsContainer.SetActive(!hasOverrideInstructionsImage);
-
+           
             _titleTab.UpdateWithGame(_cachedCurrentGameData);
 
             this.titleText.text = _cachedCurrentGameData.title;
@@ -80,30 +87,50 @@ public class GameInfoUI : MonoBehaviour
             tipsHeaderBar.SetActive(tipsTextOn);
 
 
+            bool hasAnyValidControlText = false;
+            
             if (joystickLabel != null)
             {
-                this.joystickLabel.text = _cachedCurrentGameData.instructions.joystickInstructions;
-                this.joystickFill.gameObject.SetActive (!string.IsNullOrEmpty(_cachedCurrentGameData?.instructions?.joystickInstructions));
+                var instructionsText = _cachedCurrentGameData.instructions.joystickInstructions;
+                bool hasJoystickStruction = !string.IsNullOrEmpty(_cachedCurrentGameData?.instructions?.joystickInstructions);
+                
+                this.joystickLabel.text = instructionsText;
+                
+                this.joystickFill.gameObject.SetActive (hasJoystickStruction);
+                hasAnyValidControlText |= hasJoystickStruction;
             }
-
-
+    
             for (int i = 0; i < 6; i++)
             {
+                var instructionsText = _cachedCurrentGameData.instructions.getButtonLabel(i + 1);
+                hasAnyValidControlText |= !string.IsNullOrEmpty(instructionsText);
+
                 if (buttonDisplays[i].label != null)
                 {
-                    buttonDisplays[i].label.text = _cachedCurrentGameData.instructions.getButtonLabel(i + 1); //button label 0 used for joystick?
+                    buttonDisplays[i].label.text = instructionsText; //button label 0 used for joystick?
                 }
 
                 if (buttonDisplays[i].fill != null)
                 {
-                    buttonDisplays[i].fill.gameObject.SetActive(!string.IsNullOrEmpty(_cachedCurrentGameData.instructions.getButtonLabel(i + 1)));
+                    buttonDisplays[i].fill.gameObject.SetActive(!string.IsNullOrEmpty(instructionsText));   
                 }
             }
 
+            bool hasControls = hasOverrideInstructionsImage || hasAnyValidControlText;
+            this.positionInstructionsColumn(hasControls);
         }
     }
 
-    
+    //Centers the instruction column and disables the joystick display if the game doesn't have any instructions.
+    void positionInstructionsColumn(bool hasControLabels)
+    {
+        var r = !hasControLabels ? descriptionColumnNoControls : descriptionColumnDefault;
+        descriptionColumn.offsetMin = r.position;
+        descriptionColumn.offsetMax = r.size;
+        _overrideIntructionsImageImage.transform.parent.gameObject.SetActive(!hasControLabels);
+    }
+
+
     [System.Serializable]
     class TitleTabFancy
     {
