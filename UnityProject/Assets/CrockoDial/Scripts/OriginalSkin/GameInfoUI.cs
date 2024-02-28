@@ -127,7 +127,7 @@ public class GameInfoUI : MonoBehaviour
         var r = !hasControLabels ? descriptionColumnNoControls : descriptionColumnDefault;
         descriptionColumn.offsetMin = r.position;
         descriptionColumn.offsetMax = r.size;
-        _overrideIntructionsImageImage.transform.parent.gameObject.SetActive(!hasControLabels);
+        _overrideIntructionsImageImage.transform.parent.gameObject.SetActive(hasControLabels);
     }
 
 
