@@ -201,14 +201,17 @@ public class ExternalWindowTracker : MonoBehaviour
     //https://stackoverflow.com/questions/17879890/understanding-attachthreadinput-detaching-lose-focus
 
 
+    private const int ALT = 0xA4;
+    private const int EXTENDEDKEY = 0x1;
+    private const int KEYUP = 0x2;
+    private const uint Restore = 9;
+
     // Forces the given window to show in the foreground
     public static void ForceBringToForeground(IntPtr hWnd)
     {
         if (hWnd == IntPtr.Zero)
         {
-#if UNITY_EDITOR
             Debug.Log("Got bad window handle for foreground control");
-#endif
             return;
         }
 
@@ -216,29 +219,30 @@ public class ExternalWindowTracker : MonoBehaviour
 
         if (hWnd == fgWnd)
         {
-            //print("window already in foreground");
+            print("window already in foreground");
             return;
         }
 
-        //More detailed code and justification can be found here:
-        //https://stackoverflow.com/questions/17879890/understanding-attachthreadinput-detaching-lose-focus
 
-        //var currentThread = GetWindowThreadProcessId(_thisPrimaryWindow, IntPtr.Zero);
-        //    var activeThread = GetWindowThreadProcessId(fgWnd, IntPtr.Zero);
-        //    var windowThread = GetWindowThreadProcessId(hWnd, IntPtr.Zero);
+        //Solution from:
+        //https://stackoverflow.com/questions/10740346/setforegroundwindow-only-working-while-visual-studio-is-open/13881647#13881647
 
+
+        //check if window is minimized
+        if (WinOsUtil.IsIconic(hWnd))
+        {
+            WinOsUtil.ShowWindow(hWnd, Restore);
+        }
+
+        // Simulate a key press
+        WinOsUtil.keybd_event((byte)ALT, 0x45, EXTENDEDKEY | 0, 0);
+
+        //SetForegroundWindow(mainWindowHandle);
+
+        // Simulate a key release
+        WinOsUtil.keybd_event((byte)ALT, 0x45, EXTENDEDKEY | KEYUP, 0);
 
         WinOsUtil.SetForegroundWindow(hWnd);
-        //SetFocus(hWnd);
-        //https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
-        //ShowWindow(hWnd, 3);// 3); //orig by itself
-        WinOsUtil.ShowWindow(hWnd, 9);
-
-
-        //if (currentThread != activeThread)
-        //    AttachThreadInput(currentThread, activeThread, false);
-        //if (windowThread != currentThread)
-        //    AttachThreadInput(windowThread, currentThread, false);
     }
 
 

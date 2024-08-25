@@ -359,16 +359,18 @@ public class ProcessRunner : MonoBehaviour
     public void BringThisToForeground()
     {
 
-#if !UNITY_EDITOR
+        setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
+        string switcherWindowName = Application.productName;
+        
+        #if UNITY_EDITOR
         if (ExternalWindowTracker.EditorFocusStealing)
         {
-            ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(ExternalWindowTracker.editorWindowTitle));
+            switcherWindowName = ExternalWindowTracker.editorWindowTitle;
+            //Debug.LogError(switcherWindowName);
         }
-#else
-        string switcherWindowName = Application.productName;
+        #endif
+        
         ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(switcherWindowName));
-#endif
-        setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
     }
 
     public void quitCurrentGame()

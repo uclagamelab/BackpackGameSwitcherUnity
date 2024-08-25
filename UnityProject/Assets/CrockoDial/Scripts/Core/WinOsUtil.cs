@@ -55,13 +55,22 @@ public static class WinOsUtil
 
     [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
     //static extern IntPtr SetFocus(HandleRef hWnd);
-    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    public static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
 
     [DllImport("USER32.DLL")]
     public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder lpString, int nMaxCount);
 
     [DllImport("USER32.DLL")]
     public static extern int GetWindowTextLength(IntPtr hWnd);
+
+    //----------------
+    [DllImport("user32.dll")]
+    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool IsIconic(IntPtr hWnd);
+    //------------------
 
 
     // Returnsthe process ID associated with the window
