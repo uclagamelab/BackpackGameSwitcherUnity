@@ -16,10 +16,10 @@ public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData
 public class SwitcherPrefData
 {
     #region SERIALIZED
-    public string _GamesFolder;
-    public string _JoyToKeyFolder;
-    public string _CompanionSoftwareFolder;
-    public string _BGMusicFolder;
+    public string _GamesFolder = "";
+    public string _JoyToKeyFolder = "";
+    public string _CompanionSoftwareFolder = "";
+    public string _BGMusicFolder = "";
     public float _BGMusicVolume;
     public float _PreviewVideoVolume = 0;
     public float _SFXVolume = 1;
@@ -37,7 +37,7 @@ public class SwitcherPrefData
 
     static string ConvertIfExeRelative(string rawPath)
     {
-        if (rawPath.StartsWith(".\\")) //is relative
+        if (rawPath != null && rawPath.StartsWith(".\\")) //is relative
         {
             return System.IO.Path.Combine(XuFileUtil.RunningAppDirectory, rawPath.Substring(2));
         }
