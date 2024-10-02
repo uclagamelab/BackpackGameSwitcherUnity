@@ -17,15 +17,25 @@ public class MenuVisualsGeneric : MonoBehaviour
     static XUSingleTown<MenuVisualsGeneric> _InstanceHelper = new XUSingleTown<MenuVisualsGeneric>();
     public static MenuVisualsGeneric Instance => _InstanceHelper.instance;
     
-    public System.Action<bool> OnOpenCloseInfo = (open) => { };
+    public System.Action<bool> OnOpenInfo = (open) => { };
     public System.Action<bool> InfoMenuCursorMove = (dirIsRight) => { };
     public System.Action OnStartGame = () => { };
 
     public enum MenuState { ChooseGame, GameInfo, LaunchGame };
+    public static event System.Action<MenuState, MenuState> OnStateChange = (cur, prev) => { };
+    MenuState _state;
     public MenuState state
     {
-        get;
-        private set;
+        get => _state;
+        private set
+        {
+            if (_state != value)
+            {
+                var prev = _state;
+                _state = value;
+                OnStateChange(_state, prev);
+            }
+        }
     }
     #region FIELDS
 
@@ -169,6 +179,17 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public static System.Action OnAttractCycleNextGame = () => { };
 
+    public void openArbitraryGame(GameData game)
+    {
+        //TODO: copy pastey with below
+        if (state == MenuState.ChooseGame && !this.gameInfoV2.open && !gameInfoV2.animating)
+        {
+            state = MenuState.GameInfo;
+            this.gameInfoV2.AnimateOpen(true);
+            OnOpenInfo.Invoke(true);
+        }
+    }
+
     //returns if accepted press
     public bool onStartGameButtonPress()
     {
@@ -182,14 +203,14 @@ public class MenuVisualsGeneric : MonoBehaviour
             state = MenuState.GameInfo;
             this.gameInfoV2.AnimateOpen(true);
 
-            OnOpenCloseInfo.Invoke(true);
+            OnOpenInfo.Invoke(true);
             return false;
         }
         else if (this.gameInfoV2.backButtonHighighted)
         {
                 state = MenuState.ChooseGame;
                 this.gameInfoV2.AnimateOpen(false);
-            OnOpenCloseInfo.Invoke(false);
+            OnOpenInfo.Invoke(false);
             return false;
         }
 

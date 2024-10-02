@@ -8,11 +8,13 @@ this software.
  
  */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 public class SpeedyListView : MonoBehaviour
@@ -51,6 +53,8 @@ public class SpeedyListView : MonoBehaviour
 
     [SerializeField]
     List<SpeedyListItem> _listItems;
+    [SerializeField]
+    VerticalLayoutGroup _listLayoutGroup;
 
     public int stopIndex
     {
@@ -117,22 +121,53 @@ public class SpeedyListView : MonoBehaviour
 
         //_alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
         MenuVisualsGeneric.OnAttractCycleNextGame += AttractCycleNextGame;
+
+        MenuVisualsGeneric.OnStateChange += (newState, prevState) => 
+        {
+            if (newState == MenuVisualsGeneric.MenuState.ChooseGame)
+            {
+                _currentGameOverride = null;
+            }
+        };
+
     }
-    void Start()
+    IEnumerator Start()
     {
+        int nItems = 10;
+        var template = this._listItems[0];
+        _listLayoutGroup.enabled = true;
+        for (int i = 1; i < nItems; i++)
+        {
+            var nuItem = GameObject.Instantiate(template.gameObject, template.transform.parent).GetComponent<SpeedyListItem>();
+            _listItems.Add(nuItem);
+        }
+        yield return null;
+        //_listLayoutGroup.CalculateLayoutInputVertical();
+        foreach (var li in _listItems)
+        {
+            li.Reinit();
+        }
+        yield return null;
+        _listLayoutGroup.enabled = false;
         OnRepopulated();
     }
     
     void AttractCycleNextGame()
     {
         _autoKeyCounter = -.15f;
+        _currentGameOverride = null;
     }
 
+    GameData _currentGameOverride = null;
     public GameData currentGame
     {
         get
         {
-            if (_listGameDatas.Count > 0)
+            if (_currentGameOverride != null)
+            {
+                return _currentGameOverride;
+            }
+            else if (_listGameDatas.Count > 0)
             {
                 int effIdx = (stopIndex + _onScreenSelectionOffset) % _listGameDatas.Count;
                 if (effIdx < _listGameDatas.Count)
@@ -373,5 +408,22 @@ public class SpeedyListView : MonoBehaviour
     void popTexts()
     {
         this.GetComponentsInChildren(_listItems);
+    }
+
+    internal void setActiveItem(SpeedyListItem speedyListItem)
+    {
+        _currentGameOverride = speedyListItem.gameData;
+        //Worked for setting instaneously, though ugly
+        //int i = -1;
+
+        //foreach(var g in _listGameDatas)
+        //{
+        //    i++;
+        //    if (g.data == speedyListItem.gameData)
+        //    {
+        //        this._fuzzyIdx = i - _onScreenSelectionOffset;
+        //        this._speedAccumulator = 0;
+        //    }
+        //}
     }
 }

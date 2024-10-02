@@ -51,7 +51,7 @@ public class VaSwitcherSound : MonoBehaviour {
         menu.OnStartGame += onStartGame;
         ProcessRunner.Events.OnProcessExited += onQuitGame;
 
-        menu.OnOpenCloseInfo+= onOpenCloseInfo;
+        menu.OnOpenInfo+= onOpenCloseInfo;
 
         menu.InfoMenuCursorMove += OnInfoMenuCursorMove;
 

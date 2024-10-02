@@ -52,16 +52,11 @@ public class PreLaunchGameInfo : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-
-        int idx = MenuVisualsGeneric.Instance.gameIdx;
-        //idx = Mathf.Clamp(idx, 0, this.overlays.Length - 1);
-        //Texture newTexture = this.overlays[idx];
-        
-
         if (!animating && open && MenuVisualsGeneric.Instance.state == MenuVisualsGeneric.MenuState.ChooseGame)
         {
             this.AnimateOpen(false);
         }
+        _canvasGroup.blocksRaycasts = _canvasGroup.alpha >= 1;
     }
 
     public bool TakeDirectionInput(int direction)

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Text;
+using UnityEngine.EventSystems;
 
 public class SpeedyListItem : MonoBehaviour {
 
@@ -17,6 +18,8 @@ public class SpeedyListItem : MonoBehaviour {
     GameData _gameData = null;
     [SerializeField]
     SizeByText _barSizer;
+
+    [SerializeField] Graphic _clickableArea;
 
     Vector3 _initialPosition;
     public Vector3 initialPosition => _initialPosition;
@@ -118,6 +121,25 @@ public class SpeedyListItem : MonoBehaviour {
     void Awake () {
         _barSizer = this.GetComponentInChildren<SizeByText>(true);
         _canvasGroup = this.GetComponent<CanvasGroup>();
+        if (_clickableArea != null)
+        {
+            var et = _clickableArea.gameObject.AddComponent<EventTrigger>();
+            var ete = new EventTrigger.Entry();
+            ete.eventID = EventTriggerType.PointerClick;
+            ete.callback.AddListener(OnClicked);
+            et.triggers.Add(ete);
+        }
+        Reinit();
+    }
+
+    void OnClicked(BaseEventData e)
+    {
+        SpeedyListView.instance.setActiveItem(this);
+        MenuVisualsGeneric.Instance.openArbitraryGame(this.gameData);
+    }
+
+    public void Reinit()
+    {
         _initialPosition = this.transform.localPosition;
     }
 	

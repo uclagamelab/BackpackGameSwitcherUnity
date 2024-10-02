@@ -11,11 +11,10 @@ using UnityEngine;
 public enum CrockoInputMode { joystick = 0, trackball=1, regularMouse=2 }
 public class CrockoInput : MonoBehaviour
 {
-    static bool USE_TRACKBALL_INPUT = false;
+    public static CrockoInputMode InputMode => SwitcherSettings.Data._controlMode;
 
     private void Awake()
     {
-        USE_TRACKBALL_INPUT = SwitcherSettings.Data._controlMode == CrockoInputMode.trackball;
         BackgroundKeyboardInput.Events.onBackgroundKeyCombo += onBackgroundKeyCombo;
     }
 
@@ -67,9 +66,16 @@ public class CrockoInput : MonoBehaviour
                 ret = -1;
             }
 
-            if (USE_TRACKBALL_INPUT)
+
+            if (InputMode == CrockoInputMode.trackball || InputMode == CrockoInputMode.regularMouse)
             {
                 float mouseDelta = Input.GetAxis("MouseDeltaY");
+
+                if (InputMode == CrockoInputMode.regularMouse && !Input.GetMouseButton(0))
+                {
+                    mouseDelta = 0;
+                }
+
                 if (Mathf.Abs(mouseDelta) > 1)
                 {
                     float clampedMouseDelta = Mathf.Clamp(mouseDelta * .125f, -1, 1);
@@ -113,7 +119,7 @@ public class CrockoInput : MonoBehaviour
     static bool GetXMouseSwipe(int sign)
     {
         bool ret = false;
-        if (USE_TRACKBALL_INPUT)
+        if (InputMode == CrockoInputMode.trackball)
         {
             if (_mouseSwipeCoolDown == 0)
             {
@@ -156,7 +162,7 @@ public class CrockoInput : MonoBehaviour
             _postQuitInputSuppressTimer -= Time.deltaTime;
         }
 
-        if (USE_TRACKBALL_INPUT)
+        if (InputMode == CrockoInputMode.trackball)
         {
             trackBallSubmitDown = false;
             if (_mouseSwipeCoolDown > 0)
