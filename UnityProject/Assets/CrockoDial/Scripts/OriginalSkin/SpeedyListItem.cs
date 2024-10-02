@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text;
 using UnityEngine.EventSystems;
+using System;
 
 public class SpeedyListItem : MonoBehaviour {
 
@@ -22,6 +23,8 @@ public class SpeedyListItem : MonoBehaviour {
     [SerializeField] Graphic _clickableArea;
 
     Vector3 _initialPosition;
+    public float hoveredAnimAmount = 0;
+
     public Vector3 initialPosition => _initialPosition;
 
     [SerializeField]
@@ -93,16 +96,6 @@ public class SpeedyListItem : MonoBehaviour {
         }
     }
 
-    public float darkenedAmount
-    {
-        set
-        {
-            this._tabImage.color = Color.Lerp(Color.white, new Color(.6f,.8f, 1), value);
-            this._titleText.color = this._titleText.color.withAlpha(1 - value * .3f);
-            this._designerText.color = this._titleText.color.withAlpha(1 - value * .3f);
-        }
-    }
-
     public float alpha
     {
         get
@@ -124,12 +117,33 @@ public class SpeedyListItem : MonoBehaviour {
         if (_clickableArea != null)
         {
             var et = _clickableArea.gameObject.AddComponent<EventTrigger>();
-            var ete = new EventTrigger.Entry();
-            ete.eventID = EventTriggerType.PointerClick;
-            ete.callback.AddListener(OnClicked);
-            et.triggers.Add(ete);
+            {
+                var ete = new EventTrigger.Entry();
+                ete.eventID = EventTriggerType.PointerClick;
+                ete.callback.AddListener(OnClicked);
+                et.triggers.Add(ete);
+            }
+
+            {
+                var ete = new EventTrigger.Entry();
+                ete.eventID = EventTriggerType.PointerEnter;
+                ete.callback.AddListener((evt) => OnPointerEnter(true));
+                et.triggers.Add(ete);
+            }
+
+            {
+                var ete = new EventTrigger.Entry();
+                ete.eventID = EventTriggerType.PointerExit;
+                ete.callback.AddListener((evt) => OnPointerEnter(false));
+                et.triggers.Add(ete);
+            }
         }
         Reinit();
+    }
+
+    private void OnPointerEnter(bool hovered)
+    {
+        SpeedyListView.instance.NotifyItemHovered(this, hovered);
     }
 
     void OnClicked(BaseEventData e)

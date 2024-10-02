@@ -122,9 +122,10 @@ public class SpeedyListView : MonoBehaviour
         //_alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
         MenuVisualsGeneric.OnAttractCycleNextGame += AttractCycleNextGame;
 
-        MenuVisualsGeneric.OnStateChange += (newState, prevState) => 
+        //MenuVisualsGeneric.OnStateChange += (newState, prevState) => 
+        PreLaunchGameInfo.OnPrelaunchCanvasOpenChange += (newState) =>
         {
-            if (newState == MenuVisualsGeneric.MenuState.ChooseGame)
+            if (newState == PreLaunchGameInfo.OpenState.closed)
             {
                 _currentGameOverride = null;
             }
@@ -322,6 +323,7 @@ public class SpeedyListView : MonoBehaviour
     {
         return direction <= 0 ? (int)n : Mathf.CeilToInt(n);
     }
+
     void UpdateTextViz()
     {
 
@@ -329,12 +331,22 @@ public class SpeedyListView : MonoBehaviour
 
         for (int i = 0; i < _listItems.Count; i++)
         {
+            bool isMouseHovered = mouseHoveredItem == _listItems[i];
+            _listItems[i].hoveredAnimAmount = Mathf.MoveTowards(_listItems[i].hoveredAnimAmount, isMouseHovered ? 1 : 0, Time.deltaTime * 6);
+
             float offsetSkew = _fuzzyIdx % 1;
             float rawDiffSigned = i - offsetSkew - _onScreenSelectionOffset;
             float rawDiff = Mathf.Abs(rawDiffSigned);
             float scaleFactor = Mathf.InverseLerp(listHeightHalf * .4f, 0, rawDiff); 
             _listItems[i].transform.localScale = Vector3.one * Mathf.Lerp(.5f, 1f, Mathf.Pow(scaleFactor, 2));
-            _listItems[i].titleColor = Color.Lerp(_defaultItemColor, _selectedItemColor, Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2));
+
+            var colorHilightAmt = Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2);
+            if (isMouseHovered)
+            {
+                colorHilightAmt = 1;
+            }
+
+            _listItems[i].titleColor = Color.Lerp(_defaultItemColor, _selectedItemColor, colorHilightAmt);
 
 
             float rotationAmount = Mathf.Clamp(-rawDiffSigned / 4.5f, -1, 1);
@@ -361,8 +373,13 @@ public class SpeedyListView : MonoBehaviour
                 :
                 Mathf.InverseLerp(-.25f, -1, rawDiffSigned);
             Vector3 upwardsBump = finalApproach * 50 * Vector3.up;
+
+            Vector3 hoveredBump = _listItems[i].hoveredAnimAmount * 25 * (_listItems[i].transform.rotation * Vector3.right);
+
             _listItems[i].transform.localPosition =
                 upwardsBump
+                +
+                hoveredBump
                 +
                 _listItems[i].initialPosition.withX(Mathf.Pow(Mathf.InverseLerp(0, 1.1f, rawDiff), 2) * -35)
                 //+ Vector3.left * slideOff * 450
@@ -425,5 +442,18 @@ public class SpeedyListView : MonoBehaviour
         //        this._speedAccumulator = 0;
         //    }
         //}
+    }
+
+    SpeedyListItem mouseHoveredItem = null;
+    public void NotifyItemHovered(SpeedyListItem speedyListItem, bool hovered)
+    {
+        if (hovered)
+        {
+            mouseHoveredItem = speedyListItem;
+        }
+        else if (mouseHoveredItem == speedyListItem)
+        {
+            mouseHoveredItem = null;
+        }
     }
 }

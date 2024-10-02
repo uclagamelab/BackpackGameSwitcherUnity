@@ -56,16 +56,22 @@ public class GameInfoUI : MonoBehaviour
         descriptionColumnDefault.size = descriptionColumn.offsetMax;
     }
 
-    private void Update()
+    bool _gameNeedsRefresh = false;
+    public void SetGame(GameData game)
     {
-        bool gameChanged = _cachedCurrentGameData != MenuVisualsGeneric.Instance.currentlySelectedGame && MenuVisualsGeneric.Instance.currentlySelectedGame != null;
-        if (gameChanged)
+        _gameNeedsRefresh = true;
+         //_cachedCurrentGameData != MenuVisualsGeneric.Instance.currentlySelectedGame && MenuVisualsGeneric.Instance.currentlySelectedGame != null;
+        
+        if (_gameNeedsRefresh)
         {
             _cachedCurrentGameData = MenuVisualsGeneric.Instance.currentlySelectedGame;
             
             bool hasOverrideInstructionsImage = _cachedCurrentGameData.overrideInstructionsImage != null;
             if (hasOverrideInstructionsImage)
             {
+
+
+                //TODO, respect apsect ratio of image
                 _overrideIntructionsImageImage.texture = _cachedCurrentGameData.overrideInstructionsImage;
             }
             _overrideIntructionsImageImage.gameObject.SetActive(hasOverrideInstructionsImage);

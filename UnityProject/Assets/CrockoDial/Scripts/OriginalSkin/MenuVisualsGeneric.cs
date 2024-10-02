@@ -212,20 +212,21 @@ public class MenuVisualsGeneric : MonoBehaviour
         }
         else if (this.gameInfoV2.backButtonHighighted)
         {
-                state = MenuState.ChooseGame;
-                this.gameInfoV2.AnimateOpen(false);
+            state = MenuState.ChooseGame;
+            this.gameInfoV2.AnimateOpen(false);
             OnOpenInfo.Invoke(false);
             return false;
         }
 
 
+        var launchGame = currentlySelectedGame;
 
         this.gameInfoV2.AnimateOpen(false);
 
         state = MenuState.LaunchGame;
 
 
-        bool gameHasExe = currentlySelectedGame.executable != "";
+        bool gameHasExe = launchGame.executable != "";
 
         if (attemptedLaunchTimer > 0 || !gameHasExe)// || AttractMode.Instance.running)
         {
@@ -239,8 +240,7 @@ public class MenuVisualsGeneric : MonoBehaviour
 
         this.delayedFunction(() => 
         {
-            GameData currentGameData = currentlySelectedGame;
-            ProcessRunner.instance.StartGame(currentGameData);
+            ProcessRunner.instance.StartGame(launchGame);
         }, .1f);
 
         return true;

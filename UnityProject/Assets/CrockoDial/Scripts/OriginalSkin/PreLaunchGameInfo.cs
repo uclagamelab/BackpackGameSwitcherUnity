@@ -8,6 +8,9 @@ public class PreLaunchGameInfo : MonoBehaviour {
     static XUSingleTown<PreLaunchGameInfo> _InstanceHelper = new XUSingleTown<PreLaunchGameInfo>();
     public static PreLaunchGameInfo Instance => _InstanceHelper.instance;
 
+    public enum OpenState {closed, opening, open, closing};
+    public static event System.Action<OpenState> OnPrelaunchCanvasOpenChange = (state) => { };
+
     public bool animating
     {
         get;
@@ -143,9 +146,16 @@ public class PreLaunchGameInfo : MonoBehaviour {
             return;
         }
 
+        if (forward)
+        {
+            GameInfoUI.Instance.SetGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
+        }
+
         animating = true;
         open = forward;
-      
+
+        OnPrelaunchCanvasOpenChange.Invoke(open ? OpenState.opening : OpenState.closing);
+
         //bgBlurrer.enabled = true;
         _dimmer.enabled = true;
         if (forward)
@@ -174,6 +184,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
             if (t == 1)
             {
                 animating = false;
+                OnPrelaunchCanvasOpenChange.Invoke(open ? OpenState.open : OpenState.closed);
             }
         }, .5f);
     }

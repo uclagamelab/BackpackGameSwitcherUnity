@@ -76,6 +76,8 @@ public class CrockoInput : MonoBehaviour
                     mouseDelta = 0;
                 }
 
+                mouseDelta *= 1080f / Screen.height * SwitcherSettings.Data.mouseScrollSpeed / 100f;
+
                 if (Mathf.Abs(mouseDelta) > 1)
                 {
                     float clampedMouseDelta = Mathf.Clamp(mouseDelta * .125f, -1, 1);

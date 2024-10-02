@@ -30,6 +30,7 @@ public class SwitcherPrefData
     #endregion
 
     public System.Action OnValuesUpdated = () => { };
+    public float mouseScrollSpeed = 100;
 
     public string JoyToKeyFolder => ConvertIfExeRelative(_JoyToKeyFolder);
     public string CompanionSoftwareFolder => ConvertIfExeRelative(_CompanionSoftwareFolder);
