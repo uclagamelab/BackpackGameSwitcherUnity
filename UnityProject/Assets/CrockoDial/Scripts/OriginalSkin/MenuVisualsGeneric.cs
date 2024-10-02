@@ -127,13 +127,17 @@ public class MenuVisualsGeneric : MonoBehaviour
         if (state != MenuState.LaunchGame && gameInfoV2.open)
         {
             bool infoInputAccepted = gameInfoV2.TakeDirectionInput(selectionDirection);
-            if (infoInputAccepted && fromUser)
-            {
-                InfoMenuCursorMove.Invoke(selectionDirection > 0);
-            }
+            //if (infoInputAccepted && fromUser)
+            //{
+            //    InfoMenuCursorMove.Invoke(selectionDirection > 0);
+            //}
         }
     }
 
+    public void notifyInfoCursorMoved()
+    {
+        InfoMenuCursorMove.Invoke(true);
+    }
 
 	
     public void setAttractMode(bool attract)

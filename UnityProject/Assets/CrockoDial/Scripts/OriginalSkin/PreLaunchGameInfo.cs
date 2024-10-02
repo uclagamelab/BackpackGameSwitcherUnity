@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class PreLaunchGameInfo : MonoBehaviour {
@@ -29,8 +30,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
     [SerializeField]
     PreLaunchButtons _playButton;
 
-
-
     public bool open
     {
         get;
@@ -38,6 +37,12 @@ public class PreLaunchGameInfo : MonoBehaviour {
     }
 
     CanvasGroup _canvasGroup;
+
+    private void Awake()
+    {
+        _backButton.SetUp(this);
+        _playButton.SetUp(this);    
+    }
 
     // Use this for initialization
     void Start () {
@@ -85,6 +90,8 @@ public class PreLaunchGameInfo : MonoBehaviour {
 
     void setHighlighted(RectTransform toHighlightRaw)
     {
+        var highLightPrev = this._highlightedObject;
+
         RectTransform toHighlight = toHighlightRaw;
         if (toHighlight == null)
         {
@@ -113,30 +120,20 @@ public class PreLaunchGameInfo : MonoBehaviour {
             _highlightedObject = _backButton.rt.gameObject;
             _buttonHighlight.anchoredPosition = _backButton.rt.anchoredPosition;
         }
-    }
 
-    public bool startButtonHighighted
-    {
-        get
+        if (highLightPrev != this._highlightedObject && highLightPrev != null)
         {
-            return getHighlighted() == _playButton.rt.gameObject;
+            MenuVisualsGeneric.Instance.notifyInfoCursorMoved();
         }
     }
+
 
     public bool backButtonHighighted
     {
         get
         {
-            return getHighlighted() == null || getHighlighted() == _backButton.rt.gameObject;
+            return _highlightedObject == null || _highlightedObject == _backButton.rt.gameObject;
         }
-    }
-
-    GameObject getHighlighted()
-    {
-
-        return _highlightedObject;
-
-
     }
 
     public void AnimateOpen(bool forward)
@@ -186,5 +183,33 @@ public class PreLaunchGameInfo : MonoBehaviour {
     {
         public RectTransform rt;
         public GentleJitterAnim jitter;
+        PreLaunchGameInfo _screen;
+
+        public void SetUp(PreLaunchGameInfo screen)
+        {
+            this._screen = screen;
+            var et = rt.gameObject.AddComponent<EventTrigger>();
+            
+            var entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerEnter;
+            entry.callback.AddListener((evt) =>
+            {
+                if (_screen._highlightedObject != this.rt.gameObject && !_screen.animating)
+                {
+                    _screen.setHighlighted(this.rt);
+                }
+            });
+            
+
+            var clickEntry = new EventTrigger.Entry();
+            clickEntry.eventID = EventTriggerType.PointerClick;
+            clickEntry.callback.AddListener((evt) =>
+            {
+                MenuVisualsGeneric.Instance.onStartGameButtonPress();
+            });
+
+            et.triggers = new List<EventTrigger.Entry> { clickEntry, entry };
+            
+        }
     }
 }
