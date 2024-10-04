@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class ClickAndHoldButton : MonoBehaviour
 {
     public Image clickArea;
+    public Image buttonGraphic;
 
     public bool isHovered = false;
     public bool isPressed = false;
@@ -46,10 +47,10 @@ public class ClickAndHoldButton : MonoBehaviour
 
     void Update()
     {
-        var curC = clickArea.color;
+        var curC = buttonGraphic.color;
         Vector4 cv = new Vector4(curC.r, curC.g, curC.b);
         cv = Vector4.MoveTowards(cv, isHovered || isPressed ? new Vector4(1, 1, 0, 1) : new Vector4(1, 1, 1, 1), Time.deltaTime * 8);
-        clickArea.color = new Color(cv.x, cv.y, cv.z);
+        buttonGraphic.color = new Color(cv.x, cv.y, cv.z);
         this.transform.localScale = Vector3.MoveTowards(this.transform.localScale, isPressed ? Vector3.one * .85f : Vector3.one, Time.deltaTime * 8);
         if (isPressed)
         {
