@@ -76,8 +76,11 @@ public class SpeedyListView : MonoBehaviour
     [SerializeField]
     CanvasGroup _alphaHelperCanvasGroup;
 
+    public Vector2 mouseModeListOffset = new Vector2(0, 40);
+    [SerializeField] GameObject mouseScrollButtonContainer;
+
     RectTransform _container;
-    Vector2 _startAp;
+    Vector2 _listContainerBasePos;
 
     float _fuzzyIdx = 0;
     public float fuzzyIdx => _fuzzyIdx;
@@ -96,6 +99,7 @@ public class SpeedyListView : MonoBehaviour
     float _speedAccumulator = 0;
     public const float _normalSpeed = 5;
     public const float _quickSpeed = 11;
+
     #region PUBLIC THINGS FOR SOUND
     public float speed => _speedAccumulator ;
     public float speedNormalizedIsh =>
@@ -109,13 +113,15 @@ public class SpeedyListView : MonoBehaviour
     public event System.Action OnPassedItem = () => { };
     #endregion
 
+    bool usingMouse => CrockoInput.InputMode == CrockoInputMode.mouseAndKeyboard;
+
     private void Awake()
     {
         instance = this;
         lastMovedDirection = 1;
         GameCatalog.Events.OnRepopulated += OnRepopulated;
         _container = _listItems[0].transform.parent.GetComponent<RectTransform>();
-        _startAp = _container.anchoredPosition;
+
         _height = _listItems[0].GetComponent<RectTransform>().sizeDelta.y;
 
         //_alphaHelperCanvasGroup = _alphaHelper.GetComponent<CanvasGroup>();
@@ -130,6 +136,14 @@ public class SpeedyListView : MonoBehaviour
             }
         };
 
+
+        if (mouseScrollButtonContainer != null)
+        {
+            mouseScrollButtonContainer.SetActive(usingMouse);
+            if (usingMouse) _container.anchoredPosition += mouseModeListOffset;
+        }
+
+        _listContainerBasePos = _container.anchoredPosition;
     }
     IEnumerator Start()
     {
@@ -300,7 +314,7 @@ public class SpeedyListView : MonoBehaviour
 
 
         float fuzzIdxOffset = _fuzzyIdx % 1;
-        _container.anchoredPosition = _startAp + Vector2.up * fuzzIdxOffset * _height;
+        _container.anchoredPosition = _listContainerBasePos + Vector2.up * fuzzIdxOffset * _height;
 
         float prevSpeed = _speedAccumulator;
         if (keyHeld)
@@ -344,16 +358,21 @@ public class SpeedyListView : MonoBehaviour
             _listItems[i].transform.localScale = Vector3.one * Mathf.Lerp(.5f, 1f, Mathf.Pow(scaleFactor, 2));
 
             var colorHilightAmt = Mathf.Pow(Mathf.InverseLerp(1.1f, 0, rawDiff), 2);
+
             if (isMouseHovered)
             {
                 colorHilightAmt = 1;
+            } 
+            else if (mouseHoveredItem != null) //don't highlight the bottom element, if something is mouse hovered
+            {
+                colorHilightAmt = 0;
             }
 
             _listItems[i].titleColor = Color.Lerp(_defaultItemColor, _selectedItemColor, colorHilightAmt);
 
 
             float rotationAmount = Mathf.Clamp(-rawDiffSigned / 4.5f, -1, 1);
-            _listItems[i].transform.localEulerAngles = 15 * rotationAmount * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
+            _listItems[i].transform.localEulerAngles = (usingMouse ? 15 : 30) * rotationAmount * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
 
             //If too few games, only show 1 list item at a time (looks stupid to have 3 games repeating over the list)
             //Also, only show the current selected game list item while in a attract mode (better view of video)
@@ -365,7 +384,7 @@ public class SpeedyListView : MonoBehaviour
 
             //Lift the tabs up a little bit as they approach the selected tab, to give it some extra margin
 
-            float slideOff = Mathf.InverseLerp(.45f, .75f, Mathf.Max(rawDiff - 1, 0) / Mathf.Max(1, _listItems.Count - 1));
+            float slideOff = !usingMouse ? 0 : Mathf.InverseLerp(.45f, .75f, Mathf.Max(rawDiff - 1, 0) / Mathf.Max(1, _listItems.Count - 1));
             //slideOff = 1 - slideOff;
             //slideOff = 1 - slideOff;
 
