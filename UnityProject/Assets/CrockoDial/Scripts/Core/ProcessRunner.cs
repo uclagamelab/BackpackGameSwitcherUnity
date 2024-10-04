@@ -24,14 +24,11 @@ using Microsoft.Win32;
 
 public class ProcessRunner : MonoBehaviour
 {
-    private string _currentJoyToKeyConfig = null;
-    private readonly string SWITCHER_JOYTOKEY_CONFIG = "menuselect.cfg";
-
     public string processStateHelper;
 
     public static bool SwitcherAppHasFocus = true;
 
-    public class EventCallbacks 
+    public class EventCallbacks
     {
         public System.Action OnProcessLaunched = () => { };
         public System.Action OnProcessExited = () => { };
@@ -44,7 +41,7 @@ public class ProcessRunner : MonoBehaviour
     public bool IsGameRunning()
     {
         bool processJustStarted = _runningGame != null && currentProcessStartTimer < 5;
-        bool windowBasedGameIsRunning = _runningGame != null && !string.IsNullOrEmpty(_runningGame.windowTitle) &&  ExternalWindowTracker.WindowIsPresent(_runningGame.windowTitle);
+        bool windowBasedGameIsRunning = _runningGame != null && !string.IsNullOrEmpty(_runningGame.windowTitle) && ExternalWindowTracker.WindowIsPresent(_runningGame.windowTitle);
         bool processBasedGameIsRunning = _runningGame != null && (currentGameRunner.process != null && !currentGameRunner.process.HasExited);
         return processJustStarted || windowBasedGameIsRunning || processBasedGameIsRunning;
     }
@@ -59,7 +56,7 @@ public class ProcessRunner : MonoBehaviour
 
     List<Process> safeProcesses;
 
-	
+
     /*[ContextMenu("TESTREMOVE")]
     public void TESTREMOVEBORDER()
     {
@@ -98,18 +95,18 @@ public class ProcessRunner : MonoBehaviour
 
 
 
-	Process _thisProcess = Process.GetCurrentProcess(); //The application switcher process?
+    Process _thisProcess = Process.GetCurrentProcess(); //The application switcher process?
     GameData _runningGame = null;
     IGameRunner currentGameRunner => _runningGame?.launchSettings.Runner();
     //Process _currentRunningGameProcess = null; //the currently running game process
-	Process _joy2KeyProcess = null;
+    Process _joy2KeyProcess = null;
 
 
 
     IntPtr _joy2KeyPrimaryWindow = IntPtr.Zero;
 
 
- 
+
     System.Text.StringBuilder _sb = new System.Text.StringBuilder();
 
     // Pressing the button opens up the game.
@@ -121,20 +118,20 @@ public class ProcessRunner : MonoBehaviour
     }
 
 
-	IEnumerator Start()
-	{
-        setJoyToKeyConfig(SWITCHER_JOYTOKEY_CONFIG);
+    IEnumerator Start()
+    {
+        setJoyToKeyConfig(switcherJoyToKeyConfig);
 
         //Not sure if delay is actually necessary
         yield return new WaitForSeconds(2);
-            recordSafeProcesses();
+        recordSafeProcesses();
         if (SwitcherSettings.Data._ShutDownExplorerWhileRunning)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             Debug.Log("<Shutdown of explorer would happen here>");
-            #else
+#else
             SetWindowsExplorerRunning(false);
-            #endif
+#endif
         }
 
     }
@@ -159,41 +156,6 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
-
-    void setJoyToKeyConfigIfNotAlreadySet(string configFile)
-    {
-        if (configFile != _currentJoyToKeyConfig)
-        {
-            setJoyToKeyConfig(configFile);
-        }
-    }
-
-    public void setJoyToKeyConfig(string configFile)
-    {
-        _currentJoyToKeyConfig = configFile;
-
-        string joyToKeyExe = CompanionSoftware.JoyToKey;
-
-        if (!System.IO.File.Exists(joyToKeyExe))
-        {
-            UnityEngine.Debug.LogError("JoyToKey executable not available at '" + joyToKeyExe + "'");
-            return;
-        }
-
-        ProcessStartInfo startInfo = new ProcessStartInfo();
-
-        startInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(joyToKeyExe); //"C:\\Users\\Garrett Johnson\\Desktop";
-        startInfo.FileName = System.IO.Path.GetFileName(joyToKeyExe); ;
-        startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
-
-
-        var newProcess = Process.Start(startInfo);
-        if (_joy2KeyProcess == null || _joy2KeyProcess.HasExited)
-        {
-            _joy2KeyProcess = newProcess;
-        }
-    }
-
     public static Process StartProcess(string exe, string cmdArgs)
     {
         return StartProcess(null, exe, cmdArgs);
@@ -210,7 +172,7 @@ public class ProcessRunner : MonoBehaviour
 
         if (!File.Exists(exe) && !File.Exists(fullPath))
         {
-            Debug.LogError("Game not found at path:\n"+ fullPath);
+            Debug.LogError("Game not found at path:\n" + fullPath);
             return null;
         }
 
@@ -236,7 +198,7 @@ public class ProcessRunner : MonoBehaviour
         {
             startInfo.WorkingDirectory = directory; //"C:\\Users\\Garrett Johnson\\Desktop";
         }
-        
+
         startInfo.FileName = exe;               //"angryBots.exe";
         if (cmdArgs != null)
         {
@@ -267,12 +229,12 @@ public class ProcessRunner : MonoBehaviour
             Process[] processes = Process.GetProcessesByName(targetExe);
 
             bool shouldRestart = true;
-            
+
             foreach (var p in processes)
             {
                 shouldRestart &= p.HasExited;
             }
-            
+
             if (shouldRestart)
             {
                 ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -283,7 +245,7 @@ public class ProcessRunner : MonoBehaviour
         else
         {
             _haveKilledExplorer = true;
-            if (IsWindow11)
+            if (IsWindows11)
             {
                 //I suspect this method is probably fine also for previous versions of windows, may ask tyler to test.
                 var psinfo = new ProcessStartInfo();
@@ -308,8 +270,7 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
-    public bool IsWindow11 => SystemInfo.operatingSystem.StartsWith("Windows 11");
-
+    public bool IsWindows11 => SystemInfo.operatingSystem.StartsWith("Windows 11");
 
     public void StartGame(GameData gameToStart)
     {
@@ -318,7 +279,7 @@ public class ProcessRunner : MonoBehaviour
         //_currentRunningGame = gameToStart.launchSettings.Runner();//StartProcess(gameToStart.directory, gameToStart.appFile, ""/*currentGameData.commandLineArguments*/);
         _runningGame = gameToStart;
         currentGameRunner.Launch();
-        
+
 
         //IDEALLY: this would be better folded into the process runner, but whatever for now
         if (!_runningGame.launchSettings.joyToKeyDelayed)
@@ -331,9 +292,6 @@ public class ProcessRunner : MonoBehaviour
         Events.OnProcessLaunched.Invoke();
     }
 
-
-
-
     /*
     The algorithm... as is... 
     assumes when the process is started, the correct window indeed comes to the front.
@@ -341,35 +299,35 @@ public class ProcessRunner : MonoBehaviour
     */
 
 
-	// Finds the foreground window for the given bucket. If there isn't one, returns IntPtr.zero
-	IntPtr GetForegroundWindowFrom(List<IntPtr> bucket)
-	{
-		IntPtr fgWnd = GetForegroundWindow();
+    // Finds the foreground window for the given bucket. If there isn't one, returns IntPtr.zero
+    IntPtr GetForegroundWindowFrom(List<IntPtr> bucket)
+    {
+        IntPtr fgWnd = GetForegroundWindow();
 
-		if( bucket.Contains( fgWnd ) )
-		{
-			return fgWnd;
-		}
+        if (bucket.Contains(fgWnd))
+        {
+            return fgWnd;
+        }
 
-		return IntPtr.Zero;
-	}
+        return IntPtr.Zero;
+    }
 
-   
+
 
     public void BringThisToForeground()
     {
 
-        setJoyToKeyConfigIfNotAlreadySet(SWITCHER_JOYTOKEY_CONFIG);
+        setJoyToKeyConfigIfNotAlreadySet(switcherJoyToKeyConfig);
         string switcherWindowName = Application.productName;
-        
-        #if UNITY_EDITOR
+
+#if UNITY_EDITOR
         if (ExternalWindowTracker.EditorFocusStealing)
         {
             switcherWindowName = ExternalWindowTracker.editorWindowTitle;
             //Debug.LogError(switcherWindowName);
         }
-        #endif
-        
+#endif
+
         ExternalWindowTracker.ForceBringToForeground(ExternalWindowTracker.GetWindowByTitle(switcherWindowName));
     }
 
@@ -378,7 +336,7 @@ public class ProcessRunner : MonoBehaviour
         StopCurrentRunningGame();
         BringThisToForeground();
     }
-	
+
     public void BringRunningToForeground()
     {
         setJoyToKeyConfigIfNotAlreadySet(_runningGame.joyToKeyConfig);
@@ -445,7 +403,7 @@ public class ProcessRunner : MonoBehaviour
         _mousePosCommandBuilderCmdBuilder.Append("/C call \"");
         _mousePosCommandBuilderCmdBuilder.Append(Application.streamingAssetsPath);
         _mousePosCommandBuilderCmdBuilder.Append("\\~Special\\mouse.bat\" click");
-        
+
         Debug.Log(_mousePosCommandBuilderCmdBuilder.ToString());
         Process process = new System.Diagnostics.Process();
         ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
@@ -460,7 +418,7 @@ public class ProcessRunner : MonoBehaviour
 
     public void StopCurrentRunningGame()
     {
-    
+
         if (currentGameRunner != null)
         {
             //UnityEngine.Debug.Log("CloseProcess called : " + _currentRunningGameProcess.Id);
@@ -509,12 +467,12 @@ public class ProcessRunner : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        #if !UNITY_EDITOR
+#if !UNITY_EDITOR
         if (_haveKilledExplorer || SwitcherSettings.Data._ShutDownExplorerWhileRunning)
         {
             SetWindowsExplorerRunning(true);
         }
-        #endif
+#endif
         TerminateProcess(_joy2KeyProcess);
     }
 
@@ -523,7 +481,7 @@ public class ProcessRunner : MonoBehaviour
         Process[] processes = Process.GetProcesses();
         foreach (Process p in processes)
         {
-            if(!isSafeProcess(p))
+            if (!isSafeProcess(p))
             {
                 try
                 {
@@ -556,10 +514,10 @@ public class ProcessRunner : MonoBehaviour
             }
         }
     }
-    
+
     bool isSafeProcess(Process proc)
     {
-        foreach(Process sp in safeProcesses)
+        foreach (Process sp in safeProcesses)
         {
             if (sp.Id == proc.Id)
             {
@@ -573,5 +531,65 @@ public class ProcessRunner : MonoBehaviour
     {
         SwitcherAppHasFocus = hasFocus;
     }
+
+    #region Joy To Key
+    private string _currentJoyToKeyConfig = null;
+    public const string DEFAULT_SWITCHER_JOYTOKEY_CONFIG = "menuselect.cfg";
+    private string switcherJoyToKeyConfig = DEFAULT_SWITCHER_JOYTOKEY_CONFIG;
+
+    void determineSwitcherJoyToKeyConfigFile()
+    {
+        switcherJoyToKeyConfig = DEFAULT_SWITCHER_JOYTOKEY_CONFIG;
+        var settingsVal = SwitcherSettings.Data._JoyToKeyMenuConfig;
+        if (!string.IsNullOrEmpty(settingsVal))
+        {
+            switcherJoyToKeyConfig = settingsVal;
+        }
+    }
+
+    void setJoyToKeyConfigIfNotAlreadySet(string configFile)
+    {
+        if (configFile != _currentJoyToKeyConfig)
+        {
+            setJoyToKeyConfig(configFile);
+        }
+    }
+
+    bool joyToKeyProfileExists(string profile)
+    {
+        return 
+            !string.IsNullOrEmpty(profile) 
+            &&
+            !string.IsNullOrEmpty(SwitcherSettings.Data.JoyToKeyFolder) 
+            && 
+            System.IO.File.Exists(Path.Combine(SwitcherSettings.Data.JoyToKeyFolder, profile));
+    }
+
+    public void setJoyToKeyConfig(string configFile)
+    {
+        _currentJoyToKeyConfig = configFile;
+
+        string joyToKeyExe = CompanionSoftware.JoyToKey;
+
+        if (!System.IO.File.Exists(joyToKeyExe))
+        {
+            UnityEngine.Debug.LogError("JoyToKey executable not available at '" + joyToKeyExe + "'");
+            return;
+        }
+
+        ProcessStartInfo startInfo = new ProcessStartInfo();
+
+        startInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(joyToKeyExe); //"C:\\Users\\Garrett Johnson\\Desktop";
+        startInfo.FileName = System.IO.Path.GetFileName(joyToKeyExe); ;
+        startInfo.Arguments = configFile;//Path.GetFileNameWithoutExtension(exe);
+
+
+        var newProcess = Process.Start(startInfo);
+        if (_joy2KeyProcess == null || _joy2KeyProcess.HasExited)
+        {
+            _joy2KeyProcess = newProcess;
+        }
+    }
+    #endregion
 
 }

@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum CrockoInputMode { joystick = 0, trackball=1, regularMouse=2 }
+public enum CrockoInputMode { joystick = 0, trackball=1, mouseAndKeyboard=2 }
 public class CrockoInput : MonoBehaviour
 {
     public static CrockoInputMode InputMode => SwitcherSettings.Data._controlMode;
@@ -52,6 +52,7 @@ public class CrockoInput : MonoBehaviour
         return !ToolsAndSettingsMenu.isOpen && !suppressInputTemporarilyPostQuit && GetKeyState(KeyCode.DownArrow, phase);
     }
 
+    static float _regularMouseScrollDeltaAccumulator = 0;
     public static float GetListScroll()
     {
         float ret = 0;
@@ -66,17 +67,30 @@ public class CrockoInput : MonoBehaviour
                 ret = -1;
             }
 
-
-            if (InputMode == CrockoInputMode.trackball || InputMode == CrockoInputMode.regularMouse)
+            if (InputMode == CrockoInputMode.mouseAndKeyboard)
             {
-                float mouseDelta = Input.GetAxis("MouseDeltaY");
 
-                if (InputMode == CrockoInputMode.regularMouse && !Input.GetMouseButton(0))
+                if (Input.GetMouseButton(0))
                 {
-                    mouseDelta = 0;
+                    float mouseDelta = Input.GetAxis("MouseDeltaY");
+                    _regularMouseScrollDeltaAccumulator += 10 * mouseDelta / Screen.height;
+                }
+                else
+                {
+                    _regularMouseScrollDeltaAccumulator = 0;
                 }
 
-                mouseDelta *= 1080f / Screen.height * SwitcherSettings.Data.mouseScrollSpeed / 100f;
+                _regularMouseScrollDeltaAccumulator = Mathf.Clamp(_regularMouseScrollDeltaAccumulator, -1, 1);
+
+                float sign = Mathf.Sign(_regularMouseScrollDeltaAccumulator);
+                var deadzonedAccumulator = sign * Mathf.InverseLerp(.05f, 1, Mathf.Abs(_regularMouseScrollDeltaAccumulator));
+
+                ret += deadzonedAccumulator;// SwitcherSettings.Data.mouseScrollSpeed * .035f * sign * Mathf.Pow(Mathf.Max(0, Mathf.Abs(_regularMouseScrollDeltaAccumulator) - .05f), 1);
+
+            }
+            else if (InputMode == CrockoInputMode.trackball)// || InputMode == CrockoInputMode.regularMouse)
+            {
+                float mouseDelta = 2*Input.GetAxis("MouseDeltaY") / Screen.height;
 
                 if (Mathf.Abs(mouseDelta) > 1)
                 {

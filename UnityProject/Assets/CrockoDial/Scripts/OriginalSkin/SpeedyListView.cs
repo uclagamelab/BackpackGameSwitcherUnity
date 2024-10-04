@@ -69,7 +69,6 @@ public class SpeedyListView : MonoBehaviour
         }
     }
 
-
     [Space(10)]
     [SerializeField]
     TextMeshProUGUI _alphaHelper;
@@ -196,8 +195,12 @@ public class SpeedyListView : MonoBehaviour
 
     bool smallNumberOfGames => GameCatalog.Instance.gameCount < _listItems.Count - 3;
     bool _firedStopEvent = false;
+
+    public float queuedScroll = 0;
     void LateUpdate()
     {
+        float queuedScrollThisFrame = queuedScroll;
+        queuedScroll = 0;
 
         sb.Clear();
         int targetIdleOpacity = SwitcherApplicationController.isIdle ? 1 : 0;
@@ -223,7 +226,7 @@ public class SpeedyListView : MonoBehaviour
         if (!PreLaunchGameInfo.Instance.open)
         {
 
-            float scrollAmount = Mathf.Clamp(CrockoInput.GetListScroll() + _autoKeyCounter,-1,1);
+            float scrollAmount = Mathf.Clamp(CrockoInput.GetListScroll() + queuedScrollThisFrame + _autoKeyCounter,-1,1);
 
             if (Mathf.Abs(scrollAmount) > 0)
             {
@@ -350,7 +353,7 @@ public class SpeedyListView : MonoBehaviour
 
 
             float rotationAmount = Mathf.Clamp(-rawDiffSigned / 4.5f, -1, 1);
-            _listItems[i].transform.localEulerAngles = 30 * rotationAmount * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
+            _listItems[i].transform.localEulerAngles = 15 * rotationAmount * Vector3.forward;// Vector3.up * 80 * (Mathf.Pow(1 - Mathf.InverseLerp(listHeightHalf * .75f, 2, rawDiff), 2));
 
             //If too few games, only show 1 list item at a time (looks stupid to have 3 games repeating over the list)
             //Also, only show the current selected game list item while in a attract mode (better view of video)
@@ -362,9 +365,8 @@ public class SpeedyListView : MonoBehaviour
 
             //Lift the tabs up a little bit as they approach the selected tab, to give it some extra margin
 
-            float slideOff = Mathf.Max(rawDiff - 1, 0) / Mathf.Max(1, _listItems.Count - 1);
+            float slideOff = Mathf.InverseLerp(.45f, .75f, Mathf.Max(rawDiff - 1, 0) / Mathf.Max(1, _listItems.Count - 1));
             //slideOff = 1 - slideOff;
-            slideOff *= slideOff;
             //slideOff = 1 - slideOff;
 
             float finalApproach =
@@ -377,6 +379,8 @@ public class SpeedyListView : MonoBehaviour
             Vector3 hoveredBump = _listItems[i].hoveredAnimAmount * 25 * (_listItems[i].transform.rotation * Vector3.right);
 
             _listItems[i].transform.localPosition =
+                (slideOff * Vector3.right * -1500) 
+                +
                 upwardsBump
                 +
                 hoveredBump

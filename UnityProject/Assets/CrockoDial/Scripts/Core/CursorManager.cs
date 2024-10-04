@@ -9,7 +9,7 @@ public class CursorManager : MonoBehaviour
     bool lastAppliedViz = true;
     private void Start()
     {
-        visibleWhileChoosingAGame = SwitcherSettings.Data._controlMode == CrockoInputMode.regularMouse;
+        visibleWhileChoosingAGame = SwitcherSettings.Data._controlMode == CrockoInputMode.mouseAndKeyboard;
     }
 
     void Update()

@@ -25,12 +25,12 @@ public class SwitcherPrefData
     public float _SFXVolume = 1;
     public bool _ShutDownExplorerWhileRunning;
     public bool _EnableRainmeter;
+    public string _JoyToKeyMenuConfig = ProcessRunner.DEFAULT_SWITCHER_JOYTOKEY_CONFIG;
     public CrockoInputMode _controlMode = CrockoInputMode.joystick;
     //public DisplaySettings displaySettings;
     #endregion
 
     public System.Action OnValuesUpdated = () => { };
-    public float mouseScrollSpeed = 100;
 
     public string JoyToKeyFolder => ConvertIfExeRelative(_JoyToKeyFolder);
     public string CompanionSoftwareFolder => ConvertIfExeRelative(_CompanionSoftwareFolder);

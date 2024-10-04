@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TitleTab : MonoBehaviour {
+public class GameSelectScreen : MonoBehaviour {
 
     CanvasGroup canvasGroup;
     private void Awake()
