@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class XboxControllerInstructionsDesc
+public class XboxControlsDesc
 {
     public string stick_l, stick_r, d_pad, a, b, x, y, start, select, shoulder_l, shoulder_r, trigger_l, trigger_r;
 }

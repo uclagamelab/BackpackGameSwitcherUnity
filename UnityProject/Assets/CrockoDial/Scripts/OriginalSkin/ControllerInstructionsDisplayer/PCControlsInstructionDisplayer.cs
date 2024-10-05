@@ -19,15 +19,31 @@ using UnityEditor;
 [System.Serializable]
 public class KeyboardControlsDesc
 {
-    public List<Entry> leftColumn = new List<Entry>();
-    public List<Entry> rightColumn = new List<Entry>();
+    public List<Entry> leftColumn = new List<Entry>()
+    { 
+        new Entry(new string[]{"mouse"}, new string[]{"move", "left click action"}),
+        new Entry(new string[]{"arrow_keys"}, new string[]{"arrow key action"}),
+    };
+    
+    public List<Entry> rightColumn = new List<Entry>()
+    {
+        new Entry(new string[]{"Space"}, new string[]{"space action"}),
+        new Entry(new string[]{"E"}, new string[]{"E key action"}),
+    };
 
+    [System.Serializable]
     public class Entry 
     {
         public string[] keys;
         public string key => keys == null || keys.Length < 1 ? null : keys[0];
         public string[] actions = { };
         public string action => keys == null || actions.Length < 1 ? null : actions[0];
+
+        public Entry(string[] keys = null, string[] actions = null)
+        {
+            this.keys = keys != null ? keys: new string[0];
+            this.actions = actions != null ? actions : new string[0];
+        }
     }
 }
 public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDisplayer
@@ -49,18 +65,26 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
 
     int IInstructionsDisplayer.IsHandlerFor(GameData gameData)
     {
-        return -1;
+        return gameData.displayedControls == GameData.DisplayedControls.keyboard ? 100 : -1;
     }
 
     bool IInstructionsDisplayer.ShowGame(GameData game)
     {
+        this.Clear();
+        game.getKeyboardControlsDes(true);
+
         KeyboardControlsDesc desc = new();
 
         foreach(var entry in desc.leftColumn)
         {
-
+            this.addFromEntry(entry, 0);
         }
-        return false;
+
+        foreach (var entry in desc.rightColumn)
+        {
+            this.addFromEntry(entry, 1);
+        }
+        return true;
     }
 
     void addFromEntry(KeyboardControlsDesc.Entry e, int column)
@@ -111,7 +135,7 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
             keyText.text = keyStr;
             keyText.ForceMeshUpdate();
             var keyTextRenSize = keyText.GetRenderedValues(false);
-            
+
             var keyRt = find(instance.transform, "key_0").transform as RectTransform;
             var sz = keyRt.sizeDelta;
             sz.x = keyTextRenSize.x + 60;
@@ -125,6 +149,18 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
 
             border.eulerAngles = Vector3.forward * ((coinFlip() ? 180 : 0) + Random.Range(-2.5f, 2.5f));
             border.localScale = new Vector3(coinFlip() ? 1 : -1, coinFlip() ? 1 : -1, 1);
+        }
+        else if (prefab == mousePrefab)
+        {
+            find(instance.transform, "action_text_0").GetComponent<TMPro.TextMeshProUGUI>().text = e.actions.GetOrDefault(0, "");
+
+            var clickLAction = e.actions.GetOrDefault(1, "");
+            find(instance.transform, "click_1_line").SetActive(!string.IsNullOrEmpty(clickLAction));
+            find(instance.transform, "action_text_1").GetComponent<TMPro.TextMeshProUGUI>().text = clickLAction;
+        }
+        else if (prefab == wasdPrefab || prefab == arrowKeysPrefab)
+        {
+            find(instance.transform, "action_text_0").GetComponent<TMPro.TextMeshProUGUI>().text = e.actions.GetOrDefault(0, "");
         }
     }
 
@@ -185,15 +221,13 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
     }
 
     [Space(25)]
-    public string dbgKey = "";
-    public string dbgaction = "";
+    public KeyboardControlsDesc.Entry dbgEntry = new();
     public bool dbgrightCol = false;
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(PCControlsInstructionDisplayer))]
     public class Ed : Editor
     {
-        
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -210,10 +244,7 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
 
                 if (GUILayout.Button("add thing"))
                 {
-                    var e = new KeyboardControlsDesc.Entry();
-                    e.keys = new string[] { script.dbgKey };
-                    e.actions = new string[] { script.dbgaction };
-                    script.addFromEntry(e, script.dbgrightCol ? 1 : 0);
+                    script.addFromEntry(script.dbgEntry, script.dbgrightCol ? 1 : 0);
                 }
             }
         }

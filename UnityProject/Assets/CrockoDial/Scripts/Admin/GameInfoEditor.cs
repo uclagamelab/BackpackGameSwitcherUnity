@@ -5,9 +5,13 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
+public interface IGameInfoEditorListener
+{
+    public void OnGameChange(GameData newGame);
+}
+
 public class GameInfoEditor : MonoBehaviour
 {
-
     public static Events events = new Events();
       
     public static GameInfoEditor instance
@@ -59,6 +63,8 @@ public class GameInfoEditor : MonoBehaviour
         private set;
     }
 
+    IGameInfoEditorListener[] _listeners;
+
     void Start()
     {
         //GameCatalog.Instance.games
@@ -72,12 +78,20 @@ public class GameInfoEditor : MonoBehaviour
             nuItem.text = gam.title;
             nuItem.transform.SetParent(_gameListScrollRect.content, false);
         }
+        
     }
 
     private void OnEnable()
     {
-        if (MenuVisualsGeneric.Instance != null) SetSelectedGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
+        if (_listeners == null)
+        {
+            _listeners = this.GetComponentsInChildren<IGameInfoEditorListener>(true);
+        }
 
+        if (MenuVisualsGeneric.Instance != null)
+        {
+            SetSelectedGame(MenuVisualsGeneric.Instance.currentlySelectedGame);
+        }
     }
 
     public void SetSelectedGame(GameData nuSelection)
@@ -96,6 +110,12 @@ public class GameInfoEditor : MonoBehaviour
         //{
             _ezEditor.UpdateWithGame(nuSelection);
         //}
+
+        //TODO: may use existing event?
+        foreach(var l in _listeners)
+        {
+            l.OnGameChange(currentSelectedGame); 
+        }
     }
 
 

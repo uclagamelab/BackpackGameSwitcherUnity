@@ -42,7 +42,9 @@ public static class Enumz
     }
 
     public static int[] AllValues(Type type)
-    {   
+    {
+        if (type == null) return null;
+
         object ret = null;
         if (!_values.TryGetValue(type, out ret) || ret == null)
         {

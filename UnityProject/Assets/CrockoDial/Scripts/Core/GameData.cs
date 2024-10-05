@@ -176,7 +176,13 @@ public class GameData
             }
             return ret;
         }
-        set => _displayedControls = value.ToString();
+
+        //Garbage alert!
+        set
+        {
+            var enumName = System.Enum.GetName(typeof(DisplayedControls), value);
+            _displayedControls = enumName;
+        }
     }
 
     [System.Serializable]
@@ -192,21 +198,28 @@ public class GameData
         }
     }
 
-    public XboxControllerInstructionsDesc getXBoxControllerInstructions(bool createIfMissing = false)
+    public XboxControlsDesc getXboxControlsDesc(bool createIfMissing = false)
+        => GetControlDesc<XboxControlsDesc>(createIfMissing);
+
+    public KeyboardControlsDesc getKeyboardControlsDes(bool createIfMissing = false)
+        => GetControlDesc<KeyboardControlsDesc>(createIfMissing);
+
+    public T GetControlDesc<T>(bool createIfMissing = false) where T : class, new()
     {
-        XboxControllerInstructionsDesc ret = null;
+        T ret = null;
+        var path = $"{this._gameFolder}/{typeof(T).Name}.json";
         try
         {
-            var json = XuFileUtil.ReadText($"{this.directory}/{nameof(XboxControllerInstructionsDesc)}.json");
+            var json = XuFileUtil.ReadText(path);
          
             if (!string.IsNullOrEmpty(json))
             {
-                ret = JsonUtility.FromJson<XboxControllerInstructionsDesc>(json);
+                ret = JsonUtility.FromJson<T>(json);
             }
             else
             {
-                ret = new XboxControllerInstructionsDesc();
-                XuFileUtil.WriteText(JsonUtility.ToJson(ret) ,$"{this.directory}/{nameof(XboxControllerInstructionsDesc)}.json");
+                ret = new T();
+                XuFileUtil.WriteText(JsonUtility.ToJson(ret, true) , path);
             }
         }
         catch (System.Exception e) 
@@ -458,16 +471,6 @@ public class GameData
         set
         {
             joyToKeyConfig_singlePlayer = value;
-        }
-    }
-
-
-    public string directory
-    {
-        get
-        {
-            FileInfo fi = new FileInfo(executable);
-            return fi.Directory.FullName;
         }
     }
 

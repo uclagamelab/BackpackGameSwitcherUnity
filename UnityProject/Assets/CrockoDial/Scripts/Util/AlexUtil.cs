@@ -33,6 +33,20 @@ public static class Alextensions
         return ret;
     }
 
+    public static bool indexInRange<T>(this IList<T> l, int foundIdx)
+    {
+        return foundIdx >= 0 && foundIdx < l.Count;
+    }
+
+    public static T GetOrDefault<T>(this IList<T> l, int index, T outOfRangeValue = default)
+    {
+        if (!l.indexInRange(index))
+        {
+            return outOfRangeValue;
+        }
+        return l[index];
+    }
+
     public static V GetOrDefault<K, V>(this Dictionary<K, V> dict, K key, V optionalDefault = default(V))
     {
         if (typeof(K).IsClass && key == null) //null keys are not allowed
