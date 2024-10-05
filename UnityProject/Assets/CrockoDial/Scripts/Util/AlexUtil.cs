@@ -16,6 +16,23 @@ using System.Collections.Generic;
 public static class Alextensions
 {
 
+    public static V GetOrCreate<K, V>(this Dictionary<K, V> dict, K key, System.Func<V> create = null) where V : class, new()
+    {
+        if (key == null) //null keys are not allowed
+        {
+            return null;
+        }
+
+        V ret = dict.GetValueOrDefault(key);
+        if (ret == null)
+        {
+            ret = create != null ? create.Invoke() : new V();
+            dict[key] = ret;
+        }
+
+        return ret;
+    }
+
     public static V GetOrDefault<K, V>(this Dictionary<K, V> dict, K key, V optionalDefault = default(V))
     {
         if (typeof(K).IsClass && key == null) //null keys are not allowed

@@ -30,12 +30,8 @@ public class GameInfoUI : MonoBehaviour
     public GameObject tipsHeaderBar;
     [UnityEngine.Serialization.FormerlySerializedAs("instructionsText")]
     public Text tipsText;
-    
 
-    [Space(10)]
-
-    public RawImage _overrideIntructionsImageImage;
-    public GameObject _defaultInstructionsContainer;
+    IInstructionsDisplayer[] _instructionsDisplayers = null;
 
     [System.Serializable]
     public struct ButtonGUIRefs
@@ -44,9 +40,7 @@ public class GameInfoUI : MonoBehaviour
         public Image fill;
     }
 
-    public ButtonGUIRefs[] buttonDisplays;
-    public Image joystickFill;
-    public Text joystickLabel;
+
 
     GameData _cachedCurrentGameData = null;
 
@@ -54,6 +48,7 @@ public class GameInfoUI : MonoBehaviour
     {
         descriptionColumnDefault.position = descriptionColumn.offsetMin;
         descriptionColumnDefault.size = descriptionColumn.offsetMax;
+        _instructionsDisplayers = this.GetComponentsInChildren<IInstructionsDisplayer>(true);
     }
 
     bool _gameNeedsRefresh = false;
@@ -66,17 +61,7 @@ public class GameInfoUI : MonoBehaviour
         {
             _cachedCurrentGameData = MenuVisualsGeneric.Instance.currentlySelectedGame;
             
-            bool hasOverrideInstructionsImage = _cachedCurrentGameData.overrideInstructionsImage != null;
-            if (hasOverrideInstructionsImage)
-            {
-
-
-                //TODO, respect apsect ratio of image
-                _overrideIntructionsImageImage.texture = _cachedCurrentGameData.overrideInstructionsImage;
-            }
-            _overrideIntructionsImageImage.gameObject.SetActive(hasOverrideInstructionsImage);
-            _defaultInstructionsContainer.SetActive(!hasOverrideInstructionsImage);
-           
+     
             _titleTab.UpdateWithGame(_cachedCurrentGameData);
 
             this.titleText.text = _cachedCurrentGameData.title;
@@ -92,37 +77,30 @@ public class GameInfoUI : MonoBehaviour
             this.tipsText.enabled = tipsTextOn;
             tipsHeaderBar.SetActive(tipsTextOn);
 
-
-            bool hasAnyValidControlText = false;
-            
-            if (joystickLabel != null)
+            IInstructionsDisplayer bestHandler  = null;
+            int bestHandlerPriority = -1;
+            foreach (var handler in _instructionsDisplayers)
             {
-                var instructionsText = _cachedCurrentGameData.instructions.joystickInstructions;
-                bool hasJoystickStruction = !string.IsNullOrEmpty(_cachedCurrentGameData?.instructions?.joystickInstructions);
-                
-                this.joystickLabel.text = instructionsText;
-                
-                this.joystickFill.gameObject.SetActive (hasJoystickStruction);
-                hasAnyValidControlText |= hasJoystickStruction;
-            }
-    
-            for (int i = 0; i < 6; i++)
-            {
-                var instructionsText = _cachedCurrentGameData.instructions.getButtonLabel(i + 1);
-                hasAnyValidControlText |= !string.IsNullOrEmpty(instructionsText);
-
-                if (buttonDisplays[i].label != null)
+                int priority = handler.IsHandlerFor(_cachedCurrentGameData);
+                if (priority > 0 && priority > bestHandlerPriority)
                 {
-                    buttonDisplays[i].label.text = instructionsText; //button label 0 used for joystick?
-                }
-
-                if (buttonDisplays[i].fill != null)
-                {
-                    buttonDisplays[i].fill.gameObject.SetActive(!string.IsNullOrEmpty(instructionsText));   
+                    bestHandler = handler;
+                    bestHandlerPriority = priority;
                 }
             }
 
-            bool hasControls = hasOverrideInstructionsImage || hasAnyValidControlText;
+            foreach (var handler in _instructionsDisplayers)
+            {
+                handler.gameObject.SetActive(handler == bestHandler);
+            }
+
+            bool hasControls = false;
+            if (bestHandler != null)
+            {
+                hasControls = bestHandler.ShowGame(_cachedCurrentGameData);
+                if (!hasControls) bestHandler.gameObject.SetActive(false);
+            }
+
             this.positionInstructionsColumn(hasControls);
         }
     }
@@ -133,7 +111,6 @@ public class GameInfoUI : MonoBehaviour
         var r = !hasControLabels ? descriptionColumnNoControls : descriptionColumnDefault;
         descriptionColumn.offsetMin = r.position;
         descriptionColumn.offsetMax = r.size;
-        _overrideIntructionsImageImage.transform.parent.gameObject.SetActive(hasControLabels);
     }
 
 

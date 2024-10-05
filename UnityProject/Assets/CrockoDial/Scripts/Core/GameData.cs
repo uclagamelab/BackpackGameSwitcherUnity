@@ -30,6 +30,8 @@ public class GameData
 
     public GameLaunchSettings launchSettings;
 
+    [SerializeField] string _displayedControls = "";
+
     //public ControllerSettings controllerSettings;
     #endregion ---------------------------------------------------------
 
@@ -160,6 +162,22 @@ public class GameData
     }
     #endregion ------------------------------------------------------------------------------------------
 
+    public enum DisplayedControls {auto = 0 , arcade = 100, xbox = 200, keyboard = 300 }
+
+    
+    public DisplayedControls displayedControls
+    {
+        get
+        {
+            DisplayedControls ret;
+            if (!System.Enum.TryParse(_displayedControls, out ret))
+            {
+                ret = DisplayedControls.auto;
+            }
+            return ret;
+        }
+        set => _displayedControls = value.ToString();
+    }
 
     [System.Serializable]
     public class ControlInstructions
@@ -172,7 +190,31 @@ public class GameData
         {
             return buttonInstructions[buttonIdx - 1];
         }
+    }
 
+    public XboxControllerInstructionsDesc getXBoxControllerInstructions(bool createIfMissing = false)
+    {
+        XboxControllerInstructionsDesc ret = null;
+        try
+        {
+            var json = XuFileUtil.ReadText($"{this.directory}/{nameof(XboxControllerInstructionsDesc)}.json");
+         
+            if (!string.IsNullOrEmpty(json))
+            {
+                ret = JsonUtility.FromJson<XboxControllerInstructionsDesc>(json);
+            }
+            else
+            {
+                ret = new XboxControllerInstructionsDesc();
+                XuFileUtil.WriteText(JsonUtility.ToJson(ret) ,$"{this.directory}/{nameof(XboxControllerInstructionsDesc)}.json");
+            }
+        }
+        catch (System.Exception e) 
+        {
+            Debug.LogException(e);
+        }
+        
+        return ret;
     }
 
     public string GetDescriptionText()
