@@ -47,7 +47,6 @@ public class PreLaunchGameInfo : MonoBehaviour {
         _playButton.SetUp(this);    
     }
 
-    // Use this for initialization
     void Start () {
 
         _dimmer.enabled = false;
@@ -55,6 +54,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
         _highlightImg = _buttonHighlight.GetComponentInChildren<Image>();
 
         _canvasGroup = this.GetComponent<CanvasGroup>();
+        _canvasGroup.alpha = 0;
     }
 
     // Update is called once per frame

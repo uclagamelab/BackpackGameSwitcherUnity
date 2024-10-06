@@ -44,7 +44,7 @@ public class GameInfoUI : MonoBehaviour
 
     GameData _cachedCurrentGameData = null;
 
-    private void Start()
+    private void Awake()
     {
         descriptionColumnDefault.position = descriptionColumn.offsetMin;
         descriptionColumnDefault.size = descriptionColumn.offsetMax;

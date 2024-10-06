@@ -54,7 +54,7 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
     public GameObject arrowKeysPrefab;
     public GameObject wasdPrefab;
 
-    public Transform _leftColumn, _rightColumn;
+    public Transform[] _elementRows = { };
 
     Dictionary<GameObject, List<GameObject>> _prefabPool = new();
 
@@ -73,27 +73,59 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
         this.Clear();
         game.getKeyboardControlsDes(true);
 
-        KeyboardControlsDesc desc = new();
+        KeyboardControlsDesc desc = game.getKeyboardControlsDes();
 
-        foreach(var entry in desc.leftColumn)
+        int nItems = desc.leftColumn.Count;
+
+        int newRowStartIdx = -1;
+        if (nItems < 4)
         {
-            this.addFromEntry(entry, 0);
+            newRowStartIdx = -1;//keep all on same row
+        }
+        else if (nItems % 2 == 0)
+        {
+            newRowStartIdx = nItems / 2;
+        }
+        else
+        {
+            newRowStartIdx = Mathf.CeilToInt(nItems / 2f); //keep the larget number of object on the upper row
         }
 
-        foreach (var entry in desc.rightColumn)
+        int rowI = 0;
+        int elI = -1;
+        
+        //rows need to enabled for tmpro to be able to report sizing correctly
+        for (int i = 0; i < _elementRows.Length; i++)
         {
-            this.addFromEntry(entry, 1);
+            _elementRows[i].gameObject.SetActive(true);
         }
+        
+        foreach (var entry in desc.leftColumn)
+        {
+            elI++;
+            if (elI == newRowStartIdx)
+            {
+                rowI++;
+            }
+            this.addFromEntry(entry, rowI);
+        }
+
+        for (int i = 0; i < _elementRows.Length; i++)
+        {
+            _elementRows[i].gameObject.SetActive(i <= rowI);
+        }
+
         return true;
     }
 
-    void addFromEntry(KeyboardControlsDesc.Entry e, int column)
+    void addFromEntry(KeyboardControlsDesc.Entry e, int row)
     {
         var prefab = this.getPrefabFromKey(e);
         if (prefab != null)
         {
             var displayInst = getPooledCopy(prefab);
-            displayInst.transform.SetParent(column == 0 ? _leftColumn : _rightColumn);
+            displayInst.transform.SetParent(_elementRows[row]);// column == 0 ? _leftColumn : _rightColumn);
+            displayInst.transform.SetAsLastSibling(); //make sure order is correct
             displayInst.SetActive(true);
             DisplayOnObj(prefab, displayInst, e);
         }
@@ -138,10 +170,10 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
 
             var keyRt = find(instance.transform, "key_0").transform as RectTransform;
             var sz = keyRt.sizeDelta;
-            sz.x = keyTextRenSize.x + 60;
+            sz.x = keyTextRenSize.x + 45;
             if (keyStr.ToLower() == "space")
             {
-                sz.x *= 2f;
+                sz.x = 2*sz.x;
             }
             keyRt.sizeDelta = sz;
 
