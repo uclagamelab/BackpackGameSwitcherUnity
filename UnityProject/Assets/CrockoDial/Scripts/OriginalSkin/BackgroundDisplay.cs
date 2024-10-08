@@ -210,7 +210,7 @@ public class BackgroundDisplay : MonoBehaviour {
         animating = true;
         this.varyWithT((rawT) =>
         {
-            float t = EasingFunctions.Calc(rawT, EasingFunctions.BackEaseOut);
+            float t = EasingFunctions.Calc(rawT, EasingFunctions.QuadEaseIn);
             var h = (thingToShow.transform as RectTransform).sizeDelta.y;
             if (prevThingToShow != null)
             {
@@ -233,6 +233,6 @@ public class BackgroundDisplay : MonoBehaviour {
                     prevThingToShow.alpha = 0;
             }
             }
-        }, 0.25f);
+        }, 0.2f);
     }
 }
