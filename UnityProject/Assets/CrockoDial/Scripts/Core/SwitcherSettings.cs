@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData>
@@ -7,9 +8,26 @@ public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData
     #region NON-SERIALIZED
     public static bool AdminMode => false;
     #endregion
-    protected override string fileName => "settings.json";
 
-    
+    string settingsFile = "settings.json";
+    protected override string fileName => settingsFile;
+
+
+    protected override void Awake()
+    {
+        string overrideFile = XUCommandLineArguments.GetArgValue("-settings");
+        if (!string.IsNullOrEmpty(overrideFile))
+        {
+            if (!overrideFile.ToLower().EndsWith(".json"))
+            {
+                overrideFile = overrideFile + ".json";
+            }
+            settingsFile = overrideFile;
+        }
+
+        base.Awake();
+    }
+
 }
 
 [System.Serializable]
@@ -38,9 +56,9 @@ public class SwitcherPrefData
 
     static string ConvertIfExeRelative(string rawPath)
     {
-        if (rawPath != null && rawPath.StartsWith(".\\")) //is relative
+        if (!Path.IsPathRooted(rawPath))
         {
-            return System.IO.Path.Combine(XuFileUtil.RunningAppDirectory, rawPath.Substring(2));
+            return System.IO.Path.Combine(XuFileUtil.RunningAppDirectory, rawPath);//.Substring(2));
         }
         else
         {

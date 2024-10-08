@@ -126,7 +126,7 @@ public class XUGenericPersistentData<T> : MonoBehaviour where T : new()
 #endregion
 
 
-    private void Awake()
+    protected virtual void Awake()
     {
 #if !UNITY_EDITOR
         _currentSaveData = new T();

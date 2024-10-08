@@ -112,14 +112,9 @@ public class ProcessRunner : MonoBehaviour
     // Pressing the button opens up the game.
     // Pressing CTRL - C brings this game to the foreground
 
-    void Awake()
-    {
-
-    }
-
-
     IEnumerator Start()
     {
+        determineSwitcherJoyToKeyConfigFile();
         setJoyToKeyConfig(switcherJoyToKeyConfig);
 
         //Not sure if delay is actually necessary
@@ -534,7 +529,7 @@ public class ProcessRunner : MonoBehaviour
 
     #region Joy To Key
     private string _currentJoyToKeyConfig = null;
-    public const string DEFAULT_SWITCHER_JOYTOKEY_CONFIG = "menuselect.cfg";
+    public const string DEFAULT_SWITCHER_JOYTOKEY_CONFIG = "menu_select.cfg";
     private string switcherJoyToKeyConfig = DEFAULT_SWITCHER_JOYTOKEY_CONFIG;
 
     void determineSwitcherJoyToKeyConfigFile()
