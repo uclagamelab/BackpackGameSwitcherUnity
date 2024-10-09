@@ -71,13 +71,13 @@ static class XuFileUtil
     /// <summary>
     /// Not thoroughly tested, should copy more vetted version from somewhere
     /// </summary>
-    /// <param name="maybeSubdirectory"></param>
-    /// <param name="maybeParentDirectory"></param>
+    /// <param name="maybeChild"></param>
+    /// <param name="maybeParent"></param>
     /// <returns></returns>
-    public static bool IsSubdirectory  (string maybeSubdirectory, string maybeParentDirectory)
+    public static bool IsChildPath  (string maybeChild, string maybeParent)
     {
 
-        return maybeSubdirectory.Replace('\\', '/').StartsWith(maybeParentDirectory.Replace('\\', '/'));
+        return maybeChild.Replace('\\', '/').StartsWith(maybeParent.Replace('\\', '/'));
     }
 
     public static string ComputeRelativePath(string exeFullPath, string relativeToPath)//_currentGame.rootFolder.FullName
@@ -140,6 +140,39 @@ static class XuFileUtil
             Debug.LogError("Error move file at path : '" + originalPath + "' to '" + desiredPath + "'\n" + e);
         }
         return false;
+    }
+
+    public static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
+    {
+        // Get information about the source directory
+        var dir = new DirectoryInfo(sourceDir);
+
+        // Check if the source directory exists
+        if (!dir.Exists)
+            throw new DirectoryNotFoundException($"Source directory not found: {dir.FullName}");
+
+        // Cache directories before we start copying
+        DirectoryInfo[] dirs = dir.GetDirectories();
+
+        // Create the destination directory
+        Directory.CreateDirectory(destinationDir);
+
+        // Get the files in the source directory and copy to the destination directory
+        foreach (FileInfo file in dir.GetFiles())
+        {
+            string targetFilePath = Path.Combine(destinationDir, file.Name);
+            file.CopyTo(targetFilePath);
+        }
+
+        // If recursive and copying subdirectories, recursively call this method
+        if (recursive)
+        {
+            foreach (DirectoryInfo subDir in dirs)
+            {
+                string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+                CopyDirectory(subDir.FullName, newDestinationDir, true);
+            }
+        }
     }
     public static void ProcessAllFilesRecursive(string startDirectory, System.Action<string> fileAction)
     {

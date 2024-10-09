@@ -107,7 +107,7 @@ public class FileSelectorButton : MonoBehaviour
 
             if (detectIfExeRelative)
             {
-                if (XuFileUtil.IsSubdirectory(finalVal, XuFileUtil.RunningAppDirectory))
+                if (XuFileUtil.IsChildPath(finalVal, XuFileUtil.RunningAppDirectory))
                 {
                     finalVal = XuFileUtil.ComputeRelativePath(finalVal, XuFileUtil.RunningAppDirectory);
                     finalVal = Path.Combine(".", finalVal);
