@@ -169,7 +169,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
             _canvasGroup.alpha = Mathf.InverseLerp(0, .75f, t);
             Color color = Color.white;
             color.a = Mathf.InverseLerp(0, .75f, t);
-            float elastT = EasingFunctions.Calc(t, EasingFunctions.ExpoEaseOut);
+            float elastT = EasingFunctions.ExpoEaseOut(t);
         this.transform.localScale = Vector3.LerpUnclamped(Vector3.one * 3, Vector3.one, elastT);// EasingFunctions.Calc(t, EasingFunctions.QuadEaseOut));
             /*_rawImg.material.color = color;
             _rawImg.material.SetFloat("_BlurAmt", Mathf.InverseLerp(1, 0.9f, t));

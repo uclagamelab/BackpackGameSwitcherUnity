@@ -53,7 +53,6 @@ public class BgMusicPlayer : MonoBehaviour
     }
 
 
-    // Update is called once per frame
     void Update()
     {
         targMusicVolume = 1;
@@ -145,7 +144,8 @@ public class BgMusicPlayer : MonoBehaviour
         }
         masterTargVolume = ProcessRunner.SwitcherAppHasFocus ? 1f : 0;
         _smoothMasterVolume = Mathf.MoveTowards(_smoothMasterVolume, masterTargVolume, Time.deltaTime * .3f);
-        _mixer.SetFloat("master_volume", Mathf.Lerp(-80, 0, EasingFunctions.Calc(_smoothMasterVolume, EasingFunctions.QuadEaseOut)));
+
+        _mixer.SetFloat("master_volume", Mathf.Lerp(-80, 0, _smoothMasterVolume));// EasingFunctions.QuadEaseOut(_smoothMasterVolume)));
 
         _bgmVolumeSmooth = Mathf.MoveTowards(_bgmVolumeSmooth, finalTargBGMVolume, speedUpLerp ? 5 * Time.deltaTime : .35f * Time.deltaTime);
         this.bgMusicSource.volume = _bgmVolumeSmooth * SwitcherSettings.Data._BGMusicVolume;

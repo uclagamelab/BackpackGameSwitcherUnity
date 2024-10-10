@@ -4,31 +4,57 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
+
+public class WrappedVideoPlayer
+{
+    VideoPlayer videoPlayer;
+    string cachedUrl = string.Empty;
+    public WrappedVideoPlayer(VideoPlayer videoPlayer)
+    {
+        this.videoPlayer = videoPlayer;
+    }
+
+    public void Play() => videoPlayer.Play();
+    public void Stop() => videoPlayer.Stop();
+    public double time
+    {
+        get => videoPlayer.time;
+        set => videoPlayer.time = value;
+    }
+
+    public string url
+    {
+        get => cachedUrl;
+        set
+        {
+            videoPlayer.url = value;
+            cachedUrl = videoPlayer.url;
+        }
+    }
+
+    public RenderTexture targetTexture => videoPlayer.targetTexture;
+    public bool isPrepared => videoPlayer.isPrepared;
+    public Transform transform => videoPlayer.transform;
+    public GameObject gameObject => videoPlayer.gameObject;
+
+    public void Prepare() => videoPlayer.Prepare();
+
+    public bool isPlaying => videoPlayer.isPlaying;
+}
+
 public class GamePreviewDisplayTexture 
 {
-    public VideoPlayer _videoPlayer;
+    public VideoPlayer __videoPlayer { get; private set; }
+    public WrappedVideoPlayer _videoPlayer
+    {
+        get;
+        private set;
+    }
     public RawImage _rawImgOuput;
     RenderTexture _videoRenderTexture;
     public AudioSource _audioOuput;
     GameData _viewedGameData;
  
-
-
-    public bool isSeeking = false;
-
-    public float time
-    {
-        get
-        {
-            return (float)_videoPlayer.time;
-        }
-
-        set
-        {
-            isSeeking = true;
-            _videoPlayer.time = value;
-        }
-    }
 
     public GameObject gameObject
     {
@@ -48,26 +74,27 @@ public class GamePreviewDisplayTexture
         _videoRenderTexture = new RenderTexture(rtd);
 
         _rawImgOuput = rawImgDisplayer;
-        _videoPlayer = rawImgDisplayer.gameObject.AddComponent<VideoPlayer>();
-        _videoPlayer.source = VideoSource.Url;
-        _videoPlayer.playOnAwake = false;
-        _videoPlayer.waitForFirstFrame = true;
-        _videoPlayer.isLooping = true;
-        _videoPlayer.skipOnDrop = true;
-        _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
-        _videoPlayer.aspectRatio = VideoAspectRatio.FitOutside;
+        __videoPlayer = rawImgDisplayer.gameObject.AddComponent<VideoPlayer>();
+        _videoPlayer = new(__videoPlayer);
+        __videoPlayer.source = VideoSource.Url;
+        __videoPlayer.playOnAwake = false;
+        __videoPlayer.waitForFirstFrame = true;
+        __videoPlayer.isLooping = true;
+        __videoPlayer.skipOnDrop = true;
+        __videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+        __videoPlayer.aspectRatio = VideoAspectRatio.FitOutside;
 
-        _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        __videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
         _audioOuput = BgMusicPlayer.instance.gameObject.AddComponent<AudioSource>(); //<- a little hacky, but so the low pass filter effect gets applied as it is for the bg music.
         _audioOuput.Stop();
         _audioOuput.volume = 0;
         _audioOuput.outputAudioMixerGroup = BgMusicPlayer.instance.bgmGroup;
-        _videoPlayer.SetTargetAudioSource(0, _audioOuput);
+        __videoPlayer.SetTargetAudioSource(0, _audioOuput);
 
-        this._videoPlayer.targetTexture = _videoRenderTexture;
+        this.__videoPlayer.targetTexture = _videoRenderTexture;
         this._rawImgOuput.texture = _videoRenderTexture;
-        _videoPlayer.seekCompleted += seekFinished;
-        _videoPlayer.prepareCompleted += prepareFinished;
+        __videoPlayer.seekCompleted += seekFinished;
+        __videoPlayer.prepareCompleted += prepareFinished;
         BgMusicPlayer.instance.AddBGMVolumeOverrider(bgMusicForcer);
         this.alpha = 1;
     }
@@ -81,6 +108,7 @@ public class GamePreviewDisplayTexture
         }
     }
 
+    public bool isSeeking { get; private set;  }
     void seekFinished(VideoPlayer vp)
     {
         isSeeking = false;
