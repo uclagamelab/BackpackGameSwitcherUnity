@@ -4,13 +4,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using DateTime = System.DateTime;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 
-public static class CrockoEdUtil 
+public class XUAutoVersionUpdater : IPreprocessBuildWithReport
 {
-    [MenuItem("CrockoDial/Update Verision")]
+
     public static void UpdateVersion()
     {
-        PlayerSettings.bundleVersion = $"1.{ (DateTime.Now.Year % 100).ToString("00")}.{DateTime.Now.Month}.{DateTime.Now.Day}";
+        PlayerSettings.bundleVersion = $"1.{System.DateTime.Now.ToString("yy.MM.dd.hh.mm.ss")}";
+        Debug.LogError(PlayerSettings.bundleVersion);
+    }
+
+    int IOrderedCallback.callbackOrder => int.MaxValue;
+
+    void IPreprocessBuildWithReport.OnPreprocessBuild(BuildReport report)
+    {
+        UpdateVersion();
     }
 }
 #endif
