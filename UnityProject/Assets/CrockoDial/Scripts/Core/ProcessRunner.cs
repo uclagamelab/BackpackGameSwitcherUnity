@@ -284,6 +284,8 @@ public class ProcessRunner : MonoBehaviour
     static string lastSentKeyStroke = null;
     static string cachedSendKeyCommand;
     static System.Text.StringBuilder sendKeyStrokesCommandBuilder = new System.Text.StringBuilder();
+    
+    //TODO: this, and the bat file can probably be replaced with the internal implementation
     public static void SendKeyStrokesToWindow(string windowTitle, string key = "")
     {
         //string cmdText = "call \"" +  Application.streamingAssetsPath + "\\~Special\\sendKeys.bat\" \"" + windowTitle + "\" \"" + key + "\"";

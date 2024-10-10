@@ -46,6 +46,9 @@ public class SwitcherPrefData
     public string _JoyToKeyMenuConfig = ProcessRunner.DEFAULT_SWITCHER_JOYTOKEY_CONFIG;
     public CrockoInputMode _controlMode = CrockoInputMode.joystick;
     //public DisplaySettings displaySettings;
+
+    //Prevents user from quitting with alt-f4, and disables the admin panel
+    public bool _securityMode = false;
     #endregion
 
     public System.Action OnValuesUpdated = () => { };
