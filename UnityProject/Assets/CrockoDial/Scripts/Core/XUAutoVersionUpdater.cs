@@ -12,7 +12,7 @@ public class XUAutoVersionUpdater : IPreprocessBuildWithReport
 
     public static void UpdateVersion()
     {
-        PlayerSettings.bundleVersion = $"1.{System.DateTime.Now.ToString("yy.MM.dd.hh.mm.ss")}";
+        PlayerSettings.bundleVersion = $"1.{System.DateTime.Now.ToString("yy.MM.dd.hhmmss")}";
         Debug.LogError(PlayerSettings.bundleVersion);
     }
 
