@@ -9,11 +9,9 @@ using UnityEngine.UI;
 
 public class ToolsAndSettingsMenu : MonoBehaviour {
 
-    public static bool isOpen
-    {
-        get;
-        private set;
-    }
+    public static bool isOpen => _I.allMenu.gameObject.activeSelf;
+
+    static ToolsAndSettingsMenu _I = null;
 
     [SerializeField]
     Transform allMenu;
@@ -40,8 +38,13 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     [SerializeField]
     Button _auditButton;
 
+    [SerializeField]
+    Button _quitButton;
+
     void Awake ()
     {
+        _I = this;
+
         string[] args = System.Environment.GetCommandLineArgs();
         if (System.Array.Find<string>(args, (string s)=> { return s.Equals("--setup"); }) != null)
         {
@@ -54,8 +57,7 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         _auditButton.onClick.AddListener(auditGames);
         //_generateJoyToKeyAppAssociationFileButton.onClick.AddListener(GenerateJoyToKeyExeAssociationFile);
 
-
-        isOpen = allMenu.gameObject.activeSelf;
+        _quitButton.onClick.AddListener(()=> Application.Quit());
 
         resultMessageOutput = resultMessage.GetComponent<InputField>();
 
@@ -75,7 +77,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     public void showSetup(bool show)
     {
-        isOpen = show;
         this.resultMessageOutput.text = "";
         this.allMenu.gameObject.SetActive(show);
         if (show)
@@ -146,11 +147,61 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         GameCatalog.Instance.repopulateCatalog(SwitcherSettings.Data.GamesFolder);
     }
 
+
+    int _passwordCheckIdx = 0;
+    bool _allowPassPress = true;
+
+    private void LateUpdate()
+    {
+        bool enteredPassword = false;
+        var password = SwitcherSettings.Data._SecurityModePassword;
+        if (!isOpen && string.IsNullOrEmpty(password) || password.Length == 0)
+        {
+            return;
+        }
+
+        char passChar = password[_passwordCheckIdx];
+        
+        if (Input.anyKeyDown)
+        {
+            if (BackgroundKeyboardInput.Instance.keyDownThisFrame(passChar))
+            {
+                //Debug.Log(passChar + "!");
+                _passwordCheckIdx++;
+                if (_passwordCheckIdx >= password.Length)
+                {
+                    //Debug.LogError("YAY");
+                    _passwordCheckIdx = 0;
+                    enteredPassword = true;
+                    this.showSetup(true);
+                }
+            }
+            else
+            {
+                _passwordCheckIdx = 0;
+                passChar = password[0];
+                if (BackgroundKeyboardInput.Instance.keyDownThisFrame(passChar))
+                {
+                    _passwordCheckIdx = 1;
+                }
+
+            }
+        }
+        
+    }
+
     void Update()
     {
-        if (CrockoInput.GetAdminMenuKeyComboDown())
+        bool allowMenu = !SwitcherSettings.Data._SecurityMode;
+        #if UNITY_EDITOR
+        //allowMenu = true;
+        #endif
+
+
+
+        if (CrockoInput.GetAdminMenuKeyComboDown() && (isOpen || allowMenu))
         {
-            this.showSetup(!this.allMenu.gameObject.activeSelf);
+            this.showSetup(!isOpen);
         }
     }
 

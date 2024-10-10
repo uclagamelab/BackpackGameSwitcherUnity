@@ -67,6 +67,11 @@ public class ProcessRunner : MonoBehaviour
 
     bool _usingJoyToKey = true;
 
+    private void Awake()
+    {
+        Application.wantsToQuit += WantsToQuit;
+    }
+
     IEnumerator Start()
     {
         if (SwitcherSettings.Data._controlMode == CrockoInputMode.mouseAndKeyboard)
@@ -398,7 +403,31 @@ public class ProcessRunner : MonoBehaviour
         }
     }
 
-    private void OnApplicationQuit()
+    static bool WantsToQuit()
+    {
+        bool allowShutdown = true;
+        try
+        {
+            allowShutdown = !SwitcherSettings.Data._SecurityMode || ToolsAndSettingsMenu.isOpen;
+            if (allowShutdown)
+            {
+                instance.DoSwitcherShutdown();
+            }
+
+        }
+        catch (System.Exception e)
+        {
+            allowShutdown = true;
+        }
+
+
+        return allowShutdown;
+    }
+
+
+    //NOTE: Have moved this out out OnApplicationQuit(), since it didn't seem to be executed reliably
+    //since the addition of 'wantToQuit' code above
+    private void DoSwitcherShutdown()
     {
 #if !UNITY_EDITOR
         if (_haveKilledExplorer || SwitcherSettings.Data._ShutDownExplorerWhileRunning)
@@ -407,6 +436,8 @@ public class ProcessRunner : MonoBehaviour
         }
 #endif
         TerminateProcess(_joy2KeyProcess);
+
+        //TODO : add optional bat file or something to allow for additional cleanup.
     }
 
     public void KillAllNonSafeProcesses(int exitCode = 0)

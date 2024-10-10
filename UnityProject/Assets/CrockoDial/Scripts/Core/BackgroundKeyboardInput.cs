@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using Debug = UnityEngine.Debug;
 
 
+[DefaultExecutionOrder(-9999999)]
 public class BackgroundKeyboardInput : MonoBehaviour {
 
     #region MOUSE STUFF
@@ -68,7 +69,25 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     bool _keyComboPressed = false;
 
 
-    public int lastKeyHit = 0;
+    public int lastKeyHit
+    {
+        get; private set;
+    }
+
+    public bool keyDownThisFrame(char keyCode)
+    {
+        int ret = keyCode;
+        if (keyCode >= 'a')
+        {
+            ret -= 32;
+        }
+        return keyDownThisFrame(ret);
+    }
+    public bool keyDownThisFrame(int keyCode)
+    {
+        return _pollValues[keyCode] && !_pollValuesPrev[keyCode];
+    }
+
     bool prevlMouseButtonHeld = false;
     // Update is called once per frame
 
@@ -100,7 +119,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
             _escapeTimer += Time.deltaTime;
         }
 
-        //Force attrack with Shift-A
+        //Force attract with Shift-A
         if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.A))
         {
             _secondsSinceLastInput = 60 * 60; //1 hour

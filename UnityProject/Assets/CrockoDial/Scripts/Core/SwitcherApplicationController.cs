@@ -38,18 +38,7 @@ public class SwitcherApplicationController : MonoBehaviour
     }
     public static Events events = new Events();
 
-    static bool WantsToQuit()
-    {
-        try
-        {
-            bool allowShutdown = !SwitcherSettings.Data._securityMode;
-            return allowShutdown;
-        }
-        catch (System.Exception e)
-        {
-        }
-        return true;
-    }
+
 
     void Awake () {
         _defaultResolution = Screen.currentResolution;
@@ -57,8 +46,6 @@ public class SwitcherApplicationController : MonoBehaviour
 
         //var frameRate = SwitcherSettings.Data.targetFrameRate <= 0 ? 60 : SwitcherSettings.Data.targetFrameRate;
         Application.targetFrameRate = 60;
-
-        Application.wantsToQuit += WantsToQuit;
     }
 
     void Start()

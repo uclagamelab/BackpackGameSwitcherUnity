@@ -48,7 +48,9 @@ public class SwitcherPrefData
     //public DisplaySettings displaySettings;
 
     //Prevents user from quitting with alt-f4, and disables the admin panel
-    public bool _securityMode = false;
+    public bool _SecurityMode = false;
+    [SerializeField] string _SecurityModePassword_NOTE = "only lowercase, and numbers allowed!";
+    public string _SecurityModePassword = "gameadmin123";
     #endregion
 
     public System.Action OnValuesUpdated = () => { };
