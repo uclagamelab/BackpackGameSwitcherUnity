@@ -151,11 +151,15 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     int _passwordCheckIdx = 0;
     bool _allowPassPress = true;
 
+
+    bool passwordRequired => !string.IsNullOrEmpty(SwitcherSettings.Data._SecurityModePassword);
+    //NOTE: following password checking needs to be in late update,
+    ///for to 'BackgroundKeyboardInput.Instance.keyDownThisFrame'
+    //to work correctly.
     private void LateUpdate()
     {
-        bool enteredPassword = false;
         var password = SwitcherSettings.Data._SecurityModePassword;
-        if (!isOpen && string.IsNullOrEmpty(password) || password.Length == 0)
+        if (isOpen || !passwordRequired)
         {
             return;
         }
@@ -172,7 +176,6 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
                 {
                     //Debug.LogError("YAY");
                     _passwordCheckIdx = 0;
-                    enteredPassword = true;
                     this.showSetup(true);
                 }
             }
@@ -192,9 +195,9 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
 
     void Update()
     {
-        bool allowMenu = !SwitcherSettings.Data._SecurityMode;
+        bool allowMenu = !SwitcherSettings.Data._SecurityMode || !passwordRequired;
         #if UNITY_EDITOR
-        //allowMenu = true;
+        allowMenu = true;
         #endif
 
 
