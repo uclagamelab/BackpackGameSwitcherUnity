@@ -57,7 +57,7 @@ public class PreLaunchGameInfo : MonoBehaviour {
         _canvasGroup.alpha = 0;
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         if (!animating && open && MenuVisualsGeneric.Instance.state == MenuVisualsGeneric.MenuState.ChooseGame)
@@ -65,6 +65,13 @@ public class PreLaunchGameInfo : MonoBehaviour {
             this.AnimateOpen(false);
         }
         _canvasGroup.blocksRaycasts = _canvasGroup.alpha >= 1;
+
+        if (!SwitcherSettings.Data._SecurityMode && CrockoInput.OnRequestExportUIScreenShot())
+        {
+            this._dimmer.enabled = false;
+            CanvasImageSaver.RenderCanvasToPng(this.GetComponentInParent<Canvas>(), MenuVisualsGeneric.Instance.currentlySelectedGame.title + "_" + XuFileUtil.GetDateSuffixForFileName());
+            this._dimmer.enabled = true;
+        }
     }
 
     public bool TakeDirectionInput(int direction)

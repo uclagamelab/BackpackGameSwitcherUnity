@@ -102,6 +102,10 @@ public class CrockoInput : MonoBehaviour
         return ret;
     }
 
+    public static bool OnRequestExportUIScreenShot()
+    {
+        return (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt)) && Input.GetKeyDown(KeyCode.S);
+    }
     public static bool GetAdminMenuKeyComboDown()
     {
         bool ctrlHeld = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
