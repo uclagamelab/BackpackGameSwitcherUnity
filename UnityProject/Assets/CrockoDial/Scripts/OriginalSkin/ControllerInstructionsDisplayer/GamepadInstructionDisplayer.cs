@@ -16,20 +16,11 @@ public class GamepadInstructionDisplayer : MonoBehaviour, IInstructionsDisplayer
             cd.highlightImg = this.container.Find($"highlight/{cName}")?.gameObject;
             cd.indicatorLineImg = this.container.Find($"line/{cName}")?.gameObject;
             cd.text = this.container.Find($"text/{cName}")?.GetComponent<TMPro.TextMeshProUGUI>();
-            dbgList.Add( cd );
+            //dbgList.Add( cd );
             _lookups[cName] = cd;
         }
     }
 
-    [ContextMenu("Fix Names")]
-    void removeGimpPoundSigns()
-    {
-        UnityEditor.Undo.RegisterFullObjectHierarchyUndo(this.gameObject, "Remove '#1' from names");
-        foreach(var t in this.GetComponentsInChildren<Transform>(true))
-        {
-            t.name = t.name.Replace(" #1", "");
-        }
-    }
 
     [ContextMenu("FILL IN TEXT")]
     public void SetUp()
@@ -78,7 +69,7 @@ public class GamepadInstructionDisplayer : MonoBehaviour, IInstructionsDisplayer
         }
     }
 
-    public List<ControlDisplay> dbgList = new();
+    //public List<ControlDisplay> dbgList = new();
 
     [System.Serializable]
     public class ControlDisplay
@@ -147,22 +138,6 @@ public class GamepadInstructionDisplayer : MonoBehaviour, IInstructionsDisplayer
                 this.action = action;
             }
         }
-
-    }
-
-
-    void convertSpriteRendererHierarchyToCanvas()
-    {
-        UnityEditor.Undo.RegisterFullObjectHierarchyUndo(this.gameObject, "Fix");
-        for (int i = 0; i < this.transform.childCount; i++)
-        {
-            var g = this.transform.GetChild(i).gameObject;
-            var sr = g.GetComponent<SpriteRenderer>();
-            var img = g.AddComponent<UnityEngine.UI.Image>();
-            img.sprite = sr.sprite;
-            DestroyImmediate(sr);
-            //t.gameObject.AddComponent<RectTransform>();
-        }
     }
 
     int IInstructionsDisplayer.IsHandlerFor(GameData gameData)
@@ -193,4 +168,34 @@ public class GamepadInstructionDisplayer : MonoBehaviour, IInstructionsDisplayer
         }
         return ok;
     }
+
+#if UNITY_EDITOR
+
+    [ContextMenu("Fix Names")]
+    void removeGimpPoundSigns()
+    {
+        UnityEditor.Undo.RegisterFullObjectHierarchyUndo(this.gameObject, "Remove '#1' from names");
+        foreach (var t in this.GetComponentsInChildren<Transform>(true))
+        {
+            t.name = t.name.Replace(" #1", "");
+        }
+    }
+
+    //this can be used to convert a PSD imported with layers / sprite renderers
+    //into a new hierarchy with ui.images and rect transforms suitable for a canvas
+    [ContextMenu("convertSpriteRendererHierarchyToCanvas")]
+    void convertSpriteRendererHierarchyToCanvas()
+    {
+        UnityEditor.Undo.RegisterFullObjectHierarchyUndo(this.gameObject, "Fix");
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            var g = this.transform.GetChild(i).gameObject;
+            var sr = g.GetComponent<SpriteRenderer>();
+            var img = g.AddComponent<UnityEngine.UI.Image>();
+            img.sprite = sr.sprite;
+            DestroyImmediate(sr);
+            //t.gameObject.AddComponent<RectTransform>();
+        }
+    }
+#endif
 }

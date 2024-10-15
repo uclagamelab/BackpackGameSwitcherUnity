@@ -19,7 +19,7 @@ public class GameInfoUI : MonoBehaviour
     TitleTabFancy _titleTab;
 
     [SerializeField]
-    Text descriptionText;
+    TextMeshProUGUI descriptionText;
 
     [SerializeField]
     RectTransform descriptionColumn;
@@ -29,7 +29,7 @@ public class GameInfoUI : MonoBehaviour
 
     public GameObject tipsHeaderBar;
     [UnityEngine.Serialization.FormerlySerializedAs("instructionsText")]
-    public Text tipsText;
+    public TextMeshProUGUI tipsText;
 
     IInstructionsDisplayer[] _instructionsDisplayers = null;
 
