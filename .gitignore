@@ -59,4 +59,9 @@ UnityProject/Assets/Plugins/crosstales/FileBrowser/Demo.meta
 
 UnityProject/Assets/StreamingAssets/~Special/JoyToKey/JoyToKey.log
 UnityProject/Assets/_ignore/
-UnityProject/Assets/_ignore.meta
+
+#ignore folder metas
+#ignore folder meta step 1 (ignore .meta)
+*.meta
+#ignore folder meta step 2 (don't ignore metas with 2 '.')
+!*.*.meta
