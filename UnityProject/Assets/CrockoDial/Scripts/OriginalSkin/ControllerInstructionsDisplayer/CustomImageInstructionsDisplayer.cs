@@ -14,7 +14,7 @@ public class CustomImageInstructionsDisplayer : MonoBehaviour, IInstructionsDisp
 
     int IInstructionsDisplayer.IsHandlerFor(GameData gameData)
     {
-        return gameData.overrideInstructionsImage != null ? 9999 : -1;
+        return gameData.overrideInstructionsImage != null ? 5 : -1;
     }
 
     bool IInstructionsDisplayer.ShowGame(GameData game)

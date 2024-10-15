@@ -14,6 +14,7 @@ public class GamepadInstructionDisplayer : MonoBehaviour, IInstructionsDisplayer
             cd.name = cName;
             cd.defaultImg = this.container.Find($"default/{cName}")?.gameObject;
             cd.highlightImg = this.container.Find($"highlight/{cName}")?.gameObject;
+            cd.indicatorLineImg = this.container.Find($"line/{cName}")?.gameObject;
             cd.text = this.container.Find($"text/{cName}")?.GetComponent<TMPro.TextMeshProUGUI>();
             dbgList.Add( cd );
             _lookups[cName] = cd;
@@ -166,7 +167,7 @@ public class GamepadInstructionDisplayer : MonoBehaviour, IInstructionsDisplayer
 
     int IInstructionsDisplayer.IsHandlerFor(GameData gameData)
     {
-        if (gameData.displayedControls == GameData.DisplayedControls.xbox)
+        if (gameData.displayedControls == GameData.DisplayedControls.gamepad)
         {
             return 10;
         }

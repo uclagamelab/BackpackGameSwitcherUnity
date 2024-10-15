@@ -162,7 +162,7 @@ public class GameData
     }
     #endregion ------------------------------------------------------------------------------------------
 
-    public enum DisplayedControls {auto = 0 , arcade = 100, xbox = 200, keyboard = 300 }
+    public enum DisplayedControls {auto = 0 , arcade = 100, gamepad = 200, keyboard = 300 }
 
     
     public DisplayedControls displayedControls

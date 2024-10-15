@@ -21,9 +21,11 @@ public class ArcadeControlsDisplay : MonoBehaviour, IInstructionsDisplayer
     {
         int ret = -1;
 
-        if (gameData.displayedControls == GameData.DisplayedControls.auto
-        ||
-            gameData.displayedControls == GameData.DisplayedControls.arcade)
+        if (gameData.displayedControls == GameData.DisplayedControls.auto)
+        {
+            return 1;
+        }
+        else if (gameData.displayedControls == GameData.DisplayedControls.arcade)
         {
             ret = 10;
         }
