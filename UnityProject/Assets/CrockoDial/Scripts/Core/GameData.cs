@@ -198,11 +198,6 @@ public class GameData
         }
     }
 
-    public XboxControlsDesc getXboxControlsDesc(bool createIfMissing = false)
-        => GetControlDesc<XboxControlsDesc>(createIfMissing);
-
-    public KeyboardControlsDesc getKeyboardControlsDes(bool createIfMissing = false)
-        => GetControlDesc<KeyboardControlsDesc>(createIfMissing);
 
     public T GetControlDesc<T>(bool createIfMissing = false) where T : class, new()
     {

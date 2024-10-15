@@ -71,9 +71,8 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
     bool IInstructionsDisplayer.ShowGame(GameData game)
     {
         this.Clear();
-        game.getKeyboardControlsDes(true);
 
-        KeyboardControlsDesc desc = game.getKeyboardControlsDes();
+        KeyboardControlsDesc desc = game.GetControlDesc<KeyboardControlsDesc>(true);
 
         int nItems = desc.leftColumn.Count;
 
@@ -130,8 +129,6 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
             DisplayOnObj(prefab, displayInst, e);
         }
     }
-
-
 
     GameObject getPooledCopy(GameObject prefab) 
     {
