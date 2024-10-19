@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData>
 {
@@ -80,4 +83,13 @@ public class SwitcherPrefData
         public int resolutionHeight = 1080;
         public bool fullScreen = true;
     }
+
+    #if UNITY_EDITOR
+
+    [CustomEditor(typeof(SwitcherSettings))]
+    public class Ed : XUGenericPersistentDataEditor<SwitcherSettings, SwitcherPrefData> 
+    {
+
+    }
+    #endif
 }

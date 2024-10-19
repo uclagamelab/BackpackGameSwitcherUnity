@@ -156,42 +156,8 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     //NOTE: following password checking needs to be in late update,
     ///for to 'BackgroundKeyboardInput.Instance.keyDownThisFrame'
     //to work correctly.
-    private void LateUpdate()
-    {
-        var password = SwitcherSettings.Data._SecurityModePassword;
-        if (isOpen || !passwordRequired)
-        {
-            return;
-        }
 
-        char passChar = password[_passwordCheckIdx];
-        
-        if (Input.anyKeyDown)
-        {
-            if (BackgroundKeyboardInput.Instance.keyDownThisFrame(passChar))
-            {
-                //Debug.Log(passChar + "!");
-                _passwordCheckIdx++;
-                if (_passwordCheckIdx >= password.Length)
-                {
-                    //Debug.LogError("YAY");
-                    _passwordCheckIdx = 0;
-                    this.showSetup(true);
-                }
-            }
-            else
-            {
-                _passwordCheckIdx = 0;
-                passChar = password[0];
-                if (BackgroundKeyboardInput.Instance.keyDownThisFrame(passChar))
-                {
-                    _passwordCheckIdx = 1;
-                }
 
-            }
-        }
-        
-    }
 
     void Update()
     {
@@ -206,6 +172,8 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         {
             this.showSetup(!isOpen);
         }
+
+        checkForSecurityModePassword();
     }
 
     public void restoreDefaults()
@@ -227,5 +195,106 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         resultMessageOutput.text = _auditStringBuilder.ToString();
         Debug.Log(_auditStringBuilder);
     }
+
+    #region Password Related
+    private void checkForSecurityModePassword()
+    {
+        var password = SwitcherSettings.Data._SecurityModePassword;
+        if (isOpen || !passwordRequired)
+        {
+            return;
+        }
+
+        char passChar = password[_passwordCheckIdx];
+
+        if (Input.anyKeyDown)
+        {
+            //Debug.LogError(passChar + "!");
+            if (KeyDownFromChar(passChar, ActionPhase.down))
+            {
+                //Debug.Log(passChar + "!");
+                _passwordCheckIdx++;
+                if (_passwordCheckIdx >= password.Length)
+                {
+                    //Debug.LogError("YAY");
+                    _passwordCheckIdx = 0;
+                    this.showSetup(true);
+                }
+            }
+            //for this to work, would have to store the whole string one entered
+            //else if (Input.GetKeyDown(KeyCode.Delete) || Input.GetKeyDown(KeyCode.Backspace))
+            //{
+            //    _passwordCheckIdx = Mathf.Max(0, _passwordCheckIdx - 1);
+            //}
+            else if (disqualifyingKeyDown())
+            {
+                _passwordCheckIdx = 0;
+                passChar = password[0];
+                if (BackgroundKeyboardInput.Instance.keyDownThisFrame(passChar))
+                {
+                    _passwordCheckIdx = 1;
+                }
+
+            }
+        }
+
+    }
+    public enum ActionPhase { down=1, held=0, up=-1 }
+
+    static readonly KeyCode[] allowedKeys = { KeyCode.LeftShift, KeyCode.RightShift, KeyCode.Delete };
+    public static bool disqualifyingKeyDown()
+    {
+        foreach (var kc in allowedKeys) {
+            if (Input.GetKeyDown(kc)) return false;
+        }
+        return true;
+    }
+
+    public static bool KeyDownFromChar(char c, ActionPhase phase)
+    {
+        bool ret = false;
+
+        //bool isTopRowSymbol = c >= '!' && c <= ')';
+        //bool isNumber = c >= '0' && c <= '9';
+        bool isLowerCaseLetter = c >= 'a' && c <= 'z';
+        bool isUpperCaseLetter = c >= 'A' && c <= 'Z';
+        bool isNumber = c >= '0' && c <= '9';
+        KeyCode keyCode;
+        bool needsShift = false;
+        if (isUpperCaseLetter)
+        {
+            keyCode = (KeyCode) (c + ('a' - 'A'));
+            needsShift = true;
+        }
+        else if (isLowerCaseLetter)
+        {
+            keyCode = (KeyCode)c;
+            needsShift = false;
+        }
+        else
+        {
+            keyCode = (KeyCode)c;
+        }
     
+
+        if (phase == ActionPhase.down)
+        {
+            ret = Input.GetKeyDown(keyCode);
+        }
+        else if (phase == ActionPhase.held)
+        {
+            ret = Input.GetKey(keyCode);
+        }
+        else if (phase == ActionPhase.up)
+        {
+            ret = Input.GetKeyUp(keyCode);
+        }
+
+        bool shiftOK = !needsShift || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        ret &= shiftOK;
+
+        return ret;
+    }
+    #endregion
 }
+

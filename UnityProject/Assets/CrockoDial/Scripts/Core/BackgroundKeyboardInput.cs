@@ -58,9 +58,11 @@ public class BackgroundKeyboardInput : MonoBehaviour {
     public static BackgroundKeyboardInput Instance => _instance;
 
 
-
-    float _secondsSinceLastInput = float.MaxValue;
-    public float secondsSinceLastInput => _secondsSinceLastInput;
+    public float secondsSinceLastInput
+    {
+        get;
+        private set;
+    } = float.MaxValue;
 
     // Polls the given Virtual Keycode to check it's state
     [DllImport("user32.dll")]
@@ -107,7 +109,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
 
     void Update ()
     {
-        _secondsSinceLastInput += Time.deltaTime;
+        secondsSinceLastInput += Time.deltaTime;
 
         bool escapeHeld = GetAsyncKeyState((int) VKeyCode.Escape) != 0;
         if (!escapeHeld)
@@ -122,7 +124,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         //Force attract with Shift-A
         if ((Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && Input.GetKeyDown(KeyCode.A))
         {
-            _secondsSinceLastInput = 60 * 60; //1 hour
+            secondsSinceLastInput = 60 * 60; //1 hour
             _forceAttractCountDown = 0.5f;
         }
 
@@ -134,7 +136,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
         bool forcingAttract = _forceAttractCountDown > 0;
 
 
-        bool gotMouseInput = Mathf.Abs(Input.GetAxis("MouseDeltaX")) > .1f || Mathf.Abs(Input.GetAxis("MouseDeltaY")) > .1f;
+        bool gotMouseInput = false;// Mathf.Abs(Input.GetAxis("MouseDeltaX")) > .1f || Mathf.Abs(Input.GetAxis("MouseDeltaY")) > .1f;
         //OK????
         for (int i = 0; i < MAX_KEY_ID_CHECKED; i++)
         {
@@ -150,7 +152,7 @@ public class BackgroundKeyboardInput : MonoBehaviour {
 
             if ((keyState != 0 || gotMouseInput) && !forcingAttract)
             {
-                _secondsSinceLastInput = 0;
+                secondsSinceLastInput = 0;
                 lastKeyHit = i;
             }
         }
