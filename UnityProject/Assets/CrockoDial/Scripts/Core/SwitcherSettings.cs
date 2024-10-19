@@ -64,7 +64,11 @@ public class SwitcherPrefData
 
     static string ConvertIfExeRelative(string rawPath)
     {
-        if (!Path.IsPathRooted(rawPath))
+        if (string.IsNullOrEmpty(rawPath))
+        {
+            return "";
+        }
+        else if (!Path.IsPathRooted(rawPath))
         {
             return System.IO.Path.Combine(XuFileUtil.RunningAppDirectory, rawPath);//.Substring(2));
         }

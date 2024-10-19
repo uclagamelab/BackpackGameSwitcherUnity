@@ -21,10 +21,8 @@ public class GameCatalog : MonoBehaviour
         get { return allGames; }
     }
 
-    public int gameCount
-    {
-        get { return games.Count; }
-    }
+    public int gameCount => games.CountNullRobust();
+    
 
     public static Callbacks Events = new Callbacks();
 
@@ -47,6 +45,12 @@ public class GameCatalog : MonoBehaviour
     
     public void repopulateCatalog(string gamesFolderPath)
     {
+        if (string.IsNullOrEmpty(gamesFolderPath))
+        {
+            Debug.LogError("No games path specified");
+            return;
+        }
+
         if (allGames == null)
         {
             allGames = new List<GameData>();

@@ -118,7 +118,10 @@ public class MenuVisualsGeneric : MonoBehaviour
 
     public void selectRandomGame()
     {
-        gameIdx = Random.Range(0, GameCatalog.Instance.games.Count);
+        if (GameCatalog.Instance.games != null)
+        {
+            gameIdx = Random.Range(0, GameCatalog.Instance.games.Count);
+        }
     }
 
 

@@ -415,8 +415,9 @@ public class SpeedyListView : MonoBehaviour
     {
         _listGameDatas.Clear();
         int gidx = 0;
-        foreach (GameData gd in GameCatalog.Instance.games)
+        for (int i = 0; i < GameCatalog.Instance.games.CountNullRobust(); i++)
         {
+            GameData gd = GameCatalog.Instance.games[i];
             _listGameDatas.Add(new ListItemGameData(gd, gidx));
             gidx++;
         }

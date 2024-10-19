@@ -33,6 +33,11 @@ public static class Alextensions
         return ret;
     }
 
+    public static int CountNullRobust<T>(this IList<T> l)
+    {
+        return l == null ? 0 : l.Count;
+    }
+
     public static bool indexInRange<T>(this IList<T> l, int foundIdx)
     {
         return foundIdx >= 0 && foundIdx < l.Count;
