@@ -12,7 +12,7 @@ public class CanvasImageSaver
         var mainCam = Camera.main;
         mainCam.enabled = false;
        
-        RenderTexture temp = RenderTexture.GetTemporary(1920, 1080, 0);
+        RenderTexture temp = RenderTexture.GetTemporary(1920*2, 1080*2, 0);
         cam.targetTexture = temp;
         var oMode = c.renderMode;
         c.renderMode = RenderMode.ScreenSpaceCamera;
