@@ -21,7 +21,7 @@ public class KeyboardControlsDesc
 {
     public List<Entry> leftColumn = new List<Entry>()
     { 
-        new Entry(new string[]{"mouse"}, new string[]{"move", "left click action"}),
+        new Entry(new string[]{"mouse"}, new string[]{"move", "left click action", "right click action"}),
         new Entry(new string[]{"arrow_keys"}, new string[]{"arrow key action"}),
     };
     
@@ -183,9 +183,13 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
         {
             find(instance.transform, "action_text_0").GetComponent<TMPro.TextMeshProUGUI>().text = e.actions.GetOrDefault(0, "");
 
-            var clickLAction = e.actions.GetOrDefault(1, "");
-            find(instance.transform, "click_1_line").SetActive(!string.IsNullOrEmpty(clickLAction));
-            find(instance.transform, "action_text_1").GetComponent<TMPro.TextMeshProUGUI>().text = clickLAction;
+            var lClickLAction = e.actions.GetOrDefault(1, "");
+            find(instance.transform, "click_1_line").SetActive(!string.IsNullOrEmpty(lClickLAction));
+            find(instance.transform, "action_text_1").GetComponent<TMPro.TextMeshProUGUI>().text = lClickLAction;
+
+            var rClickLAction = e.actions.GetOrDefault(2, "");
+            find(instance.transform, "click_2_line").SetActive(!string.IsNullOrEmpty(rClickLAction));
+            find(instance.transform, "action_text_2").GetComponent<TMPro.TextMeshProUGUI>().text = rClickLAction;
         }
         else if (prefab == wasdPrefab || prefab == arrowKeysPrefab)
         {
