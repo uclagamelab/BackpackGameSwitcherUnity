@@ -70,7 +70,20 @@ public class GameInfoEditor : MonoBehaviour
         //GameCatalog.Instance.games
         _gamesListItemTemplate.gameObject.SetActive(false);
 
-        foreach (GameData gam in GameCatalog.Instance.games)
+        //TODO: redo this this we repopulating/changing folder
+        rebuildList();
+    }
+
+    void rebuildList()
+    {
+        //foreach (Transform child in _gameListScrollRect.content.transform)
+        //{
+        //    if (child.gameObject != _gamesListItemTemplate)
+        //    {
+        //        Destroy(child.gameObject);
+        //    }
+        //}
+        foreach (GameData gam in GameCatalog.Instance.allGames)
         {
             GameListItem nuItem = GameObject.Instantiate(_gamesListItemTemplate.gameObject).GetComponent<GameListItem>();
             nuItem.game = gam;
@@ -78,7 +91,6 @@ public class GameInfoEditor : MonoBehaviour
             nuItem.text = gam.title;
             nuItem.transform.SetParent(_gameListScrollRect.content, false);
         }
-        
     }
 
     private void OnEnable()

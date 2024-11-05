@@ -14,35 +14,42 @@ using Debug = UnityEngine.Debug;
 
 public class GameCatalog : MonoBehaviour
 {
-    List<GameData> allGames;
 
-    public IList<GameData> games
+    /// <summary>
+    /// A list of all game projects loaded from the games folder, including those filtered out
+    /// by the current control scheme, (eventually playlist etc...)
+    /// </summary>
+    public List<GameData> allGames
     {
-        get { return allGames; }
-    }
+        get; private set;
+    } = new List<GameData>();
 
+    /// <summary>
+    /// A list of the active, available games
+    /// </summary>
+    public List<GameData> games
+    {
+        get;
+        private set;
+    } = new List<GameData>();
     public int gameCount => games.CountNullRobust();
     
 
     public static Callbacks Events = new Callbacks();
 
-    static GameCatalog _instance;
     public static GameCatalog Instance
     {
-        get
-        {
-            return _instance;
-        }
+        get; private set;
     }
 
     private void Awake()
     {
-        _instance = this;
+        Instance = this;
         string cleanPath = SwitcherSettings.Data.GamesFolder;
         cleanPath = cleanPath.Replace('\\', '/');
         repopulateCatalog(cleanPath);
     }
-    
+
     public void repopulateCatalog(string gamesFolderPath)
     {
         if (string.IsNullOrEmpty(gamesFolderPath))
@@ -51,13 +58,13 @@ public class GameCatalog : MonoBehaviour
             return;
         }
 
-        if (allGames == null)
+        if (games == null)
         {
-            allGames = new List<GameData>();
+            games = new List<GameData>();
         }
         else
         {
-            allGames.Clear();
+            games.Clear();
         }
 
         //print("================================================================================");
@@ -92,9 +99,10 @@ public class GameCatalog : MonoBehaviour
                 }
 
                 GameData gameData = new GameData(gameFolderPathString.Replace('\\', '/'));
+                
                 if (gameData.valid)
                 {
-                    allGames.Add(gameData);
+                    games.Add(gameData);
                 }
 
             /*}
@@ -104,7 +112,44 @@ public class GameCatalog : MonoBehaviour
             }*/
         }
 
+        allGames.Clear();
+        allGames.AddRange(games);
+
+        ApplyFilters();
+
         Events.OnRepopulated.Invoke();
+    }
+
+    public void UpdateFilters()
+    {
+        games.Clear();
+        games.AddRange(allGames);
+        ApplyFilters();
+        Events.OnRepopulated.Invoke();
+    }
+    void ApplyFilters()
+    {
+        for (int i = 0; i < games.Count; i++)
+        {
+            var game = games[i];
+            bool filter = gameIsFiltered(game);
+            game.setFiltered(filter);
+            if (filter)
+            {
+                games.RemoveAt(i);
+                i--;
+            }
+        }
+    }
+
+    bool gameIsFiltered(GameData game)
+    {
+        bool filtered = false;
+        if (SwitcherSettings.Data._filterGamesBySupportedControls)
+        {
+            filtered = !game.playabilityInfo.intersects(SwitcherSettings.Data._shownGameTypes);
+        }
+        return filtered;
     }
 
     public class Callbacks

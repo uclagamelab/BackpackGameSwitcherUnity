@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,6 +7,7 @@ using UnityEngine.UI;
 
 public class GameListItem : MonoBehaviour
 {
+    [NonSerialized]
     public GameData game;
 
     [SerializeField]
@@ -13,6 +15,9 @@ public class GameListItem : MonoBehaviour
 
     [SerializeField]
     Text _text;
+
+    [SerializeField]
+    CanvasGroup _canvasGroup;
 
     public string text
     {
@@ -55,10 +60,14 @@ public class GameListItem : MonoBehaviour
     }
 
     
-    // Update is called once per frame
     void Update()
     {
-        bool isSelectedGame = (this.game != null && GameInfoEditor.instance.currentSelectedGame == this.game);
+        if (this.game == null)
+        {
+            return;
+        }
+
+        bool isSelectedGame = (GameInfoEditor.instance.currentSelectedGame == this.game);
         bool shouldBeHighlighted = isSelectedGame || _isHighlighted;
 
         if (shouldBeHighlighted != _highlightImage.enabled)
@@ -74,6 +83,9 @@ public class GameListItem : MonoBehaviour
         }
 
         _wasSelectedGame = isSelectedGame;
+
+        this._canvasGroup.alpha = this.game.isFiltered ? .6f : 1;
+
     }
 
      void onMouseEnter(BaseEventData bed)

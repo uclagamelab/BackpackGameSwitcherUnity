@@ -8,7 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum CrockoInputMode { joystick = 0, trackball=1, mouseAndKeyboard=2 }
+public enum CrockoInputMode { arcadeJoystick_1P = 1, arcadeJoystick_2P = 2, mouseAndKeyboard = 100, gamepad = 200,  trackball =300}
 public class CrockoInput : MonoBehaviour
 {
     public static CrockoInputMode InputMode => SwitcherSettings.Data._controlMode;

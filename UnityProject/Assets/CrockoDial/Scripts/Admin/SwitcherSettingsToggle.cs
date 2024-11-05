@@ -4,16 +4,34 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Reflection;
+using UnityEngine.Events;
 
 public class SwitcherSettingsToggle : MonoBehaviour
 {
     Toggle _tog;
     [SerializeField] public string _propertyName;
+
+    public UnityEvent onToggleOn = new();
+    public UnityEvent onToggleOff = new();
+
     private void Start()
     {
         _tog = this.GetComponent<Toggle>();
         refreshFromSettings();
         _tog.onValueChanged.AddListener(applyToSettings);
+        _tog.onValueChanged.AddListener((togVal) => 
+        {
+            if (togVal) 
+                onToggleOn.Invoke();
+            else 
+                onToggleOff.Invoke();
+        });
+
+        if (_tog.isOn) 
+            onToggleOn.Invoke();
+        else 
+            onToggleOff.Invoke();
+
     }
 
     void refreshFromSettings()

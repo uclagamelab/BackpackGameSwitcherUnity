@@ -3,6 +3,7 @@
 
  */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -31,9 +32,76 @@ public class GameData
     public GameLaunchSettings launchSettings;
 
     [SerializeField] string _displayedControls = "";
+    public GamePlayInfo playabilityInfo = new();
 
     //public ControllerSettings controllerSettings;
     #endregion ---------------------------------------------------------
+
+    //this could be inferred by whether it's in allGames, but not in 'games', but easier if just a bool
+    public bool isFiltered { get; private set; }
+    public void setFiltered(bool value)
+    { 
+        isFiltered = value;
+    }
+
+    [System.Serializable]
+    public class GamePlayInfo
+    {
+        public GamePlayInfo(bool allSupported= false) 
+        {
+            if (allSupported)
+            {
+                foreach(var e in Enumz.AllValues<CrockoInputMode>())
+                {
+                    this.SetIsSupported((CrockoInputMode) e, true);
+                }
+            }
+        }
+
+        public int maxPlayers = 1;
+        [SerializeField] List<string> _supportedControlSchemes = new List<string>();
+        public bool includes(CrockoInputMode controlScheme) =>  tryGetSchemeIdx(controlScheme) >= 0;
+        int tryGetSchemeIdx(CrockoInputMode controlScheme)
+        {
+            int i = -1;
+            foreach (var schemeStr in _supportedControlSchemes)
+            {
+                i++;
+                if (Enum.TryParse<CrockoInputMode>(schemeStr, out var enumVal))
+                {
+                    if (enumVal == controlScheme) return i;
+                }
+            }
+            return -1;
+        }
+
+        public void SetIsSupported(CrockoInputMode controlScheme, bool setSupported)
+        {
+            var idx = tryGetSchemeIdx(controlScheme);
+            bool present = idx >= 0;
+            if (present && !setSupported)
+            {
+                _supportedControlSchemes.RemoveAt(idx);
+            } 
+            else if (!present && setSupported)
+            {
+                _supportedControlSchemes.Add(controlScheme.ToString());
+            }
+        }
+
+        internal bool intersects(GamePlayInfo shownGameTypes)
+        {
+            foreach(var gt1 in this._supportedControlSchemes)
+            {
+                foreach(var gt2 in shownGameTypes._supportedControlSchemes)
+                {
+                    if (gt1 == gt2) return true;
+                }
+            }
+            return false;
+        }
+    }
+
 
     #region --- UNSERIALIZED ------------------------------------------
 

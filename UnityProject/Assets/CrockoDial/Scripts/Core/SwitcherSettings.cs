@@ -15,7 +15,6 @@ public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData
     string settingsFile = "settings.json";
     protected override string fileName => settingsFile;
 
-
     protected override void Awake()
     {
         string overrideFile = XUCommandLineArguments.GetArgValue("-settings");
@@ -47,7 +46,10 @@ public class SwitcherPrefData
     public bool _ShutDownExplorerWhileRunning;
     public bool _EnableRainmeter;
     public string _JoyToKeyMenuConfig = ProcessRunner.DEFAULT_SWITCHER_JOYTOKEY_CONFIG;
-    public CrockoInputMode _controlMode = CrockoInputMode.joystick;
+    public CrockoInputMode _controlMode = CrockoInputMode.arcadeJoystick_1P;
+
+    public bool _filterGamesBySupportedControls = false;
+    public GameData.GamePlayInfo _shownGameTypes = new(true);
     //public DisplaySettings displaySettings;
 
     //Prevents user from quitting with alt-f4, and disables the admin panel
