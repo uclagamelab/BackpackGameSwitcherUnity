@@ -65,7 +65,10 @@ public class SwitcherPrefsSupportedControlTypeDropdown : MonoBehaviour, IGameInf
         }
     }
 
-    GameData.GamePlayInfo serializedControlFilter => this.isForFilterByControlSetting ? SwitcherSettings.Data._shownGameTypes : GameInfoEditor.instance?.currentSelectedGame?.playabilityInfo;
+    GameData.GamePlayInfo serializedControlFilter => this.isForFilterByControlSetting ? 
+        null //SwitcherSettings.Data._shownGameTypes 
+        : 
+        GameInfoEditor.instance?.currentSelectedGame?.playabilityInfo;
 
     UnityAction<bool> MakeOnToggleChangeCallback (Toggle toggle, CrockoInputMode enumSafe) 
     {

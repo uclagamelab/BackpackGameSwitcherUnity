@@ -28,13 +28,7 @@ public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData
         }
 
         base.Awake();
-        Sanitize();
-    }
-
-    void Sanitize()
-    {
-        //Remove invalid/corrupt values from supported types
-        Data._shownGameTypes.Sanitize();
+        //Data._shownGameTypes.Sanitize();;
     }
 }
 
@@ -55,7 +49,7 @@ public class SwitcherPrefData
     public CrockoInputMode _controlMode = CrockoInputMode.arcadeJoystick_1P;
 
     public bool _filterGamesBySupportedControls = false;
-    public GameData.GamePlayInfo _shownGameTypes = new(true);
+    //public GameData.GamePlayInfo _shownGameTypes = new(true);
     //public DisplaySettings displaySettings;
 
     //Prevents user from quitting with alt-f4, and disables the admin panel

@@ -126,26 +126,7 @@ public class GameInfoUI : MonoBehaviour
 
     public static GameData.DisplayedControls GetAppropriateInstructionDisplayType(GameData game)
     {
-        CrockoInputMode envControlType = CrockoInputMode.arcadeJoystick_1P;
-        bool ambiguous = false;
-        if (SwitcherSettings.Data._filterGamesBySupportedControls)
-        {
-            var desiredGameTypes = SwitcherSettings.Data._shownGameTypes;
-            //only one control type specified
-            if (desiredGameTypes.Count == 1)
-            {
-                envControlType = desiredGameTypes[0];
-            }
-            else if (desiredGameTypes.Count == 2 && desiredGameTypes.IsSupported(CrockoInputMode.arcadeJoystick_1P) && desiredGameTypes.IsSupported(CrockoInputMode.arcadeJoystick_2P))
-            {
-                envControlType = CrockoInputMode.arcadeJoystick_1P;
-            }
-            else
-            {
-                ambiguous = true;
-                //??? who knows what do in this case
-            }
-        }
+        CrockoInputMode envControlType = SwitcherSettings.Data._controlMode;
 
         var finalShowType = game.showInstructionsForControlScheme;
         if (game.showInstructionsForControlScheme == GameData.DisplayedControls.auto)
