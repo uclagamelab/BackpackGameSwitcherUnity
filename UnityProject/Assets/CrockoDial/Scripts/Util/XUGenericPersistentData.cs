@@ -107,10 +107,9 @@ public class XUGenericPersistentData<T> : MonoBehaviour where T : new()
 #else
         //adjacent to exe
         System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Application.dataPath), fileName);
-        #endif
+#endif
 
-    static Events _events = new Events();
-    public static Events events => _events;
+    public static event System.Action OnSaveDataUpdated = () => { };
 
     public T data
     {
@@ -184,25 +183,15 @@ public class XUGenericPersistentData<T> : MonoBehaviour where T : new()
         {
             XuFileUtil.WriteText(JsonUtility.ToJson(this._currentSaveData, true), saveDataPath);
         }
-        events.OnSaveDataUpdated.Invoke();
+        OnSaveDataUpdated.Invoke();
     }
 
     public void clearSaveData()
     {
         XuFileUtil.DeleteFile(saveDataPath);
         currentSaveData = new T();
-        events.OnSaveDataUpdated.Invoke();
+        OnSaveDataUpdated.Invoke();
     }
-
-
-    public class Events
-    {
-        public System.Action OnSaveDataUpdated = () => { };
-    }
-
-
-
-
 }
 
 #if UNITY_EDITOR

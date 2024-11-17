@@ -48,6 +48,7 @@ public class GameCatalog : MonoBehaviour
         string cleanPath = SwitcherSettings.Data.GamesFolder;
         cleanPath = cleanPath.Replace('\\', '/');
         repopulateCatalogFromDisk(cleanPath);
+        SwitcherSettings.OnSaveDataUpdated += this.UpdateFilters;
     }
 
     public void repopulateCatalogFromDisk(string gamesFolderPath)
@@ -132,7 +133,9 @@ public class GameCatalog : MonoBehaviour
         bool filtered = false;
         if (SwitcherSettings.Data._filterGamesBySupportedControls)
         {
-            filtered = !game.playabilityInfo.intersects(SwitcherSettings.Data._shownGameTypes);
+            filtered = 
+                //!game.playabilityInfo.intersects(SwitcherSettings.Data._shownGameTypes);
+                !game.playabilityInfo.IsSupported(SwitcherSettings.Data._controlMode);
         }
         return filtered;
     }
