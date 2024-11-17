@@ -5,21 +5,22 @@ using UnityEngine.UI;
 
 public class CustomImageInstructionsDisplayer : MonoBehaviour, IInstructionsDisplayer
 {
-    RawImage _overrideIntructionsImageImage;
+    RawImage _overrideIntructionsRawImage;
 
     void Awake()
     {
-        _overrideIntructionsImageImage = GetComponent<RawImage>();
+        _overrideIntructionsRawImage = GetComponent<RawImage>();
     }
 
-    int IInstructionsDisplayer.IsHandlerFor(GameData gameData)
+    int IInstructionsDisplayer.IsHandlerFor(GameData gameData, GameData.DisplayedControls controls)
     {
-        return gameData.overrideInstructionsImage != null ? 5 : -1;
+        //TODO: preferentially take an explicitly specified overrride instruction image?
+        return controls != GameData.DisplayedControls.none && gameData.genericOverrideInstructionImage != null ? 5 : -1;
     }
 
     bool IInstructionsDisplayer.ShowGame(GameData game)
     {
-        _overrideIntructionsImageImage.texture = game.overrideInstructionsImage;
-        return game.overrideInstructionsImage;
+        _overrideIntructionsRawImage.texture = game.genericOverrideInstructionImage;
+        return game.genericOverrideInstructionImage;
     }
 }

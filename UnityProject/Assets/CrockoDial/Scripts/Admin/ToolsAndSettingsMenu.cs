@@ -41,6 +41,9 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     [SerializeField]
     Button _quitButton;
 
+    [SerializeField]
+    FileSelectorButton _gamesDirectoryFileSelector;
+
     void Awake ()
     {
         _I = this;
@@ -60,6 +63,13 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
         _quitButton.onClick.AddListener(()=> Application.Quit());
 
         resultMessageOutput = resultMessage.GetComponent<InputField>();
+
+        //TODO: this feels a little gross, repopulating the catalog should be better encapsulated?
+        //there should be something more automatic determining that the games path has been changed???
+        _gamesDirectoryFileSelector.OnValidPathChosen += (newPath) => 
+        {
+            GameCatalog.Instance.repopulateCatalogFromDisk(newPath);
+        };
 
     }
 
@@ -143,8 +153,9 @@ public class ToolsAndSettingsMenu : MonoBehaviour {
     {
         SwitcherSettings.ApplyChanges();
 
+        //repopulating should only happen if the games directories change (?)
         //Apply the settings
-        GameCatalog.Instance.repopulateCatalog(SwitcherSettings.Data.GamesFolder);
+        //GameCatalog.Instance.repopulateCatalogFromDisk(SwitcherSettings.Data.GamesFolder);
     }
 
 

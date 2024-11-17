@@ -1,28 +1,28 @@
 ﻿EXTRA PRESSING:
-Make switcher get background input of gamepad, so it doesn't depend on joytokey? (background gamepad maybe not possible??)
+* Make switcher get background input of gamepad, so it doesn't depend on joytokey? (background gamepad maybe not possible??)
 Periodically re-apply menu profile in joytokey, in case something went wrong in switching back.
+
+* reimpliment "vanilla" PC controls done for Kit:
+	cc0641aa8c221b717898ec4504d95250e6b8fbba
+
+* Make it easier to hide instructions for a game and just show description etc...d
 
 alternative way of managing controller remapping (akin to startup settings?)
 - JoyToKey 
 - AntiMicro
-- None
+- None (roll our own?????)
 
 Testing todo:
-"attract mode", auto cycling
-
 -figure out lighttpd/local server?
 -re-update elsie's game
 -get DMA web credentials/download dma hosted webgl games.
 -Ask Ivy(?)/Ansleigh(?) for their games
 -Add tags (text file, separated by newlines? json???)
 
-
 TODO:
 pressing:
 * if app takes too long to start, switcher gives up, but app launches shortly after (how to detect? wait longer, respect quit button if switcher doesn't have focu)
-* get rid of references to Time.time, Time.unscaledTime etc...
 * Extract anything reusable from 'SwitcherApplicationController'
-* Sounds for scrolling list?
 * Improve determination of whether a game is running or not, less dependent on process null/hasExited 
  - once launched say running, and only say has exited if window appears then disappears, or quit keycombo, but not before.
  - relevant line to fix is "if (_lastActionWasQuit)" in SwitcherApplicationController
@@ -31,8 +31,6 @@ less important:
 * Make whole thing more joy to key agnostic (part of companion process?)
 * Put JoyToKey in companion software (maybe a bad idea?)
 	- hard to edit existing profiles
-* Clean up the settings menu
-* Ditch the command line arguments, and make changeable via settings menu (?)
 * finish making work with restart on crash
 * take another pass at the documentation
 * Replace builtin mouse recorder with autoit version (would allow for long clicks, maybe other stuff)
@@ -40,7 +38,6 @@ less important:
 https://www.autoitscript.com/forum/topic/106233-hide-the-mouse-cursor/
 * package joytokey profiles in game directories, and copy to joytokey directory
 * upload companion software somewhere? just add to git?
-* try to make a new skin, refactoring as necessary
 * autodetect window name
 
 Refactor thoughts
@@ -52,19 +49,10 @@ Refactor thoughts
 	Event if game quits of its own accord
 	Quit the current running game
 
-**Also to separate
-	Starting of JoyToKey
-	Fullscreen img/video displayer
-	background input module
-	music module (probably this part wouldn't change for most visuals)
-
 Assuming ctrl-k settings menu remains the same
 	Separate options not pertinent to other skins(?)
 
 BUGS
-* If no valid folder, need to completely restart after setting a good one
-* Needing to restart when you change folders, other settings?
-* Bugs with applying changes.  (particulary with notes / instructions)
 
 GAME ISSUES:
 * Games that won't run full screen, don't have 1080p resolution (which ones?)

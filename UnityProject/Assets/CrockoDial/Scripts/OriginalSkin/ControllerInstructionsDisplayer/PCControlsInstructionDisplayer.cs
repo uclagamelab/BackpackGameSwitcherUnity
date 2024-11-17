@@ -58,14 +58,9 @@ public class PCControlsInstructionDisplayer : MonoBehaviour, IInstructionsDispla
 
     Dictionary<GameObject, List<GameObject>> _prefabPool = new();
 
-    void Awake()
+    int IInstructionsDisplayer.IsHandlerFor(GameData gameData, GameData.DisplayedControls controls)
     {
-
-    }
-
-    int IInstructionsDisplayer.IsHandlerFor(GameData gameData)
-    {
-        return gameData.displayedControls == GameData.DisplayedControls.keyboard ? 100 : -1;
+        return controls == GameData.DisplayedControls.mouseAndKeyboard ? 1 : -1;
     }
 
     bool IInstructionsDisplayer.ShowGame(GameData game)

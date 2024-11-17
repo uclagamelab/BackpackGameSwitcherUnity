@@ -47,10 +47,10 @@ public class GameCatalog : MonoBehaviour
         Instance = this;
         string cleanPath = SwitcherSettings.Data.GamesFolder;
         cleanPath = cleanPath.Replace('\\', '/');
-        repopulateCatalog(cleanPath);
+        repopulateCatalogFromDisk(cleanPath);
     }
 
-    public void repopulateCatalog(string gamesFolderPath)
+    public void repopulateCatalogFromDisk(string gamesFolderPath)
     {
         if (string.IsNullOrEmpty(gamesFolderPath))
         {
@@ -58,14 +58,10 @@ public class GameCatalog : MonoBehaviour
             return;
         }
 
-        if (games == null)
-        {
-            games = new List<GameData>();
-        }
-        else
-        {
-            games.Clear();
-        }
+
+        allGames.Clear();
+        games.Clear();
+        
 
         //print("================================================================================");
 
@@ -88,32 +84,20 @@ public class GameCatalog : MonoBehaviour
         foreach (string gameFolderPathString in gameFolders)
         {
             
-
-            /*try
-            {*/
-                bool shouldSkip = new FileInfo(gameFolderPathString).Name.StartsWith("~");
-                if (shouldSkip)
-                {
-                    //Debug.Log("Starts with '~', so IGNORING : " + gameFolderPathString);
-                    continue;
-                }
-
-                GameData gameData = new GameData(gameFolderPathString.Replace('\\', '/'));
-                
-                if (gameData.valid)
-                {
-                    games.Add(gameData);
-                }
-
-            /*}
-            catch (System.Exception e)
+            bool shouldSkip = new FileInfo(gameFolderPathString).Name.StartsWith("~");
+            if (shouldSkip)
             {
-                Debug.LogError("Problem loading game at : '" + gameFolderPathString + "'\n\t reason: " + e);
-            }*/
-        }
+                //Debug.Log("Starts with '~', so IGNORING : " + gameFolderPathString);
+                continue;
+            }
 
-        allGames.Clear();
-        allGames.AddRange(games);
+            GameData gameData = new GameData(gameFolderPathString.Replace('\\', '/'));
+                
+            if (gameData.valid)
+            {
+                allGames.Add(gameData);
+            }
+        }
 
         ApplyFilters();
 
@@ -122,18 +106,19 @@ public class GameCatalog : MonoBehaviour
 
     public void UpdateFilters()
     {
-        games.Clear();
-        games.AddRange(allGames);
         ApplyFilters();
         Events.OnRepopulated.Invoke();
     }
+
     void ApplyFilters()
     {
+        games.Clear();
+        games.AddRange(allGames);
         for (int i = 0; i < games.Count; i++)
         {
             var game = games[i];
             bool filter = gameIsFiltered(game);
-            game.setFiltered(filter);
+
             if (filter)
             {
                 games.RemoveAt(i);

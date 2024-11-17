@@ -77,10 +77,7 @@ public class SwitcherPrefsSupportedControlTypeDropdown : MonoBehaviour, IGameInf
                 serializedControlFilter.SetIsSupported(enumSafe, toggle.isOn);
             }
 
-            //if (this.isForFilterByControlSetting)
-            //{
-                GameCatalog.Instance.UpdateFilters();
-            //}
+            GameCatalog.Instance.UpdateFilters();
         };
     }
 
@@ -100,7 +97,7 @@ public class SwitcherPrefsSupportedControlTypeDropdown : MonoBehaviour, IGameInf
         foreach (CrockoInputMode enumVal in Enumz.AllValues<CrockoInputMode>())
         {
             i++;
-            _toggles[i].isOn = src.includes(enumVal);
+            _toggles[i].isOn = src.IsSupported(enumVal);
 
         }
     }

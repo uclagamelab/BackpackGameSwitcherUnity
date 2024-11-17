@@ -31,61 +31,62 @@ public class GameData
 
     public GameLaunchSettings launchSettings;
 
-    [SerializeField] string _displayedControls = "";
+    [SerializeField] DisplayedControls _showInstructionsForControlScheme = DisplayedControls.auto;
     public GamePlayInfo playabilityInfo = new();
 
     //public ControllerSettings controllerSettings;
     #endregion ---------------------------------------------------------
 
-    //this could be inferred by whether it's in allGames, but not in 'games', but easier if just a bool
-    public bool isFiltered { get; private set; }
-    public void setFiltered(bool value)
-    { 
-        isFiltered = value;
+    //this could be inferred by whether it's in allGames, but not in 'games', but mayber easier if just a cached bool?
+    public bool isFilteredOut
+    {
+        get => !GameCatalog.Instance.games.Contains(this);
     }
+
 
     [System.Serializable]
     public class GamePlayInfo
     {
-        public GamePlayInfo(bool allSupported= false) 
+        public GamePlayInfo(bool allSupported = false)
         {
             if (allSupported)
             {
-                foreach(var e in Enumz.AllValues<CrockoInputMode>())
+                foreach (var e in Enumz.AllValues<CrockoInputMode>())
                 {
-                    this.SetIsSupported((CrockoInputMode) e, true);
+                    this.SetIsSupported((CrockoInputMode)e, true);
                 }
             }
         }
+
+        public  CrockoInputMode this[int key]
+        {
+            get => _supportedControlSchemes[key];
+        }
+
+        public int Count => _supportedControlSchemes.Count;
 
         public int maxPlayers = 1;
-        [SerializeField] List<string> _supportedControlSchemes = new List<string>();
-        public bool includes(CrockoInputMode controlScheme) =>  tryGetSchemeIdx(controlScheme) >= 0;
-        int tryGetSchemeIdx(CrockoInputMode controlScheme)
-        {
-            int i = -1;
-            foreach (var schemeStr in _supportedControlSchemes)
-            {
-                i++;
-                if (Enum.TryParse<CrockoInputMode>(schemeStr, out var enumVal))
-                {
-                    if (enumVal == controlScheme) return i;
-                }
-            }
-            return -1;
-        }
-
+        [SerializeField] List<CrockoInputMode> _supportedControlSchemes = new();
+        public bool IsSupported(CrockoInputMode controlScheme)
+            => _supportedControlSchemes.Contains(controlScheme);
+        
         public void SetIsSupported(CrockoInputMode controlScheme, bool setSupported)
         {
-            var idx = tryGetSchemeIdx(controlScheme);
-            bool present = idx >= 0;
-            if (present && !setSupported)
+            bool changed = false;
+            if (!setSupported)
             {
-                _supportedControlSchemes.RemoveAt(idx);
+                changed = true;
+                _supportedControlSchemes.RemoveAll((el) => el == controlScheme);
             } 
-            else if (!present && setSupported)
+            else if (setSupported && !_supportedControlSchemes.Contains(controlScheme))
             {
-                _supportedControlSchemes.Add(controlScheme.ToString());
+                changed = true;
+                _supportedControlSchemes.Add(controlScheme);
+            }
+
+            if (changed)
+            {
+                _supportedControlSchemes.Sort();
             }
         }
 
@@ -93,12 +94,24 @@ public class GameData
         {
             foreach(var gt1 in this._supportedControlSchemes)
             {
-                foreach(var gt2 in shownGameTypes._supportedControlSchemes)
+                foreach (var gt2 in shownGameTypes._supportedControlSchemes)
                 {
+                    var haveInvalidEnum = !Enum.IsDefined(typeof(CrockoInputMode), gt1) || !Enum.IsDefined(typeof(CrockoInputMode), gt2);
+                    if (haveInvalidEnum)
+                    {
+                        continue;
+                    }
+
                     if (gt1 == gt2) return true;
                 }
             }
             return false;
+        }
+
+        public void Sanitize()
+        {
+            //shouldn't generally be a problem, but list can have invalid values in it...
+            _supportedControlSchemes.RemoveAll((el) => !Enum.IsDefined(typeof(CrockoInputMode), el));
         }
     }
 
@@ -130,7 +143,7 @@ public class GameData
     public string executable;
 
     [System.NonSerialized]
-    public Texture2D overrideInstructionsImage = null;
+    public Texture2D genericOverrideInstructionImage = null;
     [System.NonSerialized]
     public Texture previewImg;
     #endregion -----------------------------------------------
@@ -222,35 +235,21 @@ public class GameData
         }
         this.previewVideoHasAudio = !string.IsNullOrEmpty(videoUrl) && !System.IO.Path.GetFileNameWithoutExtension(videoUrl).EndsWith("[NO_AUDIO]", System.StringComparison.InvariantCultureIgnoreCase);
         
-
-
         setUpInstructionsOverlay(_gameFolder);
 
         this.launchSettings.SetUpWithGame(this);
+
+        this.playabilityInfo.Sanitize();
     }
     #endregion ------------------------------------------------------------------------------------------
 
-    public enum DisplayedControls {auto = 0 , none = 50, arcade = 100, gamepad = 200, keyboard = 300 }
+    public enum DisplayedControls {auto = 0 , none = 50, arcade = 100, gamepad = 200, mouseAndKeyboard = 300 }
 
     
-    public DisplayedControls displayedControls
+    public DisplayedControls showInstructionsForControlScheme
     {
-        get
-        {
-            DisplayedControls ret;
-            if (!System.Enum.TryParse(_displayedControls, out ret))
-            {
-                ret = DisplayedControls.auto;
-            }
-            return ret;
-        }
-
-        //Garbage alert!
-        set
-        {
-            var enumName = System.Enum.GetName(typeof(DisplayedControls), value);
-            _displayedControls = enumName;
-        }
+        get => _showInstructionsForControlScheme;
+        set => _showInstructionsForControlScheme = value;
     }
 
     [System.Serializable]
@@ -429,81 +428,41 @@ public class GameData
             {
                string ovlUrl = imgsInDirectory[0];
 
-                this.overrideInstructionsImage = null;
+                this.genericOverrideInstructionImage = null;
                 using (UnityWebRequest instOvlWww = UnityWebRequestTexture.GetTexture(ovlUrl))
                 {
                     yield return instOvlWww.SendWebRequest();
 
-                    this.overrideInstructionsImage = DownloadHandlerTexture.GetContent(instOvlWww);
+                    this.genericOverrideInstructionImage = DownloadHandlerTexture.GetContent(instOvlWww);
                 }
             }
-
-
-
         }
-
     }
 
-    //void setUpExe_LEGACY(DirectoryInfo gameFolder)
-    //{
-    //    string platform = "windows";
+    #region Custom Control Images
+    void cacheCustomControlImagePaths()
+    {
+        //Enumz<CrockoInputMode>
+    }
 
-    //    string exeFolder = gameFolder.FullName + "/" + platform;
+    class CustomInstructionImage
+    {
+        public DisplayedControls controlType;
+        string path;
+    }
+    CustomInstructionImage[] _customInstructionImages = null;
 
-    //    //try to find a .lnk
-    //    bool exeFolderExists = Directory.Exists(exeFolder);
-    //    if (!exeFolderExists)
-    //    {
-    //        return;
-    //    }
+    public bool hasCustomInstructionImage(GameData.DisplayedControls controlType)
+    {
+        return false;
+    }
 
-    //    string[] shortcutsInGameDirectory = Directory.GetFiles(exeFolder, "*.lnk");
-    //    string[] batchFilesInGameDirectory = Directory.GetFiles(exeFolder, "*.bat");
+    public Texture2D GetCustomInstructionImage(GameData.DisplayedControls controlType)
+    {
+        return null;
+    }
+    #endregion
 
-    //    if (batchFilesInGameDirectory.Length == 1)
-    //    {
-    //        this.executable = batchFilesInGameDirectory[0];
-    //    }
-    //    else if (shortcutsInGameDirectory.Length == 1) //use a shortcut
-    //    {
-    //        //TODO : need to think of something smarter... 
-    //        //optionally specify start file???
-    //        this.executable = shortcutsInGameDirectory[0];
-
-    //        //verify existence of link...
-
-
-
-
-    //    }
-    //    else //try to find an exe...
-    //    {
-    //        //string[] subdirectories = Directory.GetDirectories(gameFolder.FullName);
-    //        string[] exeFolderContents = Directory.GetFiles(exeFolder, "*.exe");
-
-    //        if (exeFolderContents.Length == 0)
-    //        {
-    //            Debug.Log("couldn't find an exe");
-    //            this.executable = "";
-    //        }
-    //        else if (exeFolderContents.Length > 1)
-    //        {
-    //            string outString = "Multiple exes in the folder, don't know which one to use!";
-    //            foreach (string s in exeFolderContents)
-    //            {
-    //                outString += '\n' + s;
-    //            }
-    //            Debug.Log(outString);
-    //        }
-    //        else //just 1
-    //        {
-    //            this.executable = exeFolderContents[0];
-    //        }
-    //    }
-
-
-
-    //}
 
     void setUpImages(DirectoryInfo gameFolder)
     {

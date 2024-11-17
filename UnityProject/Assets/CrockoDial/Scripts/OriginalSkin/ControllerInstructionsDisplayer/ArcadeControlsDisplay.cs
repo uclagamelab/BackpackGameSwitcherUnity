@@ -7,7 +7,7 @@ using ButtonGUIRefs = GameInfoUI.ButtonGUIRefs;
 public interface IInstructionsDisplayer
 {
     GameObject gameObject { get; }
-    int IsHandlerFor(GameData gameData);
+    int IsHandlerFor(GameData gameData, GameData.DisplayedControls controls);
     bool ShowGame(GameData game);
 }
 
@@ -17,20 +17,17 @@ public class ArcadeControlsDisplay : MonoBehaviour, IInstructionsDisplayer
     public Image joystickFill;
     public Text joystickLabel;
 
-    public int IsHandlerFor(GameData gameData)
+    public int IsHandlerFor(GameData gameData, GameData.DisplayedControls controls)
     {
-        int ret = -1;
 
-        if (gameData.displayedControls == GameData.DisplayedControls.auto)
+        if (controls == GameData.DisplayedControls.arcade)
         {
             return 1;
         }
-        else if (gameData.displayedControls == GameData.DisplayedControls.arcade)
+        else
         {
-            ret = 10;
+            return -1;
         }
-
-        return ret;
     }
 
     public bool ShowGame(GameData game)

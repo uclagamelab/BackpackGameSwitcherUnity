@@ -33,6 +33,7 @@ public class GameInfoUI : MonoBehaviour
 
     IInstructionsDisplayer[] _instructionsDisplayers = null;
 
+
     [System.Serializable]
     public struct ButtonGUIRefs
     {
@@ -77,17 +78,8 @@ public class GameInfoUI : MonoBehaviour
             this.tipsText.enabled = tipsTextOn;
             tipsHeaderBar.SetActive(tipsTextOn);
 
-            IInstructionsDisplayer bestHandler  = null;
-            int bestHandlerPriority = -1;
-            foreach (var handler in _instructionsDisplayers)
-            {
-                int priority = handler.IsHandlerFor(_cachedCurrentGameData);
-                if (priority > 0 && priority > bestHandlerPriority)
-                {
-                    bestHandler = handler;
-                    bestHandlerPriority = priority;
-                }
-            }
+            IInstructionsDisplayer bestHandler = GetDisplayerForGame(game);
+
 
             foreach (var handler in _instructionsDisplayers)
             {
@@ -104,6 +96,70 @@ public class GameInfoUI : MonoBehaviour
             this.positionInstructionsColumn(hasControls);
         }
     }
+
+    #region Instruction Displayer Determination
+
+    public IInstructionsDisplayer GetDisplayerForGame(GameData game)
+    {
+        IInstructionsDisplayer bestHandler = null;
+
+        CrockoInputMode envControlType = CrockoInputMode.arcadeJoystick_1P;
+        bool ambiguous = false;
+        if (SwitcherSettings.Data._filterGamesBySupportedControls)
+        {
+            var desiredGameTypes = SwitcherSettings.Data._shownGameTypes;
+            //only one control type specified
+            if (desiredGameTypes.Count == 1)
+            {
+                envControlType = desiredGameTypes[0];
+            }
+            else if (desiredGameTypes.Count == 2 && desiredGameTypes.IsSupported(CrockoInputMode.arcadeJoystick_1P) && desiredGameTypes.IsSupported(CrockoInputMode.arcadeJoystick_2P))
+            {
+                envControlType = CrockoInputMode.arcadeJoystick_1P;
+            }
+            else
+            {
+                ambiguous = true;
+                //??? who knows what do in this case
+            }
+        }
+
+        var finalShowType = game.showInstructionsForControlScheme;
+        if (game.showInstructionsForControlScheme == GameData.DisplayedControls.auto)
+        {
+            if (envControlType == CrockoInputMode.arcadeJoystick_1P || envControlType == CrockoInputMode.arcadeJoystick_2P)
+            {
+                finalShowType = GameData.DisplayedControls.arcade;
+            }
+            else if (envControlType == CrockoInputMode.mouseAndKeyboard)
+            {
+                finalShowType = GameData.DisplayedControls.mouseAndKeyboard;
+            }
+            else if (envControlType == CrockoInputMode.gamepad)
+            {
+                finalShowType = GameData.DisplayedControls.gamepad;
+            }
+        }
+
+
+        int bestHandlerPriority = -1;
+        foreach (var handler in _instructionsDisplayers)
+        {
+            //Need to know:
+            //Can this displayer "satisfy" the environment control type, for a given game
+            int priority = handler.IsHandlerFor(game, finalShowType);
+            if (priority > 0 && priority > bestHandlerPriority)
+            {
+                bestHandler = handler;
+                bestHandlerPriority = priority;
+            }
+        }
+
+        return bestHandler;
+    }
+
+    #endregion
+
 
     //Centers the instruction column and disables the joystick display if the game doesn't have any instructions.
     void positionInstructionsColumn(bool hasControLabels)

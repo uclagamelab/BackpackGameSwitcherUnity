@@ -72,17 +72,21 @@ public class GameInfoEditor : MonoBehaviour
 
         //TODO: redo this this we repopulating/changing folder
         rebuildList();
+
+        GameCatalog.Events.OnRepopulated += rebuildList;
     }
 
     void rebuildList()
     {
-        //foreach (Transform child in _gameListScrollRect.content.transform)
-        //{
-        //    if (child.gameObject != _gamesListItemTemplate)
-        //    {
-        //        Destroy(child.gameObject);
-        //    }
-        //}
+        foreach (Transform child in _gameListScrollRect.content.transform)
+        {
+            if (child.gameObject != _gamesListItemTemplate.gameObject)
+            {
+                Debug.Log(child.name);
+                Destroy(child.gameObject);
+            }
+        }
+
         foreach (GameData gam in GameCatalog.Instance.allGames)
         {
             GameListItem nuItem = GameObject.Instantiate(_gamesListItemTemplate.gameObject).GetComponent<GameListItem>();

@@ -140,11 +140,11 @@ public class GamepadInstructionDisplayer : MonoBehaviour, IInstructionsDisplayer
         }
     }
 
-    int IInstructionsDisplayer.IsHandlerFor(GameData gameData)
+    int IInstructionsDisplayer.IsHandlerFor(GameData gameData, GameData.DisplayedControls controls)
     {
-        if (gameData.displayedControls == GameData.DisplayedControls.gamepad)
+        if (controls == GameData.DisplayedControls.gamepad)
         {
-            return 10;
+            return 1;
         }
         return -1;
     }

@@ -84,7 +84,7 @@ public class GameListItem : MonoBehaviour
 
         _wasSelectedGame = isSelectedGame;
 
-        this._canvasGroup.alpha = this.game.isFiltered ? .6f : 1;
+        this._canvasGroup.alpha = this.game.isFilteredOut ? .6f : 1;
 
     }
 
