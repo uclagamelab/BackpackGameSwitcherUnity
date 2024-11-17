@@ -82,7 +82,6 @@ public class GameInfoEditor : MonoBehaviour
         {
             if (child.gameObject != _gamesListItemTemplate.gameObject)
             {
-                Debug.Log(child.name);
                 Destroy(child.gameObject);
             }
         }
