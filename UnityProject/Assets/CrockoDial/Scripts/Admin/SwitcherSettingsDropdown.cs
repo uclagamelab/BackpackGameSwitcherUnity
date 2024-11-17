@@ -55,12 +55,12 @@ public class SwitcherSettingsDropdown : MonoBehaviour
         }
     }
 
-    void applyToSettings(int newVal)
+    void applyToSettings(int dontCare)
     {
         var dat = SwitcherSettings.Data;
         Type ty = dat.GetType();
         FieldInfo fi = ty.GetField(_propertyName);
-        int newValue = _dropdown.value;
+        int newValue = _enumVals.GetOrDefault(_dropdown.value, _enumVals[0]);
         if (fi == null)
         {
             _dropdown.interactable = false;
