@@ -69,15 +69,29 @@ public class GameCatalog : MonoBehaviour
 
         //string[] files = Directory.GetFiles(Application.streamingAssetsPath + "/games");
 
-        string[] gameFolders;
+        List<string> gameFolders = new();
         if (Directory.Exists(gamesFolderPath))
         {
-            gameFolders = Directory.GetDirectories(gamesFolderPath);
+            var normalDirectories = Directory.GetDirectories(gamesFolderPath);
+            gameFolders.AddRange(normalDirectories);
+            foreach(var shortcut in Directory.GetFiles(gamesFolderPath, "*.lnk"))
+            {
+                try
+                {
+
+                    string expandedPath = WinOsUtil.GetWindowsShortcutFileTarget(shortcut);
+                    if (!string.IsNullOrEmpty(expandedPath) && Directory.Exists(expandedPath))
+                    {
+                        gameFolders.Add(expandedPath);
+                    }
+                }
+                catch (System.Exception e) { Debug.LogException(e); }
+            }
         }
         else
         {
             Debug.LogError("games path '" + gamesFolderPath + "' not found");
-            gameFolders = new string[] { };
+            gameFolders.Clear();
         }
         
 
