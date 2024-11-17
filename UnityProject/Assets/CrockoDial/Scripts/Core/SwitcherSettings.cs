@@ -28,8 +28,14 @@ public class SwitcherSettings : XUGenericPeristentDataSingleton<SwitcherPrefData
         }
 
         base.Awake();
+        Sanitize();
     }
 
+    void Sanitize()
+    {
+        //Remove invalid/corrupt values from supported types
+        Data._shownGameTypes.Sanitize();
+    }
 }
 
 [System.Serializable]

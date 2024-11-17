@@ -24,7 +24,7 @@ public class GameData
     public string windowTitle = null;
 
     public string joyToKeyConfig_singlePlayer = null;
-    
+
     public string exePath;
     public string exePathAbsolute => Path.Combine(this.rootFolder.FullName, this.exePath);
 
@@ -59,7 +59,7 @@ public class GameData
             }
         }
 
-        public  CrockoInputMode this[int key]
+        public CrockoInputMode this[int key]
         {
             get => _supportedControlSchemes[key];
         }
@@ -70,7 +70,7 @@ public class GameData
         [SerializeField] List<CrockoInputMode> _supportedControlSchemes = new();
         public bool IsSupported(CrockoInputMode controlScheme)
             => _supportedControlSchemes.Contains(controlScheme);
-        
+
         public void SetIsSupported(CrockoInputMode controlScheme, bool setSupported)
         {
             bool changed = false;
@@ -78,7 +78,7 @@ public class GameData
             {
                 changed = true;
                 _supportedControlSchemes.RemoveAll((el) => el == controlScheme);
-            } 
+            }
             else if (setSupported && !_supportedControlSchemes.Contains(controlScheme))
             {
                 changed = true;
@@ -93,7 +93,7 @@ public class GameData
 
         internal bool intersects(GamePlayInfo shownGameTypes)
         {
-            foreach(var gt1 in this._supportedControlSchemes)
+            foreach (var gt1 in this._supportedControlSchemes)
             {
                 foreach (var gt2 in shownGameTypes._supportedControlSchemes)
                 {
@@ -245,9 +245,9 @@ public class GameData
     }
     #endregion ------------------------------------------------------------------------------------------
 
-    public enum DisplayedControls {auto = 0 , none = 50, arcade = 100, gamepad = 200, mouseAndKeyboard = 300 }
+    public enum DisplayedControls { auto = 0, none = 50, arcade = 100, gamepad = 200, mouseAndKeyboard = 300 }
 
-    
+
     public DisplayedControls showInstructionsForControlScheme
     {
         get => _showInstructionsForControlScheme;
@@ -275,7 +275,7 @@ public class GameData
         try
         {
             var json = XuFileUtil.ReadText(path);
-         
+
             if (!string.IsNullOrEmpty(json))
             {
                 ret = JsonUtility.FromJson<T>(json);
@@ -283,14 +283,14 @@ public class GameData
             else
             {
                 ret = new T();
-                XuFileUtil.WriteText(JsonUtility.ToJson(ret, true) , path);
+                XuFileUtil.WriteText(JsonUtility.ToJson(ret, true), path);
             }
         }
-        catch (System.Exception e) 
+        catch (System.Exception e)
         {
             Debug.LogException(e);
         }
-        
+
         return ret;
     }
 
@@ -314,7 +314,7 @@ public class GameData
     public string GetInfoJSON()
     {
         bool prettify = true;
-        string rawJson =  !File.Exists(jsonFilePath) ? null : File.ReadAllText(jsonFilePath);
+        string rawJson = !File.Exists(jsonFilePath) ? null : File.ReadAllText(jsonFilePath);
         if (string.IsNullOrEmpty(rawJson))
         {
             rawJson = JsonUtility.ToJson(this, prettify);
@@ -386,15 +386,15 @@ public class GameData
     void autoFindAndAssignAppropriateExe()
     {
         string chosenPath = null;
-        XuFileUtil.ProcessAllFilesRecursive(this._gameFolder.FullName, (path) => 
+        XuFileUtil.ProcessAllFilesRecursive(this._gameFolder.FullName, (path) =>
         {
             if (chosenPath == null)
             {
                 FileInfo fi = new FileInfo(path);
-                bool seeminglyAppropriateExe = fi.Extension == ".exe" 
-                && 
+                bool seeminglyAppropriateExe = fi.Extension == ".exe"
+                &&
                 fi.Name != "UnityCrashHandler64.exe"
-                && 
+                &&
                 !fi.Name.StartsWith("."); //mac drives generate a bunch of duplicate files that start with '.'
 
                 if (seeminglyAppropriateExe)
@@ -424,7 +424,7 @@ public class GameData
             }
             if (imgsInDirectory.Count > 0)
             {
-               string ovlUrl = imgsInDirectory[0];
+                string ovlUrl = imgsInDirectory[0];
 
                 this.genericOverrideInstructionImage = null;
                 yield return GameCatalog.Instance.StartCoroutine(loadImage(ovlUrl, (tex) => this.genericOverrideInstructionImage = tex));
@@ -438,7 +438,9 @@ public class GameData
         {
             yield return instOvlWww.SendWebRequest();
 
-            onComplete.Invoke(DownloadHandlerTexture.GetContent(instOvlWww));
+            var tex = DownloadHandlerTexture.GetContent(instOvlWww);
+
+            onComplete.Invoke(tex);
         }
     }
 
@@ -450,18 +452,20 @@ public class GameData
         //Enumz<CrockoInputMode>
 
         string instructionsFolder = _gameFolder.FullName + "/instructions";
-        
-        if (Directory.Exists(instructionsFolder))
-        foreach (var file in Directory.GetFiles(instructionsFolder))
+
+        if (Directory.Exists(instructionsFolder)) foreach (var file in Directory.GetFiles(instructionsFolder))
         {
-            if (Path.GetExtension(file) == "png")
+            if (Path.GetExtension(file) == ".png")
             {
                 string fname = Path.GetFileNameWithoutExtension(file);
-                foreach(DisplayedControls type in Enumz.AllValues<DisplayedControls>())
+                foreach (DisplayedControls type in Enumz.AllValues<DisplayedControls>())
                 {
+                    if (type == DisplayedControls.none || type == DisplayedControls.auto)
+                        continue;
+
                     if (fname.ToLower().EndsWith(type.ToString().ToLower()))
                     {
-                        tmp.Add(new CustomInstructionImage(type, Path.GetFileName(file)));
+                        tmp.Add(new CustomInstructionImage(type, file));
                     }
                 }
             }
@@ -471,13 +475,15 @@ public class GameData
 
     public bool hasCustomInstructionImage(GameData.DisplayedControls controlType)
     {
-        if (_customInstructionImages != null) 
-        foreach (var el in _customInstructionImages)
-        {
-            if (el.controlType == controlType) return true;
-        }
+        if (_customInstructionImages != null)
+            foreach (var el in _customInstructionImages)
+            {
+                if (el.controlType == controlType) return true;
+            }
         return false;
     }
+
+    public static event System.Action<GameData> OnGameDataImageLoad = (g) => {};
 
     public Texture2D GetCustomInstructionImage(GameData.DisplayedControls controlType)
     {
@@ -485,7 +491,7 @@ public class GameData
         {
             if (el.controlType == controlType)
             {
-                return el.getTexture();
+                return el.getTexture(this);
             }
         }
         return null;
@@ -497,7 +503,7 @@ public class GameData
         string path;
         bool haveLoadedTexture = false;
         Texture2D cachedTexture;
-        public Texture2D getTexture()
+        public Texture2D getTexture(GameData srcGame)
         {
             if (!haveLoadedTexture)
             {
@@ -505,10 +511,11 @@ public class GameData
                 GameCatalog.Instance.StartCoroutine(loadImage(path, (tex) =>
                 {
                     cachedTexture = tex;
-                    Debug.LogError("TODO: Likely need to manually refresh the prelaunch canvas, otherwise custom instruction won't be visible first time around");
+                    OnGameDataImageLoad.Invoke(srcGame);
+                    //Debug.LogError("TODO: Likely need to manually refresh the prelaunch canvas, otherwise custom instruction won't be visible first time around");
                 }
                 ));
-          
+
             }
             return cachedTexture;
         }
