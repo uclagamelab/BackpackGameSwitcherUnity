@@ -103,6 +103,29 @@ public class GameInfoUI : MonoBehaviour
     {
         IInstructionsDisplayer bestHandler = null;
 
+
+
+        var finalShowType = GetAppropriateInstructionDisplayType(game);
+
+
+        int bestHandlerPriority = -1;
+        foreach (var handler in _instructionsDisplayers)
+        {
+            //Need to know:
+            //Can this displayer "satisfy" the environment control type, for a given game
+            int priority = handler.IsHandlerFor(game, finalShowType);
+            if (priority > 0 && priority > bestHandlerPriority)
+            {
+                bestHandler = handler;
+                bestHandlerPriority = priority;
+            }
+        }
+
+        return bestHandler;
+    }
+
+    public static GameData.DisplayedControls GetAppropriateInstructionDisplayType(GameData game)
+    {
         CrockoInputMode envControlType = CrockoInputMode.arcadeJoystick_1P;
         bool ambiguous = false;
         if (SwitcherSettings.Data._filterGamesBySupportedControls)
@@ -140,24 +163,8 @@ public class GameInfoUI : MonoBehaviour
                 finalShowType = GameData.DisplayedControls.gamepad;
             }
         }
-
-
-        int bestHandlerPriority = -1;
-        foreach (var handler in _instructionsDisplayers)
-        {
-            //Need to know:
-            //Can this displayer "satisfy" the environment control type, for a given game
-            int priority = handler.IsHandlerFor(game, finalShowType);
-            if (priority > 0 && priority > bestHandlerPriority)
-            {
-                bestHandler = handler;
-                bestHandlerPriority = priority;
-            }
-        }
-
-        return bestHandler;
+        return finalShowType;
     }
-
     #endregion
 
 

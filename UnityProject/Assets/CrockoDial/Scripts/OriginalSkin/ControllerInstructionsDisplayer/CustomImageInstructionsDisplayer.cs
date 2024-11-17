@@ -15,12 +15,36 @@ public class CustomImageInstructionsDisplayer : MonoBehaviour, IInstructionsDisp
     int IInstructionsDisplayer.IsHandlerFor(GameData gameData, GameData.DisplayedControls controls)
     {
         //TODO: preferentially take an explicitly specified overrride instruction image?
-        return controls != GameData.DisplayedControls.none && gameData.genericOverrideInstructionImage != null ? 5 : -1;
+        if (controls == GameData.DisplayedControls.none)
+        {
+            return -1;
+        }
+        else
+        {
+            if (gameData.hasCustomInstructionImage(controls) || gameData.genericOverrideInstructionImage != null)
+            {
+                return 50;
+            }
+
+            return -1;
+        }
     }
 
     bool IInstructionsDisplayer.ShowGame(GameData game)
     {
-        _overrideIntructionsRawImage.texture = game.genericOverrideInstructionImage;
+        //#2 preference has generic image
+        Texture2D finalTexture = game.genericOverrideInstructionImage;
+        
+        //#1 preference has control specific image
+        //TODO: ugh, need to factor out determination of environment, override etc... for this.
+        GameData.DisplayedControls controlType = GameInfoUI.GetAppropriateInstructionDisplayType(game);
+        
+        if (game.hasCustomInstructionImage(controlType))
+        {
+            finalTexture = game.GetCustomInstructionImage(controlType);
+        }
+
+        _overrideIntructionsRawImage.texture = finalTexture;
         return game.genericOverrideInstructionImage;
     }
 }

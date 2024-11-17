@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -234,8 +235,9 @@ public class GameData
             }
         }
         this.previewVideoHasAudio = !string.IsNullOrEmpty(videoUrl) && !System.IO.Path.GetFileNameWithoutExtension(videoUrl).EndsWith("[NO_AUDIO]", System.StringComparison.InvariantCultureIgnoreCase);
-        
-        setUpInstructionsOverlay(_gameFolder);
+
+        GameCatalog.Instance.StartCoroutine(setUpInstructionsOverlayRoutine(_gameFolder));
+        cacheCustomControlImagePaths();
 
         this.launchSettings.SetUpWithGame(this);
 
@@ -381,10 +383,6 @@ public class GameData
     }
 
 
-    void setUpInstructionsOverlay(DirectoryInfo gameFolder)
-    {
-        GameCatalog.Instance.StartCoroutine(setUpInstructionsOverlayRoutine(gameFolder));
-    }
     void autoFindAndAssignAppropriateExe()
     {
         string chosenPath = null;
@@ -429,38 +427,99 @@ public class GameData
                string ovlUrl = imgsInDirectory[0];
 
                 this.genericOverrideInstructionImage = null;
-                using (UnityWebRequest instOvlWww = UnityWebRequestTexture.GetTexture(ovlUrl))
-                {
-                    yield return instOvlWww.SendWebRequest();
-
-                    this.genericOverrideInstructionImage = DownloadHandlerTexture.GetContent(instOvlWww);
-                }
+                yield return GameCatalog.Instance.StartCoroutine(loadImage(ovlUrl, (tex) => this.genericOverrideInstructionImage = tex));
             }
         }
     }
 
+    static IEnumerator loadImage(string ovlUrl, System.Action<Texture2D> onComplete)
+    {
+        using (UnityWebRequest instOvlWww = UnityWebRequestTexture.GetTexture(ovlUrl))
+        {
+            yield return instOvlWww.SendWebRequest();
+
+            onComplete.Invoke(DownloadHandlerTexture.GetContent(instOvlWww));
+        }
+    }
+
     #region Custom Control Images
+    CustomInstructionImage[] _customInstructionImages = null;
     void cacheCustomControlImagePaths()
     {
+        List<CustomInstructionImage> tmp = new();
         //Enumz<CrockoInputMode>
+
+        string instructionsFolder = _gameFolder.FullName + "/instructions";
+        
+        if (Directory.Exists(instructionsFolder))
+        foreach (var file in Directory.GetFiles(instructionsFolder))
+        {
+            if (Path.GetExtension(file) == "png")
+            {
+                string fname = Path.GetFileNameWithoutExtension(file);
+                foreach(DisplayedControls type in Enumz.AllValues<DisplayedControls>())
+                {
+                    if (fname.ToLower().EndsWith(type.ToString().ToLower()))
+                    {
+                        tmp.Add(new CustomInstructionImage(type, Path.GetFileName(file)));
+                    }
+                }
+            }
+        }
+        _customInstructionImages = tmp.ToArray();
+    }
+
+    public bool hasCustomInstructionImage(GameData.DisplayedControls controlType)
+    {
+        if (_customInstructionImages != null) 
+        foreach (var el in _customInstructionImages)
+        {
+            if (el.controlType == controlType) return true;
+        }
+        return false;
+    }
+
+    public Texture2D GetCustomInstructionImage(GameData.DisplayedControls controlType)
+    {
+        foreach (var el in _customInstructionImages)
+        {
+            if (el.controlType == controlType)
+            {
+                return el.getTexture();
+            }
+        }
+        return null;
     }
 
     class CustomInstructionImage
     {
         public DisplayedControls controlType;
         string path;
+        bool haveLoadedTexture = false;
+        Texture2D cachedTexture;
+        public Texture2D getTexture()
+        {
+            if (!haveLoadedTexture)
+            {
+                haveLoadedTexture = true;
+                GameCatalog.Instance.StartCoroutine(loadImage(path, (tex) =>
+                {
+                    cachedTexture = tex;
+                    Debug.LogError("TODO: Likely need to manually refresh the prelaunch canvas, otherwise custom instruction won't be visible first time around");
+                }
+                ));
+          
+            }
+            return cachedTexture;
+        }
+        public CustomInstructionImage(DisplayedControls controlType, string path)
+        {
+            this.controlType = controlType;
+            this.path = path;
+        }
     }
-    CustomInstructionImage[] _customInstructionImages = null;
 
-    public bool hasCustomInstructionImage(GameData.DisplayedControls controlType)
-    {
-        return false;
-    }
 
-    public Texture2D GetCustomInstructionImage(GameData.DisplayedControls controlType)
-    {
-        return null;
-    }
     #endregion
 
 
