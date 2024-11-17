@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -268,6 +269,30 @@ public static class WinOsUtil
     public const int HWND_BOTTOM = 1;
     public const int HWND_TOPMOST = -1;
     public const int HWND_NOTOPMOST = -2;
+
+
+    #region SHORTCUT PARSING
+    //This was the only reliable solution I could find for getting the target of shortcut
+    public static string GetWindowsShortcutFileTarget(string file)
+    {
+        string ret = "???";
+        var cmd = ($"/C call \"{Application.streamingAssetsPath}/~Special/shortcutJS.bat\" -examine \"{file}\"");
+        Process process = new System.Diagnostics.Process();
+        ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+        startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+        startInfo.FileName = "cmd.exe";
+        startInfo.CreateNoWindow = true;
+        startInfo.Arguments = cmd;
+        startInfo.RedirectStandardOutput = true;
+        startInfo.UseShellExecute = false;
+        process.StartInfo = startInfo;
+        process.Start();
+
+        //process.WaitForExit();
+        ret = process.StandardOutput.ReadToEnd().Trim();
+        return ret;
+    }
+    #endregion
 
 
 }
