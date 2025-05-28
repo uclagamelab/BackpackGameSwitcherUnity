@@ -82,6 +82,10 @@ public class SwitcherPrefData
 
     public string GamesFolder => ConvertIfExeRelative(_GamesFolder);
 
+    public bool smallCollectionMode => smallCollectionNListTabs > 0;
+    public int smallCollectionNListTabs = 4;
+    public bool alwayShowAllTabs = false;
+
     [System.Serializable]
     public class DisplaySettings
     {

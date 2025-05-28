@@ -376,8 +376,8 @@ public class SpeedyListView : MonoBehaviour
 
             //If too few games, only show 1 list item at a time (looks stupid to have 3 games repeating over the list)
             //Also, only show the current selected game list item while in a attract mode (better view of video)
-            float tooFewGamesPenalty =  smallNumberOfGames ? 1 : 0;
-            float fadeOutNonSelectedGamesCoeff = Mathf.Lerp(1, Mathf.InverseLerp(.95f ,.15f, rawDiff),(_attractAmt + tooFewGamesPenalty));
+            float tooFewGamesPenalty = (!SwitcherSettings.Data.smallCollectionMode && smallNumberOfGames) ? 1 : 0;
+            float fadeOutNonSelectedGamesCoeff = SwitcherSettings.Data.alwayShowAllTabs ? 1 : Mathf.Lerp(1, Mathf.InverseLerp(.95f ,.15f, rawDiff),(_attractAmt + tooFewGamesPenalty));
 
             float postSelectedPenalty = Mathf.InverseLerp(1, .1f, rawDiffSigned);
             _listItems[i].alpha = postSelectedPenalty * fadeOutNonSelectedGamesCoeff;
@@ -407,10 +407,18 @@ public class SpeedyListView : MonoBehaviour
                 _listItems[i].initialPosition.withX(Mathf.Pow(Mathf.InverseLerp(0, 1.1f, rawDiff), 2) * -35)
                 //+ Vector3.left * slideOff * 450
                 ;
+            if (smallNumberOfGames && SwitcherSettings.Data.smallCollectionMode)
+            {
+                //float smallNumberHorizontalOffset = Mathf.InverseLerp(SwitcherSettings.Data.smallCollectionNListTabs - 1, SwitcherSettings.Data.smallCollectionNListTabs + 1, rawDiff);
+                float smallNumberHorizontalOffset = Mathf.InverseLerp(1, SwitcherSettings.Data.smallCollectionNListTabs, rawDiff);
+                smallNumberHorizontalOffset = smallNumberHorizontalOffset >= .99f ? 10 : Mathf.Pow(smallNumberHorizontalOffset, 3);
+                _listItems[i].transform.localPosition += new Vector3(-smallNumberHorizontalOffset * smallNumberHorizontalOffsetDist, 0, 0);
+            }
             //+ Mathf.Lerp(0, -800, rawDiff * _attractAmt));
         }
     }
 
+    const float smallNumberHorizontalOffsetDist = 300;
     void OnRepopulated()
     {
         _listGameDatas.Clear();
