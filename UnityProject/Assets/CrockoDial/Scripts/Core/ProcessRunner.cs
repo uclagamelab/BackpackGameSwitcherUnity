@@ -204,32 +204,16 @@ public class ProcessRunner : MonoBehaviour
         else
         {
             _haveKilledExplorer = true;
-            if (IsWindows11)
-            {
-                //I suspect this method is probably fine also for previous versions of windows, may ask tyler to test.
-                var psinfo = new ProcessStartInfo();
-                psinfo.WindowStyle = ProcessWindowStyle.Hidden;
-                psinfo.FileName = "taskkill";
-                psinfo.Arguments = "/f /im explorer.exe";
-                Process.Start(psinfo);
-            }
-            else
-            {
-                string targetExe = "explorer";
-                Process[] processes = Process.GetProcessesByName(targetExe);
-                foreach (Process p in processes)
-                {
-                    bool canCheck = !p.HasExited;
-                    if (canCheck)
-                    {
-                        p.CloseMainWindow();
-                    }
-                }
-            }
+            var psinfo = new ProcessStartInfo();
+            psinfo.WindowStyle = ProcessWindowStyle.Hidden;
+            psinfo.FileName = "taskkill";
+            psinfo.Arguments = "/f /im explorer.exe";
+            Process.Start(psinfo);
         }
     }
 
     public bool IsWindows11 => SystemInfo.operatingSystem.StartsWith("Windows 11");
+    public bool IsWindows10 => SystemInfo.operatingSystem.StartsWith("Windows 10");
 
     public void StartGame(GameData gameToStart)
     {
