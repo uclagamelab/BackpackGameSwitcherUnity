@@ -171,6 +171,11 @@ public class GameInfoUI : MonoBehaviour
 
         internal void UpdateWithGame(GameData gd)
         {
+            if (gd == null)
+            {
+                return;
+            }
+
             _titleText.text = gd.title;
 
             _stringBuilder.Clear();
